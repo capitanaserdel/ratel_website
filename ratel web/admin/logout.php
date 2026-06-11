@@ -1,0 +1,10 @@
+<?php
+session_start();
+unset($_SESSION['coy']);
+unset($_SESSION['admin']);
+unset($_SESSION['ict']);
+unset($_SESSION['care']);
+unset($_SESSION['ict']);
+unset($_SESSION['usergroup']);
+header("location:/");
+?>

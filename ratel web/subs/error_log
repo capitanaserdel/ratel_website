@@ -1,0 +1,323 @@
+[01-Mar-2026 09:14:52 Africa/Lagos] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/payer.php on line 3
+[01-Mar-2026 09:14:52 Africa/Lagos] PHP Deprecated:  str_replace(): Passing null to parameter #3 ($subject) of type array|string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 5
+[01-Mar-2026 09:14:52 Africa/Lagos] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/payer.php on line 6
+[01-Mar-2026 09:14:52 Africa/Lagos] PHP Warning:  Undefined array key "phone" in /home/ratesour/ratelplus.net/subs/payer.php on line 13
+[01-Mar-2026 09:14:52 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 17
+[01-Mar-2026 09:14:52 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 18
+[01-Mar-2026 12:00:27 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function each() in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php:391
+Stack trace:
+#0 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(815): SMTP->Data('Date: Sun, 1 Ma...')
+#1 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(631): PHPMailer->SmtpSend('Date: Sun, 1 Ma...', '<html style="he...')
+#2 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(576): PHPMailer->PostSend()
+#3 /home/ratesour/ratelplus.net/subs/smtp.php(135): PHPMailer->Send()
+#4 /home/ratesour/ratelplus.net/subs/payupdate.php(66): include('/home/ratesour/...')
+#5 {main}
+  thrown in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php on line 391
+[01-Mar-2026 12:30:15 Africa/Lagos] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/payer.php on line 3
+[01-Mar-2026 12:30:15 Africa/Lagos] PHP Deprecated:  str_replace(): Passing null to parameter #3 ($subject) of type array|string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 5
+[01-Mar-2026 12:30:15 Africa/Lagos] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/payer.php on line 6
+[01-Mar-2026 12:30:15 Africa/Lagos] PHP Warning:  Undefined array key "phone" in /home/ratesour/ratelplus.net/subs/payer.php on line 13
+[01-Mar-2026 12:30:15 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 17
+[01-Mar-2026 12:30:15 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 18
+[01-Mar-2026 18:40:14 UTC] PHP Warning:  Undefined variable $email in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 110
+[01-Mar-2026 18:40:14 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 118
+[01-Mar-2026 18:40:14 UTC] PHP Warning:  Undefined variable $phone in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 123
+[01-Mar-2026 18:40:14 UTC] PHP Warning:  Undefined array key "fname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 139
+[01-Mar-2026 18:40:14 UTC] PHP Warning:  Undefined array key "sname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 140
+[01-Mar-2026 18:40:14 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 141
+[01-Mar-2026 18:40:14 UTC] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 142
+[01-Mar-2026 18:40:14 UTC] PHP Warning:  Undefined array key "price" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 143
+[01-Mar-2026 18:40:14 UTC] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 144
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined variable $email in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 110
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 118
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined variable $phone in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 123
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined array key "fname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 139
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined array key "sname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 140
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 141
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 142
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined array key "price" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 143
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 144
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined variable $email in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 110
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 118
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined variable $phone in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 123
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined array key "fname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 139
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined array key "sname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 140
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 141
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 142
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined array key "price" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 143
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 144
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined variable $email in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 110
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 118
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined variable $phone in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 123
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined array key "fname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 139
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined array key "sname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 140
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 141
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 142
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined array key "price" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 143
+[01-Mar-2026 21:19:51 UTC] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 144
+[01-Mar-2026 22:21:15 Africa/Lagos] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/payer.php on line 3
+[01-Mar-2026 22:21:15 Africa/Lagos] PHP Deprecated:  str_replace(): Passing null to parameter #3 ($subject) of type array|string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 5
+[01-Mar-2026 22:21:15 Africa/Lagos] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/payer.php on line 6
+[01-Mar-2026 22:21:15 Africa/Lagos] PHP Warning:  Undefined array key "phone" in /home/ratesour/ratelplus.net/subs/payer.php on line 13
+[01-Mar-2026 22:21:15 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 17
+[01-Mar-2026 22:21:15 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 18
+[01-Mar-2026 22:21:15 Africa/Lagos] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/payer.php on line 3
+[01-Mar-2026 22:21:15 Africa/Lagos] PHP Deprecated:  str_replace(): Passing null to parameter #3 ($subject) of type array|string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 5
+[01-Mar-2026 22:21:15 Africa/Lagos] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/payer.php on line 6
+[01-Mar-2026 22:21:15 Africa/Lagos] PHP Warning:  Undefined array key "phone" in /home/ratesour/ratelplus.net/subs/payer.php on line 13
+[01-Mar-2026 22:21:15 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 17
+[01-Mar-2026 22:21:15 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 18
+[01-Mar-2026 22:21:16 Africa/Lagos] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/payer.php on line 3
+[01-Mar-2026 22:21:16 Africa/Lagos] PHP Deprecated:  str_replace(): Passing null to parameter #3 ($subject) of type array|string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 5
+[01-Mar-2026 22:21:16 Africa/Lagos] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/payer.php on line 6
+[01-Mar-2026 22:21:16 Africa/Lagos] PHP Warning:  Undefined array key "phone" in /home/ratesour/ratelplus.net/subs/payer.php on line 13
+[01-Mar-2026 22:21:16 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 17
+[01-Mar-2026 22:21:16 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 18
+[01-Mar-2026 22:21:16 Africa/Lagos] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/payer.php on line 3
+[01-Mar-2026 22:21:16 Africa/Lagos] PHP Deprecated:  str_replace(): Passing null to parameter #3 ($subject) of type array|string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 5
+[01-Mar-2026 22:21:16 Africa/Lagos] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/payer.php on line 6
+[01-Mar-2026 22:21:16 Africa/Lagos] PHP Warning:  Undefined array key "phone" in /home/ratesour/ratelplus.net/subs/payer.php on line 13
+[01-Mar-2026 22:21:16 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 17
+[01-Mar-2026 22:21:16 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 18
+[01-Mar-2026 22:05:18 UTC] PHP Warning:  Undefined variable $email in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 110
+[01-Mar-2026 22:05:18 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 118
+[01-Mar-2026 22:05:18 UTC] PHP Warning:  Undefined variable $phone in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 123
+[01-Mar-2026 22:05:18 UTC] PHP Warning:  Undefined array key "fname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 139
+[01-Mar-2026 22:05:18 UTC] PHP Warning:  Undefined array key "sname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 140
+[01-Mar-2026 22:05:18 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 141
+[01-Mar-2026 22:05:18 UTC] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 142
+[01-Mar-2026 22:05:18 UTC] PHP Warning:  Undefined array key "price" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 143
+[01-Mar-2026 22:05:18 UTC] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 144
+[02-Mar-2026 10:48:16 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function each() in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php:391
+Stack trace:
+#0 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(815): SMTP->Data('Date: Mon, 2 Ma...')
+#1 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(631): PHPMailer->SmtpSend('Date: Mon, 2 Ma...', '<html style="he...')
+#2 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(576): PHPMailer->PostSend()
+#3 /home/ratesour/ratelplus.net/subs/smtp.php(135): PHPMailer->Send()
+#4 /home/ratesour/ratelplus.net/subs/payupdate.php(66): include('/home/ratesour/...')
+#5 {main}
+  thrown in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php on line 391
+[02-Mar-2026 16:00:13 Africa/Lagos] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/payer.php on line 3
+[02-Mar-2026 16:00:13 Africa/Lagos] PHP Deprecated:  str_replace(): Passing null to parameter #3 ($subject) of type array|string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 5
+[02-Mar-2026 16:00:13 Africa/Lagos] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/payer.php on line 6
+[02-Mar-2026 16:00:13 Africa/Lagos] PHP Warning:  Undefined array key "phone" in /home/ratesour/ratelplus.net/subs/payer.php on line 13
+[02-Mar-2026 16:00:13 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 17
+[02-Mar-2026 16:00:13 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 18
+[02-Mar-2026 18:27:57 Africa/Lagos] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/payer.php on line 3
+[02-Mar-2026 18:27:57 Africa/Lagos] PHP Deprecated:  str_replace(): Passing null to parameter #3 ($subject) of type array|string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 5
+[02-Mar-2026 18:27:57 Africa/Lagos] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/payer.php on line 6
+[02-Mar-2026 18:27:57 Africa/Lagos] PHP Warning:  Undefined array key "phone" in /home/ratesour/ratelplus.net/subs/payer.php on line 13
+[02-Mar-2026 18:27:57 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 17
+[02-Mar-2026 18:27:57 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 18
+[02-Mar-2026 18:29:01 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function each() in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php:391
+Stack trace:
+#0 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(815): SMTP->Data('Date: Mon, 2 Ma...')
+#1 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(631): PHPMailer->SmtpSend('Date: Mon, 2 Ma...', '<html style="he...')
+#2 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(576): PHPMailer->PostSend()
+#3 /home/ratesour/ratelplus.net/subs/smtp.php(135): PHPMailer->Send()
+#4 /home/ratesour/ratelplus.net/subs/payupdate.php(66): include('/home/ratesour/...')
+#5 {main}
+  thrown in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php on line 391
+[02-Mar-2026 19:09:44 UTC] PHP Warning:  Undefined variable $email in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 110
+[02-Mar-2026 19:09:44 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 118
+[02-Mar-2026 19:09:44 UTC] PHP Warning:  Undefined variable $phone in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 123
+[02-Mar-2026 19:09:44 UTC] PHP Warning:  Undefined array key "fname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 139
+[02-Mar-2026 19:09:44 UTC] PHP Warning:  Undefined array key "sname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 140
+[02-Mar-2026 19:09:44 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 141
+[02-Mar-2026 19:09:44 UTC] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 142
+[02-Mar-2026 19:09:44 UTC] PHP Warning:  Undefined array key "price" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 143
+[02-Mar-2026 19:09:44 UTC] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 144
+[02-Mar-2026 21:34:03 Africa/Lagos] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/payer.php on line 3
+[02-Mar-2026 21:34:03 Africa/Lagos] PHP Deprecated:  str_replace(): Passing null to parameter #3 ($subject) of type array|string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 5
+[02-Mar-2026 21:34:03 Africa/Lagos] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/payer.php on line 6
+[02-Mar-2026 21:34:03 Africa/Lagos] PHP Warning:  Undefined array key "phone" in /home/ratesour/ratelplus.net/subs/payer.php on line 13
+[02-Mar-2026 21:34:03 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 17
+[02-Mar-2026 21:34:03 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 18
+[02-Mar-2026 20:34:20 UTC] PHP Warning:  Undefined variable $email in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 110
+[02-Mar-2026 20:34:20 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 118
+[02-Mar-2026 20:34:20 UTC] PHP Warning:  Undefined variable $phone in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 123
+[02-Mar-2026 20:34:20 UTC] PHP Warning:  Undefined array key "fname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 139
+[02-Mar-2026 20:34:20 UTC] PHP Warning:  Undefined array key "sname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 140
+[02-Mar-2026 20:34:20 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 141
+[02-Mar-2026 20:34:20 UTC] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 142
+[02-Mar-2026 20:34:20 UTC] PHP Warning:  Undefined array key "price" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 143
+[02-Mar-2026 20:34:20 UTC] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 144
+[02-Mar-2026 23:19:40 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function each() in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php:391
+Stack trace:
+#0 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(815): SMTP->Data('Date: Mon, 2 Ma...')
+#1 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(631): PHPMailer->SmtpSend('Date: Mon, 2 Ma...', '<html style="he...')
+#2 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(576): PHPMailer->PostSend()
+#3 /home/ratesour/ratelplus.net/subs/smtp.php(135): PHPMailer->Send()
+#4 /home/ratesour/ratelplus.net/subs/payupdate.php(66): include('/home/ratesour/...')
+#5 {main}
+  thrown in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php on line 391
+[03-Mar-2026 11:23:45 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function each() in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php:391
+Stack trace:
+#0 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(815): SMTP->Data('Date: Tue, 3 Ma...')
+#1 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(631): PHPMailer->SmtpSend('Date: Tue, 3 Ma...', '<html style="he...')
+#2 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(576): PHPMailer->PostSend()
+#3 /home/ratesour/ratelplus.net/subs/smtp.php(135): PHPMailer->Send()
+#4 /home/ratesour/ratelplus.net/subs/payupdate.php(66): include('/home/ratesour/...')
+#5 {main}
+  thrown in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php on line 391
+[03-Mar-2026 14:41:26 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function each() in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php:391
+Stack trace:
+#0 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(815): SMTP->Data('Date: Tue, 3 Ma...')
+#1 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(631): PHPMailer->SmtpSend('Date: Tue, 3 Ma...', '<html style="he...')
+#2 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(576): PHPMailer->PostSend()
+#3 /home/ratesour/ratelplus.net/subs/smtp.php(135): PHPMailer->Send()
+#4 /home/ratesour/ratelplus.net/subs/payupdate.php(66): include('/home/ratesour/...')
+#5 {main}
+  thrown in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php on line 391
+[03-Mar-2026 16:26:00 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function each() in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php:391
+Stack trace:
+#0 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(815): SMTP->Data('Date: Tue, 3 Ma...')
+#1 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(631): PHPMailer->SmtpSend('Date: Tue, 3 Ma...', '<html style="he...')
+#2 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(576): PHPMailer->PostSend()
+#3 /home/ratesour/ratelplus.net/subs/smtp.php(135): PHPMailer->Send()
+#4 /home/ratesour/ratelplus.net/subs/payupdate.php(66): include('/home/ratesour/...')
+#5 {main}
+  thrown in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php on line 391
+[03-Mar-2026 16:50:46 Africa/Lagos] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/payer.php on line 3
+[03-Mar-2026 16:50:46 Africa/Lagos] PHP Deprecated:  str_replace(): Passing null to parameter #3 ($subject) of type array|string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 5
+[03-Mar-2026 16:50:46 Africa/Lagos] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/payer.php on line 6
+[03-Mar-2026 16:50:46 Africa/Lagos] PHP Warning:  Undefined array key "phone" in /home/ratesour/ratelplus.net/subs/payer.php on line 13
+[03-Mar-2026 16:50:46 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 17
+[03-Mar-2026 16:50:46 Africa/Lagos] PHP Deprecated:  bin2hex(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ratesour/ratelplus.net/subs/payer.php on line 18
+[03-Mar-2026 15:52:11 UTC] PHP Warning:  Undefined variable $email in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 110
+[03-Mar-2026 15:52:11 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 118
+[03-Mar-2026 15:52:11 UTC] PHP Warning:  Undefined variable $phone in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 123
+[03-Mar-2026 15:52:11 UTC] PHP Warning:  Undefined array key "fname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 139
+[03-Mar-2026 15:52:11 UTC] PHP Warning:  Undefined array key "sname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 140
+[03-Mar-2026 15:52:11 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 141
+[03-Mar-2026 15:52:11 UTC] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 142
+[03-Mar-2026 15:52:11 UTC] PHP Warning:  Undefined array key "price" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 143
+[03-Mar-2026 15:52:11 UTC] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 144
+[03-Mar-2026 15:52:12 UTC] PHP Warning:  Undefined variable $email in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 110
+[03-Mar-2026 15:52:12 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 118
+[03-Mar-2026 15:52:12 UTC] PHP Warning:  Undefined variable $phone in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 123
+[03-Mar-2026 15:52:12 UTC] PHP Warning:  Undefined array key "fname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 139
+[03-Mar-2026 15:52:12 UTC] PHP Warning:  Undefined array key "sname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 140
+[03-Mar-2026 15:52:12 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 141
+[03-Mar-2026 15:52:12 UTC] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 142
+[03-Mar-2026 15:52:12 UTC] PHP Warning:  Undefined array key "price" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 143
+[03-Mar-2026 15:52:12 UTC] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 144
+[03-Mar-2026 15:52:12 UTC] PHP Warning:  Undefined variable $email in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 110
+[03-Mar-2026 15:52:12 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 118
+[03-Mar-2026 15:52:12 UTC] PHP Warning:  Undefined variable $phone in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 123
+[03-Mar-2026 15:52:12 UTC] PHP Warning:  Undefined array key "fname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 139
+[03-Mar-2026 15:52:12 UTC] PHP Warning:  Undefined array key "sname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 140
+[03-Mar-2026 15:52:12 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 141
+[03-Mar-2026 15:52:12 UTC] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 142
+[03-Mar-2026 15:52:12 UTC] PHP Warning:  Undefined array key "price" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 143
+[03-Mar-2026 15:52:12 UTC] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 144
+[03-Mar-2026 17:51:36 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function each() in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php:391
+Stack trace:
+#0 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(815): SMTP->Data('Date: Tue, 3 Ma...')
+#1 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(631): PHPMailer->SmtpSend('Date: Tue, 3 Ma...', '<html style="he...')
+#2 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(576): PHPMailer->PostSend()
+#3 /home/ratesour/ratelplus.net/subs/smtp.php(135): PHPMailer->Send()
+#4 /home/ratesour/ratelplus.net/subs/payupdate.php(66): include('/home/ratesour/...')
+#5 {main}
+  thrown in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php on line 391
+[03-Mar-2026 18:38:17 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function each() in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php:391
+Stack trace:
+#0 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(815): SMTP->Data('Date: Tue, 3 Ma...')
+#1 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(631): PHPMailer->SmtpSend('Date: Tue, 3 Ma...', '<html style="he...')
+#2 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(576): PHPMailer->PostSend()
+#3 /home/ratesour/ratelplus.net/subs/smtp.php(135): PHPMailer->Send()
+#4 /home/ratesour/ratelplus.net/subs/payupdate.php(66): include('/home/ratesour/...')
+#5 {main}
+  thrown in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php on line 391
+[03-Mar-2026 19:54:22 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function each() in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php:391
+Stack trace:
+#0 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(815): SMTP->Data('Date: Tue, 3 Ma...')
+#1 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(631): PHPMailer->SmtpSend('Date: Tue, 3 Ma...', '<html style="he...')
+#2 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(576): PHPMailer->PostSend()
+#3 /home/ratesour/ratelplus.net/subs/smtp.php(135): PHPMailer->Send()
+#4 /home/ratesour/ratelplus.net/subs/payupdate.php(66): include('/home/ratesour/...')
+#5 {main}
+  thrown in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php on line 391
+[03-Mar-2026 19:54:30 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function each() in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php:391
+Stack trace:
+#0 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(815): SMTP->Data('Date: Tue, 3 Ma...')
+#1 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(631): PHPMailer->SmtpSend('Date: Tue, 3 Ma...', '<html style="he...')
+#2 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(576): PHPMailer->PostSend()
+#3 /home/ratesour/ratelplus.net/subs/smtp.php(135): PHPMailer->Send()
+#4 /home/ratesour/ratelplus.net/subs/payupdate.php(66): include('/home/ratesour/...')
+#5 {main}
+  thrown in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php on line 391
+[03-Mar-2026 21:48:42 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function each() in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php:391
+Stack trace:
+#0 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(815): SMTP->Data('Date: Tue, 3 Ma...')
+#1 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(631): PHPMailer->SmtpSend('Date: Tue, 3 Ma...', '<html style="he...')
+#2 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(576): PHPMailer->PostSend()
+#3 /home/ratesour/ratelplus.net/subs/smtp.php(135): PHPMailer->Send()
+#4 /home/ratesour/ratelplus.net/subs/payupdate.php(66): include('/home/ratesour/...')
+#5 {main}
+  thrown in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php on line 391
+[03-Mar-2026 22:01:47 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function each() in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php:391
+Stack trace:
+#0 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(815): SMTP->Data('Date: Tue, 3 Ma...')
+#1 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(631): PHPMailer->SmtpSend('Date: Tue, 3 Ma...', '<html style="he...')
+#2 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(576): PHPMailer->PostSend()
+#3 /home/ratesour/ratelplus.net/subs/smtp.php(135): PHPMailer->Send()
+#4 /home/ratesour/ratelplus.net/subs/payupdate.php(66): include('/home/ratesour/...')
+#5 {main}
+  thrown in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php on line 391
+[03-Mar-2026 22:32:39 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function each() in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php:391
+Stack trace:
+#0 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(815): SMTP->Data('Date: Tue, 3 Ma...')
+#1 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(631): PHPMailer->SmtpSend('Date: Tue, 3 Ma...', '<html style="he...')
+#2 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(576): PHPMailer->PostSend()
+#3 /home/ratesour/ratelplus.net/subs/smtp.php(135): PHPMailer->Send()
+#4 /home/ratesour/ratelplus.net/subs/payupdate.php(66): include('/home/ratesour/...')
+#5 {main}
+  thrown in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php on line 391
+[04-Mar-2026 12:54:47 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function each() in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php:391
+Stack trace:
+#0 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(815): SMTP->Data('Date: Wed, 4 Ma...')
+#1 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(631): PHPMailer->SmtpSend('Date: Wed, 4 Ma...', '<html style="he...')
+#2 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(576): PHPMailer->PostSend()
+#3 /home/ratesour/ratelplus.net/subs/smtp.php(135): PHPMailer->Send()
+#4 /home/ratesour/ratelplus.net/subs/payupdate.php(66): include('/home/ratesour/...')
+#5 {main}
+  thrown in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php on line 391
+[04-Mar-2026 12:20:23 UTC] PHP Warning:  Undefined variable $email in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 110
+[04-Mar-2026 12:20:23 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 118
+[04-Mar-2026 12:20:23 UTC] PHP Warning:  Undefined variable $phone in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 123
+[04-Mar-2026 12:20:23 UTC] PHP Warning:  Undefined array key "fname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 139
+[04-Mar-2026 12:20:23 UTC] PHP Warning:  Undefined array key "sname" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 140
+[04-Mar-2026 12:20:23 UTC] PHP Warning:  Undefined variable $amount in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 141
+[04-Mar-2026 12:20:23 UTC] PHP Warning:  Undefined array key "source" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 142
+[04-Mar-2026 12:20:23 UTC] PHP Warning:  Undefined array key "price" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 143
+[04-Mar-2026 12:20:23 UTC] PHP Warning:  Undefined array key "reference" in /home/ratesour/ratelplus.net/subs/pay_sub.php on line 144
+[04-Mar-2026 15:48:15 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function each() in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php:391
+Stack trace:
+#0 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(815): SMTP->Data('Date: Wed, 4 Ma...')
+#1 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(631): PHPMailer->SmtpSend('Date: Wed, 4 Ma...', '<html style="he...')
+#2 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(576): PHPMailer->PostSend()
+#3 /home/ratesour/ratelplus.net/subs/smtp.php(135): PHPMailer->Send()
+#4 /home/ratesour/ratelplus.net/subs/payupdate.php(66): include('/home/ratesour/...')
+#5 {main}
+  thrown in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php on line 391
+[04-Mar-2026 15:55:33 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function each() in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php:391
+Stack trace:
+#0 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(815): SMTP->Data('Date: Wed, 4 Ma...')
+#1 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(631): PHPMailer->SmtpSend('Date: Wed, 4 Ma...', '<html style="he...')
+#2 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(576): PHPMailer->PostSend()
+#3 /home/ratesour/ratelplus.net/subs/smtp.php(135): PHPMailer->Send()
+#4 /home/ratesour/ratelplus.net/subs/payupdate.php(66): include('/home/ratesour/...')
+#5 {main}
+  thrown in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php on line 391
+[04-Mar-2026 17:46:12 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function each() in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php:391
+Stack trace:
+#0 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(815): SMTP->Data('Date: Wed, 4 Ma...')
+#1 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(631): PHPMailer->SmtpSend('Date: Wed, 4 Ma...', '<html style="he...')
+#2 /home/ratesour/ratelplus.net/forms/phpmailer/class.phpmailer.php(576): PHPMailer->PostSend()
+#3 /home/ratesour/ratelplus.net/subs/smtp.php(135): PHPMailer->Send()
+#4 /home/ratesour/ratelplus.net/subs/payupdate.php(66): include('/home/ratesour/...')
+#5 {main}
+  thrown in /home/ratesour/ratelplus.net/forms/phpmailer/class.smtp.php on line 391
+[08-Apr-2026 21:43:15 Africa/Lagos] PHP Warning:  mysqli_num_rows() expects parameter 1 to be mysqli_result, bool given in /home/ratesour/developers/subs/payer2.php on line 116
+[08-Apr-2026 21:43:15 Africa/Lagos] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/ratesour/developers/subs/payer2.php:76) in /home/ratesour/developers/subs/payer2.php on line 153

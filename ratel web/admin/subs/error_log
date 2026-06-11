@@ -1,0 +1,9 @@
+[01-Apr-2026 14:13:09 Africa/Lagos] PHP Warning:  mysqli_num_rows() expects parameter 1 to be mysqli_result, bool given in /home/ratesour/ratelplus.net/admin/subs/pay_sub_update.php on line 16
+[01-Apr-2026 14:54:57 Africa/Lagos] PHP Warning:  mysqli_num_rows() expects parameter 1 to be mysqli_result, bool given in /home/ratesour/ratelplus.net/admin/subs/pay_sub_update.php on line 16
+[04-Apr-2026 15:03:32 Africa/Lagos] PHP Warning:  mysqli_num_rows() expects parameter 1 to be mysqli_result, bool given in /home/ratesour/ratelplus.net/admin/subs/pay_sub_update.php on line 16
+[04-Apr-2026 20:57:47 Africa/Lagos] PHP Warning:  mysqli_num_rows() expects parameter 1 to be mysqli_result, bool given in /home/ratesour/ratelplus.net/admin/subs/pay_sub_update.php on line 16
+[05-Apr-2026 09:42:47 Africa/Lagos] PHP Warning:  mysqli_num_rows() expects parameter 1 to be mysqli_result, bool given in /home/ratesour/ratelplus.net/admin/subs/pay_sub_update.php on line 16
+[05-Apr-2026 12:12:18 Africa/Lagos] PHP Warning:  mysqli_num_rows() expects parameter 1 to be mysqli_result, bool given in /home/ratesour/ratelplus.net/admin/subs/pay_sub_update.php on line 16
+[05-Apr-2026 13:50:54 Africa/Lagos] PHP Warning:  mysqli_num_rows() expects parameter 1 to be mysqli_result, bool given in /home/ratesour/ratelplus.net/admin/subs/pay_sub_update.php on line 16
+[06-Apr-2026 18:08:35 Africa/Lagos] PHP Warning:  mysqli_num_rows() expects parameter 1 to be mysqli_result, bool given in /home/ratesour/ratelplus.net/admin/subs/pay_sub_update.php on line 16
+[06-Apr-2026 21:54:50 Africa/Lagos] PHP Warning:  mysqli_num_rows() expects parameter 1 to be mysqli_result, bool given in /home/ratesour/ratelplus.net/admin/subs/pay_sub_update.php on line 16
