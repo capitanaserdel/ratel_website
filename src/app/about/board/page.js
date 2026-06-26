@@ -83,7 +83,7 @@ export default function BoardStructure() {
                   
                   <div className="glass-panel" style={{ padding: '16px 20px', textAlign: 'center', flex: '1 1 200px' }}>
                     <h4 style={{ fontSize: '14px', margin: 0, color: 'var(--text-main)' }}>Regulatory & Compliance</h4>
-                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Hauwa Ahmed Shehu</span>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Shehu Hauwa Ahmad</span>
                   </div>
 
                   <div className="glass-panel" style={{ padding: '16px 20px', textAlign: 'center', flex: '1 1 200px' }}>
@@ -100,8 +100,8 @@ export default function BoardStructure() {
                 {/* Level 4: Ops Departments */}
                 <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', width: '100%', flexWrap: 'wrap' }}>
                   <div className="glass-panel" style={{ padding: '16px 20px', textAlign: 'center', flex: '1 1 250px' }}>
-                    <h4 style={{ fontSize: '14px', margin: 0, color: 'var(--text-main)' }}>LTE Services Department</h4>
-                    <span style={{ fontSize: '11px', color: 'var(--primary)' }}>Ahmad Auta (Head of Dept)</span>
+                    <h4 style={{ fontSize: '14px', margin: 0, color: 'var(--text-main)' }}>Software Development Department</h4>
+                    <span style={{ fontSize: '11px', color: 'var(--primary)' }}>Muhammad Abubakar Al-ameen (Head of Dept)</span>
                   </div>
 
                   <div className="glass-panel" style={{ padding: '16px 20px', textAlign: 'center', flex: '1 1 250px' }}>

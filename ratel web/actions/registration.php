@@ -1,9 +1,17 @@
 <?php
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    exit(0);
+}
+
 //session_start();
 include '../conn/config.php';
 ob_start();
 if (isset($_POST['formData'])) {
-$reference = str_pad(mt_rand(1,99999999),8,'0',STR_PAD_LEFT);
+$reference = (isset($_POST['reference']) && !empty($_POST['reference'])) ? mysqli_real_escape_string($config, $_POST['reference']) : str_pad(mt_rand(1,99999999),8,'0',STR_PAD_LEFT);
 $pics1=mysqli_real_escape_string($config,$_POST['pics1']);
 $pics2=mysqli_real_escape_string($config,$_POST['pics2']);
 $mobile=$_POST['mobile'];

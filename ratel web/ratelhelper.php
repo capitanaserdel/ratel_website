@@ -1,4 +1,5 @@
 <?php
+$redirect_origin = isset($_GET['redirect_origin']) ? $_GET['redirect_origin'] : 'https://ratelplus.net';
 $url = 'https://api.paystack.co/transaction/verify/' . $reference;
 //PayStack Important
 //define('PAYSTACK_PUBLIC', 'pk_live_f794eddafa6e2897901b7b801b901188a9526863'); 
@@ -57,7 +58,7 @@ $getFlag =mysqli_query($config,"SELECT `flags` FROM `opay_payment` WHERE referen
 $row_getFlag = mysqli_fetch_array($getFlag);
 $flag=$row_getFlag['flags'];
 if($flag==1){
-header('location:https://ratelplus.net/payment_success.php');
+header('location:' . $redirect_origin . '/airtime?status=success&reference=' . $reference);
 }else{
   mysqli_begin_transaction($config);
  $check_sts =mysqli_query($config,"SELECT * FROM `opay_payment` WHERE reference='$reference' and date(`timestamp`)=curdate() ORDER BY `id` desc LIMIT 1 FOR UPDATE");
@@ -99,7 +100,7 @@ mysqli_query($config,$querydoor);
 } 
 }
 
-if(($switch_status_db!='balance added successfully' and $recharger_count==0 and $Stus==0 and $repeaters==5 and $sts=='success')){
+if(($switch_status_db!='balance added successfully' and $recharger_count==0 and $Stus==0 and ($repeaters==5 || empty($repeaters)) and $sts=='success')){
 //if($recharger_count==0){
   
 
@@ -129,12 +130,12 @@ mysqli_commit($config);
 $query2="UPDATE `opay_payment` SET `status`=1,`cus_number`='$cus_number',`cus_id`='$customer_id',`channels`='Paystack',`ratelnumber`='$ratelnumber',`switch_status`='$switch_staus',`recharger_count`=recharger_count+1,`flags`=1,`amount_r`='$koboToNaira', `opay_status`='$sts',`time_cron`='$time',`progress`=100,`door`='close',`method`='$method' WHERE reference='$reference' and date(`timestamp`)=curdate() ORDER BY `id` desc LIMIT 1";
 mysqli_query($config,$query2);
 mysqli_commit($config);
-  header('location:https://ratelplus.net/payment_success.php');
+  header('location:' . $redirect_origin . '/airtime?status=success&reference=' . $reference);
 }
 
 }else{
   //mail("munzali@ratelplus.net","recharger_count Paystack".$reference,$switch_status_db);
-  header('location:https://ratelplus.net/payment_success.php');
+  header('location:' . $redirect_origin . '/airtime?status=success&reference=' . $reference);
  }
 }
 

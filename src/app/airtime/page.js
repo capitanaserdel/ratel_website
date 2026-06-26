@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 const CURRENCY = 'NGN';
-const OPAY_POST_URL = 'https://ratelplus.net/payer.php';
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ratelplus.net';
+const OPAY_POST_URL = `${backendUrl}/payer.php`;
 
 // Approved prefix list for validation
 const APPROVED_PREFIXES = [
@@ -13,6 +15,7 @@ const APPROVED_PREFIXES = [
 ];
 
 export default function BuyAirtime() {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     fname: '',
     sname: '',
@@ -42,6 +45,11 @@ export default function BuyAirtime() {
       const params = new URLSearchParams(window.location.search);
       const queryPhone = params.get('phone');
       const queryAmount = params.get('amount');
+      const queryStatus = params.get('status');
+
+      if (queryStatus === 'success') {
+        setPaymentSuccess(true);
+      }
 
       const stored = localStorage.getItem('ratel_user');
       let user = null;
@@ -196,9 +204,35 @@ export default function BuyAirtime() {
     // Determine final billing details
     const finalPhone = rechargeType === 'self' && savedUser ? savedUser.ratelnumber : formData.ratelnumber;
     const finalEmail = rechargeType === 'self' && savedUser ? savedUser.email : formData.email;
-    const finalName = rechargeType === 'self' && savedUser ? `${savedUser.fname} ${savedUser.lname}` : `${formData.fname} ${formData.sname}`;
+    const finalFname = rechargeType === 'self' && savedUser ? savedUser.fname : formData.fname;
+    const finalLname = rechargeType === 'self' && savedUser ? savedUser.lname : formData.sname;
+
+    // 1. Initialize transaction in the PHP database opay_payment table
+    const initData = new URLSearchParams();
+    initData.append('reference', generatedRef);
+    initData.append('ratelnumber', finalPhone);
+    initData.append('source', 'Airtime');
+    initData.append('paystack', 'paystack');
+    initData.append('email', finalEmail);
+    initData.append('fname', finalFname);
+    initData.append('lname', finalLname);
+    initData.append('amount', formData.amount);
+    initData.append('redirect_origin', typeof window !== 'undefined' ? window.location.origin : '');
 
     try {
+      const initResponse = await fetch(`${backendUrl}/payer.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: initData.toString(),
+      });
+
+      if (!initResponse.ok) {
+        throw new Error('Failed to initialize database transaction.');
+      }
+
+      // 2. Open inline Paystack Pop-up
       const { default: PaystackPop } = await import('@paystack/inline-js');
       const popup = new PaystackPop();
       popup.newTransaction({
@@ -206,16 +240,25 @@ export default function BuyAirtime() {
         email: finalEmail,
         amount: parseInt(formData.amount, 10) * 100, // in kobo
         currency: CURRENCY,
-        ref: `AIR-${finalPhone}-${generatedRef}`,
+        ref: generatedRef,
         metadata: {
           custom_fields: [
-            { display_name: 'Package', variable_name: 'package_title', value: 'Airtime Purchase' },
-            { display_name: 'Full Name', variable_name: 'full_name', value: finalName },
-            { display_name: 'Mobile Number', variable_name: 'mobile', value: finalPhone }
+            {
+              display_name: 'Descriptions',
+              variable_name: 'Airtime',
+              value: generatedRef
+            }
           ]
         },
-        onSuccess: (transaction) => {
-          console.log('Paystack airtime success:', transaction);
+        onSuccess: async (transaction) => {
+          setProcessingGateway('verifying');
+          try {
+            // 3. Immediately trigger backend verification to credit the VoIP line
+            const verifyRes = await fetch(`${backendUrl}/ratelpay.php?reference=${generatedRef}&redirect_origin=${encodeURIComponent(window.location.origin)}`);
+            console.log('Verification response status:', verifyRes.status);
+          } catch (err) {
+            console.error('Verification call failed:', err);
+          }
           setProcessingGateway(null);
           setPaymentSuccess(true);
           setShowCheckout(false);
@@ -227,7 +270,7 @@ export default function BuyAirtime() {
       });
     } catch (err) {
       setProcessingGateway(null);
-      setPaymentError('Failed to load Paystack pop-up.');
+      setPaymentError('Failed to initialize payment: ' + err.message);
     }
   };
 
@@ -278,19 +321,19 @@ export default function BuyAirtime() {
               </div>
 
               <h2 style={{ fontSize: '30px', fontWeight: '800', color: 'var(--text-main)', marginBottom: '14px' }}>
-                Recharge Confirmed!
+                {t('Recharge Confirmed!')}
               </h2>
 
               <p style={{ fontSize: '15px', color: 'var(--text-muted)', lineHeight: '1.8', marginBottom: '30px' }}>
-                Thank you. Your payment of <strong>₦{parseInt(formData.amount, 10).toLocaleString()}</strong> for Ratel line <strong>{finalPhone}</strong> has been successfully processed. The airtime credits will be loaded on your account in under 5 minutes.
+                {t('Thank you. Your payment of ₦{amount} for Ratel line {phone} has been successfully processed. The airtime credits will be loaded on your account in under 5 minutes.').replace('{amount}', parseInt(formData.amount, 10).toLocaleString()).replace('{phone}', finalPhone)}
               </p>
 
               <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
                 <Link href="/" className="btn-primary" style={{ padding: '12px 30px' }}>
-                  Return Home
+                  {t('Return Home')}
                 </Link>
                 <button onClick={() => { setPaymentSuccess(false); setFormData(p => ({ ...p, amount: '' })); }} className="btn-secondary" style={{ padding: '12px 30px' }}>
-                  Recharge Again
+                  {t('Recharge Again')}
                 </button>
               </div>
             </div>
@@ -346,10 +389,10 @@ export default function BuyAirtime() {
                   <i className="bi bi-credit-card" />
                 </div>
                 <h3 style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-main)', marginBottom: '8px' }}>
-                  Instant Recharge
+                  {t('Instant Recharge')}
                 </h3>
                 <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', lineHeight: '1.6' }}>
-                  Recharge your Ratel VoIP line instantly. Transactions connect directly to local secure payment networks.
+                  {t('Recharge your Ratel VoIP line instantly. Transactions connect directly to local secure payment networks.')}
                 </p>
               </div>
 
@@ -366,7 +409,7 @@ export default function BuyAirtime() {
                 background: 'var(--bg-main)',
                 minHeight: '180px'
               }}>
-                <img src="/credit_cards.png" alt="Payment Cards" style={{
+                <img src="/credit_cards.png" alt={t("Payment Cards")} style={{
                   width: '100%',
                   height: '100%',
                   maxHeight: '300px',
@@ -385,7 +428,7 @@ export default function BuyAirtime() {
                 lineHeight: '1.6'
               }}>
                 <h4 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)', marginBottom: '6px', textTransform: 'uppercase' }}>
-                  Approved prefixes:
+                  {t('Approved prefixes:')}
                 </h4>
                 <p style={{ fontSize: '11px', margin: 0, fontFamily: 'monospace', color: 'var(--primary)', fontWeight: '600', overflowWrap: 'break-word', wordBreak: 'break-all' }}>
                   0206470, 0209701, 0209702, 0209703, 0209704, 0209705, 0209706, 0209707, 0209708, 0209709, 0209710
@@ -397,7 +440,7 @@ export default function BuyAirtime() {
             <div className="glass-panel form-card">
               <form onSubmit={handleSubmit}>
                 <h3 style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-main)', marginBottom: '24px' }}>
-                  Online Recharge Details
+                  {t('Online Recharge Details')}
                 </h3>
 
                 {savedUser && rechargeType === 'others' && (
@@ -419,7 +462,7 @@ export default function BuyAirtime() {
                         padding: 0
                       }}
                     >
-                      <i className="bi bi-arrow-left-short" style={{ fontSize: '18px' }} /> Switch back to recharging for myself
+                      <i className="bi bi-arrow-left-short" style={{ fontSize: '18px' }} /> {t('Switch back to recharging for myself')}
                     </button>
                   </div>
                 )}
@@ -455,7 +498,7 @@ export default function BuyAirtime() {
                         {savedUser.fname ? savedUser.fname.charAt(0).toUpperCase() : 'R'}
                       </div>
                       <div style={{ textAlign: 'left' }}>
-                        <h4 style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Recharging for Myself</h4>
+                        <h4 style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('Recharging for Myself')}</h4>
                         <p style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-main)', marginTop: '2px' }}>
                           {savedUser.fname} {savedUser.lname}
                         </p>
@@ -491,7 +534,7 @@ export default function BuyAirtime() {
                       onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-card-hover)'; e.currentTarget.style.borderColor = 'var(--border-hover)'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = 'var(--border-color)'; }}
                     >
-                      <i className="bi bi-person-plus-fill" style={{ marginRight: '4px' }} /> Recharge others
+                      <i className="bi bi-person-plus-fill" style={{ marginRight: '4px' }} /> {t('Recharge others')}
                     </button>
                   </div>
                 ) : null}
@@ -499,19 +542,19 @@ export default function BuyAirtime() {
                 {/* Amount input always visible */}
                 <div style={{ marginBottom: '20px' }}>
                   <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>
-                    Amount (₦) *
+                    {t('Amount (₦) *')}
                   </label>
                   <input 
                     type="text" 
                     name="amount" 
                     value={formData.amount}
                     onChange={handleInputChange}
-                    placeholder="Enter recharge amount (Min ₦100)" 
+                    placeholder={t("Enter recharge amount (Min ₦100)")} 
                     className="form-input" 
                     style={{ fontSize: '17px', padding: '14px 18px', fontWeight: 'bold' }}
                     required 
                   />
-                  {errors.amount && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{errors.amount}</span>}
+                  {errors.amount && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.amount)}</span>}
                 </div>
 
                 {/* Additional profile fields for first time / recharging others */}
@@ -519,36 +562,36 @@ export default function BuyAirtime() {
                   <>
                     <div className="content-grid" style={{ marginBottom: '20px' }}>
                       <div>
-                        <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>First Name *</label>
+                        <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('First Name *')}</label>
                         <input type="text" name="fname" value={formData.fname} onChange={handleInputChange} className="form-input" required />
-                        {errors.fname && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{errors.fname}</span>}
+                        {errors.fname && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.fname)}</span>}
                       </div>
                       <div>
-                        <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>Surname *</label>
+                        <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('Surname *')}</label>
                         <input type="text" name="sname" value={formData.sname} onChange={handleInputChange} className="form-input" required />
-                        {errors.sname && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{errors.sname}</span>}
+                        {errors.sname && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.sname)}</span>}
                       </div>
                     </div>
 
                     <div style={{ marginBottom: '20px' }}>
-                      <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>Email Address *</label>
+                      <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('Email Address *')}</label>
                       <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="form-input" required />
-                      {errors.email && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{errors.email}</span>}
+                      {errors.email && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.email)}</span>}
                     </div>
 
                     <div style={{ marginBottom: '20px' }}>
-                      <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>Ratel Line Number *</label>
+                      <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('Ratel Line Number *')}</label>
                       <input 
                         type="text" 
                         name="ratelnumber" 
                         value={formData.ratelnumber}
                         onChange={handleInputChange}
-                        placeholder="11-digit number (starts with 0206470, 0209701...)"
+                        placeholder={t("11-digit number (starts with 0206470, 0209701...)")}
                         maxLength={11}
                         className="form-input" 
                         required 
                       />
-                      {errors.ratelnumber && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{errors.ratelnumber}</span>}
+                      {errors.ratelnumber && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.ratelnumber)}</span>}
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '30px' }}>
@@ -560,7 +603,7 @@ export default function BuyAirtime() {
                         style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: 'var(--primary)' }}
                       />
                       <label htmlFor="saveDetails" style={{ fontSize: '13px', color: 'var(--text-muted)', cursor: 'pointer', userSelect: 'none' }}>
-                        Save details for faster future recharges
+                        {t('Save details for faster future recharges')}
                       </label>
                     </div>
                   </>
@@ -568,7 +611,7 @@ export default function BuyAirtime() {
 
                 <div style={{ marginTop: '20px' }}>
                   <button type="submit" className="btn-primary" style={{ padding: '14px 45px', width: '100%', borderRadius: 'var(--radius-sm)' }}>
-                    Proceed to Payment <i className="bi bi-arrow-right-short" style={{ fontSize: '18px' }} />
+                    {t('Proceed to Payment')} <i className="bi bi-arrow-right-short" style={{ fontSize: '18px' }} />
                   </button>
                 </div>
               </form>
@@ -627,32 +670,39 @@ export default function BuyAirtime() {
             </button>
 
             <h3 style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-main)', marginBottom: '18px' }}>
-              Billing Summary
+              {t('Billing Summary')}
             </h3>
 
             {paymentError && (
               <div style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid #ef4444', color: '#ef4444', padding: '12px', borderRadius: 'var(--radius-sm)', fontSize: '13px', marginBottom: '20px', textAlign: 'center' }}>
                 <i className="bi bi-exclamation-triangle-fill" style={{ marginRight: '6px' }} />
-                {paymentError}
+                {t(paymentError)}
+              </div>
+            )}
+
+            {processingGateway === 'verifying' && (
+              <div style={{ background: 'var(--primary-glow)', border: '1px solid var(--primary)', color: 'var(--primary)', padding: '12px', borderRadius: 'var(--radius-sm)', fontSize: '13px', marginBottom: '20px', textAlign: 'center' }}>
+                <i className="bi bi-arrow-repeat spin" style={{ marginRight: '6px', animation: 'spin 1s linear infinite', display: 'inline-block' }} />
+                {t('Verifying your payment, please wait...')}
               </div>
             )}
 
             <div style={{ background: 'var(--bg-main)', padding: '20px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', marginBottom: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '13.5px' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Item:</span>
-                <strong style={{ color: 'var(--text-main)' }}>Airtime Recharge</strong>
+                <span style={{ color: 'var(--text-muted)' }}>{t('Item:')}</span>
+                <strong style={{ color: 'var(--text-main)' }}>{t('Airtime Recharge')}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '13.5px' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Subscriber:</span>
+                <span style={{ color: 'var(--text-muted)' }}>{t('Subscriber:')}</span>
                 <strong style={{ color: 'var(--text-main)' }}>{rechargeType === 'self' && savedUser ? `${savedUser.fname} ${savedUser.lname}` : `${formData.fname} ${formData.sname}`}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '13.5px' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Ratel Number:</span>
+                <span style={{ color: 'var(--text-muted)' }}>{t('Ratel Number:')}</span>
                 <strong style={{ color: 'var(--text-main)' }}>{finalPhone}</strong>
               </div>
               <hr style={{ border: 'none', borderTop: '1px dashed var(--border-color)', margin: '14px 0' }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px' }}>
-                <span style={{ fontWeight: '700', color: 'var(--text-main)' }}>Amount Due:</span>
+                <span style={{ fontWeight: '700', color: 'var(--text-main)' }}>{t('Amount Due:')}</span>
                 <strong style={{ fontSize: '18px', fontWeight: '800', color: 'var(--primary)' }}>
                   ₦{parseInt(formData.amount, 10).toLocaleString()}
                 </strong>
@@ -681,7 +731,7 @@ export default function BuyAirtime() {
                 onMouseEnter={e => e.currentTarget.style.background = '#ea6b0c'}
                 onMouseLeave={e => e.currentTarget.style.background = '#f97316'}
               >
-                <i className="bi bi-credit-card-fill" /> Pay with Paystack
+                <i className="bi bi-credit-card-fill" /> {t('Pay with Paystack')}
               </button>
 
               <button
@@ -705,13 +755,13 @@ export default function BuyAirtime() {
                 onMouseEnter={e => e.currentTarget.style.background = '#00b886'}
                 onMouseLeave={e => e.currentTarget.style.background = '#00d09c'}
               >
-                <i className="bi bi-wallet2" /> Pay with OPay
+                <i className="bi bi-wallet2" /> {t('Pay with OPay')}
               </button>
             </div>
 
             <div style={{ marginTop: '24px', borderTop: '1px solid var(--border-color)', paddingTop: '16px', textAlign: 'center' }}>
               <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px' }}>
-                Paid successfully in the OPay cashier tab?
+                {t('Paid successfully in the OPay cashier tab?')}
               </p>
               <button
                 onClick={() => {
@@ -732,7 +782,7 @@ export default function BuyAirtime() {
                 onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-glow)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = 'var(--border-color)'; }}
               >
-                ✓ I have completed the OPay payment
+                {t('✓ I have completed the OPay payment')}
               </button>
             </div>
           </div>
@@ -755,6 +805,7 @@ export default function BuyAirtime() {
         <input type="hidden" name="source" value="Airtime" />
         <input type="hidden" name="reference" value={generatedRef} />
         <input type="hidden" name="opay" value="opay" />
+        <input type="hidden" name="redirect_origin" value={typeof window !== 'undefined' ? window.location.origin : ''} />
       </form>
 
       {/* Local responsive styling */}

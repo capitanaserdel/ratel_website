@@ -78,10 +78,11 @@ $err = curl_error($curl);
 $msg=$array['data']['status'];
 $amountoPay=$array['data']['amount']['total'];   
 $koboToNaira=($amountoPay/100);
+$redirect_origin = isset($_GET['redirect_origin']) ? $_GET['redirect_origin'] : 'https://ratelplus.net';
 $sts1=$row_getEmail['isPaid'];
-if(($msg=="SUCCESS") and ($sts1==0)){
+if($msg=="SUCCESS"){
 $check = mysqli_num_rows(mysqli_query($config,"SELECT reference FROM `reg_payment` WHERE reference='$reference'"));
- if ($check == 0) {
+ if ($check == 0 && $sts1 == 0) {
 $query="INSERT INTO `reg_payment`(reference,`phone`,`channels`,`amount`,`source`,`status`,`time_cron`)VALUES('$reference','$phone','Opay','$amount','$source','$msg','$time')";
 mysqli_query($config,$query);
 $query_r4="UPDATE `registration` SET `isPaid`=1 WHERE `reference`='$reference'";
@@ -104,10 +105,9 @@ $compS=$row_attach['company_services'];
 $rc=$row_attach['rc_number'];
 $NumberOf=$row_attach['no_of_lline'];
 include 'smtp.php';
-header('location:https://ratelplus.net/payment_success.php');
-}else{
-header('location:https://ratelplus.net/payment_success.php');
 }
+header('location:' . $redirect_origin . '/personal-subscribers?status=success&reference=' . $reference);
 }else{
  exit; 
 }
+

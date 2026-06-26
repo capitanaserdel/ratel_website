@@ -1,7 +1,16 @@
 <?php
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    exit(0);
+}
+
 include '../conn/config.php';
 //The parameter after verify/ is the transaction reference to be verified
 $id = $_GET['id'];
+$redirect_origin = isset($_GET['redirect_origin']) ? $_GET['redirect_origin'] : 'https://ratelplus.net';
 //$phone=$_GET['phone'];
 //Ratel Number064700048
 $url = 'https://api.paystack.co/transaction/verify/' . $id;
@@ -69,7 +78,7 @@ $NumberOf=$row_attach['no_of_lline'];
 $source2=$row_attach['source'];
 include 'smtp.php';
 //header('location:https://ratelplus.net/payment_success.php');
- echo "<script>window.location='https://ratelplus.net/payment_success.php';</script>";
+echo "<script>window.location='" . $redirect_origin . "/personal-subscribers?status=success&reference=" . $reference . "';</script>";
 }else{
   echo mysqli_error($config);
 }
@@ -77,7 +86,7 @@ include 'smtp.php';
  
 }else{
   //header('location:https://ratelplus.net/payment_success.php');
-    echo "<script>window.location='https://ratelplus.net/payment_success.php';</script>";
+    echo "<script>window.location='" . $redirect_origin . "/personal-subscribers?status=success&reference=" . $id . "';</script>";
 }
  }
     else{

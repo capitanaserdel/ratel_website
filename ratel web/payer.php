@@ -21,14 +21,14 @@ $reference = $_POST['reference'];
 echo "<script>window.location='airtime.php';</script>";
 }
 //////////////////////////////////
+$redirect_origin = isset($_POST['redirect_origin']) ? $_POST['redirect_origin'] : 'https://ratelplus.net';
 if(isset($_POST['ratelnumber'])){
    
 $number_validate=$_POST['ratelnumber'];
-//$links="ratelpay.php?&reference=".$reference; 
-$links="https://ratelplus.net/payment_success.php"; 
+$links=$redirect_origin."/airtime?status=success&reference=".$reference; 
 }else{
 $number_validate=$_POST['phone'];
-//$links="/subs/payupdate.php?id=".$reference."&phone=".$number_validate;
+$links=$redirect_origin."/personal-subscribers?status=success&reference=".$reference;
 }
 $ratelnumber=$number_validate;
 $ratelnumber2=bin2hex($ratelnumber);
@@ -144,9 +144,9 @@ $qr=mysqli_query($config,$query2);
 'country' => 'NG',
 'reference' => $reference,
 'amount' => array('total'=>$total,'currency'=>'NGN'),
-'returnUrl' => 'https://ratelplus.net/payment_success.php',
+'returnUrl' => $redirect_origin . '/airtime?status=success&reference='.$reference,
 'callbackUrl' => 'https://ratelplus.net/opay_status_whl.php',
-'cancelUrl' => 'https://ratelplus.net/airtime.php',
+'cancelUrl' => $redirect_origin . '/airtime?status=cancel',
 'displayName' =>'RatelPlus',
 'expireAt' => '300',
 'userInfo' =>array('userEmail' =>$email,'userId' =>$reference,'userMobile' =>$ratelnumber,'userName' => $fname.' '.$lname),

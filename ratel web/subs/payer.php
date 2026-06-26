@@ -5,13 +5,14 @@ $source_post=$_POST['source'];
 $source = str_replace(' ', '_', $source_post);
 $reference = $_POST['reference'];
 //////////////////////////////////
+$redirect_origin = isset($_POST['redirect_origin']) ? $_POST['redirect_origin'] : 'https://ratelplus.net';
 if(isset($_POST['ratelnumber'])){
    
 $number_validate=$_POST['ratelnumber'];
 $links="ratelpay.php?&reference=".$reference; 
 }else{
 $number_validate=$_POST['phone'];
-$links="/subs/payupdate.php?id=".$reference."&phone=".$number_validate;
+$links="payupdate.php?id=".$reference."&phone=".$number_validate."&redirect_origin=".urlencode($redirect_origin);
 }
 $ratelnumber=$number_validate;
 $ratelnumber2=bin2hex($ratelnumber);
@@ -121,9 +122,9 @@ $qr=mysqli_query($config,$query);
 'reference' => $reference,
 //'amount' => array('total'=>3*100,'currency'=>'NGN'),
 'amount' => array('total'=>$total,'currency'=>'NGN'),
-'returnUrl' => 'https://ratelplus.net/opay_status_reg.php?vpcode='.$reference,
+'returnUrl' => 'https://ratelplus.net/opay_status_reg.php?vpcode='.$reference.'&redirect_origin='.urlencode($redirect_origin),
 'callbackUrl' => 'https://ratelplus.net/opay_status_reg.php',
-'cancelUrl' => 'https://ratelplus.net/',
+'cancelUrl' => $redirect_origin . '/personal-subscribers?status=cancel',
 'displayName' =>'RatelPlus',
 'expireAt' => '300',
 'userInfo' =>array('userEmail' =>$email,'userId' =>$reference,'userMobile' =>$ratelnumber,'userName' => $fname.' '.$lname),
