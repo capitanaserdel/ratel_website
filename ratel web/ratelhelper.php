@@ -1,5 +1,10 @@
 <?php
 $redirect_origin = isset($_GET['redirect_origin']) ? $_GET['redirect_origin'] : 'https://ratelplus.net';
+$jsonMode = isset($_GET['format']) && $_GET['format'] === 'json';
+if ($jsonMode) {
+    header('Access-Control-Allow-Origin: *');
+    header('Content-Type: application/json');
+}
 $url = 'https://api.paystack.co/transaction/verify/' . $reference;
 //PayStack Important
 //define('PAYSTACK_PUBLIC', 'pk_live_f794eddafa6e2897901b7b801b901188a9526863'); 
@@ -58,6 +63,10 @@ $getFlag =mysqli_query($config,"SELECT `flags` FROM `opay_payment` WHERE referen
 $row_getFlag = mysqli_fetch_array($getFlag);
 $flag=$row_getFlag['flags'];
 if($flag==1){
+if ($jsonMode) {
+    echo json_encode(['success' => true, 'credited' => true, 'reason' => 'already_credited']);
+    exit;
+}
 header('location:' . $redirect_origin . '/airtime?status=success&reference=' . $reference);
 }else{
   mysqli_begin_transaction($config);
@@ -130,11 +139,24 @@ mysqli_commit($config);
 $query2="UPDATE `opay_payment` SET `status`=1,`cus_number`='$cus_number',`cus_id`='$customer_id',`channels`='Paystack',`ratelnumber`='$ratelnumber',`switch_status`='$switch_staus',`recharger_count`=recharger_count+1,`flags`=1,`amount_r`='$koboToNaira', `opay_status`='$sts',`time_cron`='$time',`progress`=100,`door`='close',`method`='$method' WHERE reference='$reference' and date(`timestamp`)=curdate() ORDER BY `id` desc LIMIT 1";
 mysqli_query($config,$query2);
 mysqli_commit($config);
+  if ($jsonMode) {
+      echo json_encode(['success' => true, 'credited' => true, 'reason' => 'credited_now']);
+      exit;
+  }
   header('location:' . $redirect_origin . '/airtime?status=success&reference=' . $reference);
+}else{
+  if ($jsonMode) {
+      echo json_encode(['success' => false, 'credited' => false, 'reason' => 'switch_rejected', 'switch_status' => $switch_staus]);
+      exit;
+  }
 }
 
 }else{
   //mail("munzali@ratelplus.net","recharger_count Paystack".$reference,$switch_status_db);
+  if ($jsonMode) {
+      echo json_encode(['success' => false, 'credited' => false, 'reason' => 'not_ready', 'paystack_status' => $sts]);
+      exit;
+  }
   header('location:' . $redirect_origin . '/airtime?status=success&reference=' . $reference);
  }
 }
