@@ -33,11 +33,31 @@ export default function BuyAirtime() {
   // Overlay & Payment checkout states
   const [showCheckout, setShowCheckout] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [paymentPending, setPaymentPending] = useState(false);
   const [paymentError, setPaymentError] = useState('');
   const [processingGateway, setProcessingGateway] = useState(null); // 'paystack' | 'opay' | null
 
   // Ref for OPay hidden form submit
   const opayFormRef = useRef(null);
+
+  // Polls a status-check URL until it reports the airtime as credited, or gives up.
+  // Used because crediting happens on the legacy backend and isn't guaranteed to be
+  // confirmed the instant the payment popup closes.
+  const pollCredit = async (url, { attempts = 5, delayMs = 4000 } = {}) => {
+    for (let i = 0; i < attempts; i++) {
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data && data.credited) return true;
+      } catch (err) {
+        console.error('Credit check failed:', err);
+      }
+      if (i < attempts - 1) {
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
+    }
+    return false;
+  };
 
   useEffect(() => {
     try {
@@ -46,9 +66,26 @@ export default function BuyAirtime() {
       const queryPhone = params.get('phone');
       const queryAmount = params.get('amount');
       const queryStatus = params.get('status');
+      const queryReference = params.get('reference');
 
+      // Returning from OPay's hosted checkout (status=success) does NOT mean the
+      // airtime was actually credited yet - that happens async via OPay's webhook.
+      // Confirm against the backend before showing a success message.
       if (queryStatus === 'success') {
-        setPaymentSuccess(true);
+        if (queryReference) {
+          setProcessingGateway('verifying');
+          pollCredit(`${backendUrl}/check_status.php?reference=${queryReference}`, { attempts: 6, delayMs: 4000 })
+            .then(credited => {
+              setProcessingGateway(null);
+              if (credited) {
+                setPaymentSuccess(true);
+              } else {
+                setPaymentPending(true);
+              }
+            });
+        } else {
+          setPaymentPending(true);
+        }
       }
 
       const stored = localStorage.getItem('ratel_user');
@@ -252,16 +289,19 @@ export default function BuyAirtime() {
         },
         onSuccess: async (transaction) => {
           setProcessingGateway('verifying');
-          try {
-            // 3. Immediately trigger backend verification to credit the VoIP line
-            const verifyRes = await fetch(`${backendUrl}/ratelpay.php?reference=${generatedRef}&redirect_origin=${encodeURIComponent(window.location.origin)}`);
-            console.log('Verification response status:', verifyRes.status);
-          } catch (err) {
-            console.error('Verification call failed:', err);
-          }
+          // 3. Trigger backend verification + crediting, retrying a few times since
+          // Paystack's own verify API can lag a moment behind the popup's success callback.
+          const credited = await pollCredit(
+            `${backendUrl}/ratelpay.php?reference=${generatedRef}&redirect_origin=${encodeURIComponent(window.location.origin)}&format=json`,
+            { attempts: 5, delayMs: 4000 }
+          );
           setProcessingGateway(null);
-          setPaymentSuccess(true);
           setShowCheckout(false);
+          if (credited) {
+            setPaymentSuccess(true);
+          } else {
+            setPaymentPending(true);
+          }
         },
         onCancel: () => {
           setProcessingGateway(null);
@@ -333,6 +373,51 @@ export default function BuyAirtime() {
                   {t('Return Home')}
                 </Link>
                 <button onClick={() => { setPaymentSuccess(false); setFormData(p => ({ ...p, amount: '' })); }} className="btn-secondary" style={{ padding: '12px 30px' }}>
+                  {t('Recharge Again')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  // ─── PENDING SCREEN (paid, but credit not yet confirmed) ───────────────────
+  if (paymentPending) {
+    return (
+      <div>
+        <section className="section-padding">
+          <div className="container">
+            <div className="glass-panel form-card" style={{ maxWidth: '650px', margin: '0 auto', textAlign: 'center', padding: '50px 30px' }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                background: 'rgba(245, 158, 11, 0.1)',
+                color: '#f59e0b',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '42px',
+                marginBottom: '24px'
+              }}>
+                <i className="bi bi-hourglass-split" />
+              </div>
+
+              <h2 style={{ fontSize: '30px', fontWeight: '800', color: 'var(--text-main)', marginBottom: '14px' }}>
+                {t('Payment Received, Confirming Credit...')}
+              </h2>
+
+              <p style={{ fontSize: '15px', color: 'var(--text-muted)', lineHeight: '1.8', marginBottom: '30px' }}>
+                {t("We've received your payment but haven't been able to confirm the airtime credit yet. This can occasionally take a few extra minutes. If the credit hasn't arrived shortly, please contact support with this reference: {ref}").replace('{ref}', generatedRef)}
+              </p>
+
+              <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
+                <Link href="/" className="btn-primary" style={{ padding: '12px 30px' }}>
+                  {t('Return Home')}
+                </Link>
+                <button onClick={() => { setPaymentPending(false); setFormData(p => ({ ...p, amount: '' })); }} className="btn-secondary" style={{ padding: '12px 30px' }}>
                   {t('Recharge Again')}
                 </button>
               </div>
