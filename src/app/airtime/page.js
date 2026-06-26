@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
 
 const CURRENCY = 'NGN';
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ratelplus.net';
-const OPAY_POST_URL = `${backendUrl}/payer.php`;
 
 // Approved prefix list for validation
 const APPROVED_PREFIXES = [
@@ -74,7 +72,7 @@ export default function BuyAirtime() {
       if (queryStatus === 'success') {
         if (queryReference) {
           setProcessingGateway('verifying');
-          pollCredit(`${backendUrl}/check_status.php?reference=${queryReference}`, { attempts: 6, delayMs: 4000 })
+          pollCredit(`/api/payment/check-status?reference=${queryReference}`, { attempts: 6, delayMs: 4000 })
             .then(credited => {
               setProcessingGateway(null);
               if (credited) {
@@ -244,25 +242,24 @@ export default function BuyAirtime() {
     const finalFname = rechargeType === 'self' && savedUser ? savedUser.fname : formData.fname;
     const finalLname = rechargeType === 'self' && savedUser ? savedUser.lname : formData.sname;
 
-    // 1. Initialize transaction in the PHP database opay_payment table
-    const initData = new URLSearchParams();
-    initData.append('reference', generatedRef);
-    initData.append('ratelnumber', finalPhone);
-    initData.append('source', 'Airtime');
-    initData.append('paystack', 'paystack');
-    initData.append('email', finalEmail);
-    initData.append('fname', finalFname);
-    initData.append('lname', finalLname);
-    initData.append('amount', formData.amount);
-    initData.append('redirect_origin', typeof window !== 'undefined' ? window.location.origin : '');
-
     try {
-      const initResponse = await fetch(`${backendUrl}/payer.php`, {
+      // 1. Initialize transaction in the Next.js database
+      const initResponse = await fetch('/api/payment/initiate', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body: initData.toString(),
+        body: JSON.stringify({
+          reference: generatedRef,
+          ratelnumber: finalPhone,
+          source: 'Airtime',
+          gateway: 'paystack',
+          email: finalEmail,
+          fname: finalFname,
+          lname: finalLname,
+          amount: formData.amount,
+          redirect_origin: typeof window !== 'undefined' ? window.location.origin : ''
+        }),
       });
 
       if (!initResponse.ok) {
@@ -288,11 +285,10 @@ export default function BuyAirtime() {
           ]
         },
         onSuccess: async (transaction) => {
-          setProcessingGateway('verifying');
           // 3. Trigger backend verification + crediting, retrying a few times since
           // Paystack's own verify API can lag a moment behind the popup's success callback.
           const credited = await pollCredit(
-            `${backendUrl}/ratelpay.php?reference=${generatedRef}&redirect_origin=${encodeURIComponent(window.location.origin)}&format=json`,
+            `/api/payment/verify?reference=${generatedRef}&gateway=paystack&source=Airtime&redirect_origin=${encodeURIComponent(window.location.origin)}&format=json`,
             { attempts: 5, delayMs: 4000 }
           );
           setProcessingGateway(null);
@@ -314,19 +310,52 @@ export default function BuyAirtime() {
     }
   };
 
-  // ─── secure OPay Checkout (using hidden HTML form POST submit) ─────────────
-  const handlePayWithOpay = (e) => {
+  // ─── secure OPay Checkout ──────────────────────────────────────────────────
+  const handlePayWithOpay = async (e) => {
     e.preventDefault();
     setPaymentError('');
     setProcessingGateway('opay');
 
-    if (opayFormRef.current) {
-      opayFormRef.current.submit();
-    }
+    const finalPhone = rechargeType === 'self' && savedUser ? savedUser.ratelnumber : formData.ratelnumber;
+    const finalEmail = rechargeType === 'self' && savedUser ? savedUser.email : formData.email;
+    const finalFname = rechargeType === 'self' && savedUser ? savedUser.fname : formData.fname;
+    const finalLname = rechargeType === 'self' && savedUser ? savedUser.lname : formData.sname;
 
-    setTimeout(() => {
+    try {
+      // 1. Initialize transaction in the Next.js database & get OPay Cashier link
+      const initResponse = await fetch('/api/payment/initiate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          reference: generatedRef,
+          ratelnumber: finalPhone,
+          source: 'Airtime',
+          gateway: 'opay',
+          email: finalEmail,
+          fname: finalFname,
+          lname: finalLname,
+          amount: formData.amount,
+          redirect_origin: typeof window !== 'undefined' ? window.location.origin : ''
+        }),
+      });
+
+      if (!initResponse.ok) {
+        throw new Error('Failed to initialize database transaction.');
+      }
+
+      const resData = await initResponse.json();
+      if (resData.status === 'success' && resData.cashierUrl) {
+        // Redirect client to OPay cashier checkout
+        window.location.href = resData.cashierUrl;
+      } else {
+        throw new Error(resData.message || 'OPay Cashier URL could not be created.');
+      }
+    } catch (err) {
       setProcessingGateway(null);
-    }, 2000);
+      setPaymentError('Failed to initialize OPay checkout: ' + err.message);
+    }
   };
 
   const finalPhone = rechargeType === 'self' && savedUser ? savedUser.ratelnumber : formData.ratelnumber;
@@ -874,24 +903,6 @@ export default function BuyAirtime() {
         </div>
       )}
 
-      {/* HIDDEN HTML FORM FOR OPAY POST SUBMIT TO ROOT PAYER.PHP */}
-      <form
-        ref={opayFormRef}
-        action={OPAY_POST_URL}
-        method="POST"
-        target="_blank"
-        style={{ display: 'none' }}
-      >
-        <input type="hidden" name="email" value={finalEmail} />
-        <input type="hidden" name="phone" value={finalPhone} />
-        <input type="hidden" name="fname" value={finalFname} />
-        <input type="hidden" name="lname" value={finalLname} />
-        <input type="hidden" name="amount" value={formData.amount} />
-        <input type="hidden" name="source" value="Airtime" />
-        <input type="hidden" name="reference" value={generatedRef} />
-        <input type="hidden" name="opay" value="opay" />
-        <input type="hidden" name="redirect_origin" value={typeof window !== 'undefined' ? window.location.origin : ''} />
-      </form>
 
       {/* Local responsive styling */}
       <style>{`

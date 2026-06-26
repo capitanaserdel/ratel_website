@@ -6,8 +6,6 @@ import { useLanguage } from '@/context/LanguageContext';
 
 const REGISTRATION_FEE = 1000;
 const CURRENCY = 'NGN';
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ratelplus.net';
-const OPAY_POST_URL = `${backendUrl}/subs/payer.php`;
 
 export default function PersonalSubscribers() {
   const { t } = useLanguage();
@@ -183,7 +181,7 @@ export default function PersonalSubscribers() {
       size: (file.size / (1024 * 1024)).toFixed(2) + ' MB'
     });
 
-    fetch(`${backendUrl}/ajax_call_card_image.php`, {
+    fetch('/api/upload', {
       method: 'POST',
       body: formDataUpload
     })
@@ -252,7 +250,7 @@ export default function PersonalSubscribers() {
     regData.append('gender', 'Other');
 
     try {
-      const res = await fetch(`${backendUrl}/actions/registration.php`, {
+      const res = await fetch('/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
@@ -282,6 +280,30 @@ export default function PersonalSubscribers() {
     setProcessingGateway('paystack');
 
     try {
+      // 1. Log transaction in the Next.js database
+      const initResponse = await fetch('/api/payment/initiate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          reference: generatedRef,
+          ratelnumber: formData.mobile,
+          source: 'Personal Subscriber',
+          gateway: 'paystack',
+          email: formData.email,
+          fname: formData.fname,
+          lname: formData.sname,
+          amount: REGISTRATION_FEE,
+          redirect_origin: typeof window !== 'undefined' ? window.location.origin : ''
+        }),
+      });
+
+      if (!initResponse.ok) {
+        throw new Error('Failed to initialize database transaction.');
+      }
+
+      // 2. Open inline Paystack Pop-up
       const { default: PaystackPop } = await import('@paystack/inline-js');
       const popup = new PaystackPop();
       popup.newTransaction({
@@ -301,10 +323,10 @@ export default function PersonalSubscribers() {
         onSuccess: async (transaction) => {
           setProcessingGateway('verifying');
           try {
-            // Trigger backend Paystack verification to mark registration as paid
-            await fetch(`${backendUrl}/subs/payupdate.php?id=${generatedRef}&redirect_origin=${encodeURIComponent(window.location.origin)}`);
+            // 3. Trigger Paystack verification API
+            await fetch(`/api/payment/verify?reference=${generatedRef}&gateway=paystack&source=${encodeURIComponent('Personal Subscriber')}&redirect_origin=${encodeURIComponent(window.location.origin)}`);
           } catch (e) {
-            console.error('Failed to notify backend registration payment:', e);
+            console.error('Failed to verify Paystack registration payment:', e);
           }
           setProcessingGateway(null);
           setPaymentSuccess(true);
@@ -317,23 +339,51 @@ export default function PersonalSubscribers() {
       });
     } catch (err) {
       setProcessingGateway(null);
-      setPaymentError('Failed to load Paystack pop-up.');
+      setPaymentError('Failed to initialize Paystack checkout: ' + err.message);
     }
   };
 
   // ─── secure OPay Checkout ──────────────────────────────────────────────────
-  const handlePayWithOpay = (e) => {
+  const handlePayWithOpay = async (e) => {
     e.preventDefault();
     setPaymentError('');
     setProcessingGateway('opay');
 
-    if (opayFormRef.current) {
-      opayFormRef.current.submit();
-    }
+    try {
+      // 1. Initialize transaction in the Next.js database & get OPay Cashier link
+      const initResponse = await fetch('/api/payment/initiate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          reference: generatedRef,
+          ratelnumber: formData.mobile,
+          source: 'Personal Subscriber',
+          gateway: 'opay',
+          email: formData.email,
+          fname: formData.fname,
+          lname: formData.sname,
+          amount: REGISTRATION_FEE,
+          redirect_origin: typeof window !== 'undefined' ? window.location.origin : ''
+        }),
+      });
 
-    setTimeout(() => {
+      if (!initResponse.ok) {
+        throw new Error('Failed to initialize database transaction.');
+      }
+
+      const resData = await initResponse.json();
+      if (resData.status === 'success' && resData.cashierUrl) {
+        // Redirect client to OPay cashier checkout
+        window.location.href = resData.cashierUrl;
+      } else {
+        throw new Error(resData.message || 'OPay Cashier URL could not be created.');
+      }
+    } catch (err) {
       setProcessingGateway(null);
-    }, 2000);
+      setPaymentError('Failed to initialize OPay checkout: ' + err.message);
+    }
   };
 
   // ─── SUCCESS SCREEN ───────────────────────────────────────────────────────
@@ -924,24 +974,6 @@ export default function PersonalSubscribers() {
         </div>
       )}
 
-      {/* HIDDEN HTML FORM FOR OPAY POST SUBMIT */}
-      <form
-        ref={opayFormRef}
-        action={OPAY_POST_URL}
-        method="POST"
-        target="_blank"
-        style={{ display: 'none' }}
-      >
-        <input type="hidden" name="email" value={formData.email} />
-        <input type="hidden" name="phone" value={formData.mobile} />
-        <input type="hidden" name="fname" value={formData.fname} />
-        <input type="hidden" name="lname" value={formData.sname} />
-        <input type="hidden" name="amount" value={REGISTRATION_FEE} />
-        <input type="hidden" name="source" value="Personal Subscriber" />
-        <input type="hidden" name="reference" value={generatedRef} />
-        <input type="hidden" name="opay" value="opay" />
-        <input type="hidden" name="redirect_origin" value={typeof window !== 'undefined' ? window.location.origin : ''} />
-      </form>
 
       {/* Local custom responsive styles */}
       <style>{`
