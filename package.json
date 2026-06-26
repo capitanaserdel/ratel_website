@@ -11,7 +11,9 @@
   "dependencies": {
     "@paystack/inline-js": "^2.22.9",
     "axios": "^1.17.0",
+    "mysql2": "^3.22.5",
     "next": "16.2.7",
+    "nodemailer": "^9.0.1",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
