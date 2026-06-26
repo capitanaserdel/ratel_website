@@ -1,39 +1,39 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 import styles from './Preloader.module.css';
 
 const Preloader = () => {
+  const { t } = useLanguage();
   const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(true);
   const [fade, setFade] = useState(false);
-  const [statusText, setStatusText] = useState('CONNECTING TO RATEL PLUS BACKBONE...');
+  const [statusText, setStatusText] = useState('Connecting to Ratel Plus...');
 
   useEffect(() => {
     // Prevent scrolling while preloading
     document.body.style.overflow = 'hidden';
 
-    // Status log messages based on loading phases
+    // Customer-friendly status messages based on loading phases
     const updateStatusMessage = (val) => {
-      if (val < 20) {
-        setStatusText('BOOTING SECURE GATEWAY NETWORKS...');
-      } else if (val < 45) {
-        setStatusText('OPTIMIZING FIBER CORE TRANSIT PATHS...');
-      } else if (val < 70) {
-        setStatusText('INITIALIZING VOIP TRANSCODE PIPELINES...');
-      } else if (val < 90) {
-        setStatusText('STABILIZING METRO BROADBAND NODES...');
+      if (val < 30) {
+        setStatusText('Connecting to Ratel Plus...');
+      } else if (val < 65) {
+        setStatusText('Loading broadband services...');
+      } else if (val < 85) {
+        setStatusText('Optimizing network routes...');
       } else if (val < 100) {
-        setStatusText('SYNCHRONIZING SECURE ACCOUNT DATABASES...');
+        setStatusText('Establishing secure connection...');
       } else {
-        setStatusText('SYSTEM ONLINE - WELCOME TO RATEL PLUS');
+        setStatusText('Welcome to Ratel Plus');
       }
     };
 
     // Incremental progress simulation
     const interval = setInterval(() => {
       setProgress((prev) => {
-        const next = prev + Math.floor(Math.random() * 4) + 2;
+        const next = prev + Math.floor(Math.random() * 5) + 3;
         if (next >= 100) {
           clearInterval(interval);
           updateStatusMessage(100);
@@ -52,7 +52,7 @@ const Preloader = () => {
         updateStatusMessage(next);
         return next;
       });
-    }, 60);
+    }, 50);
 
     return () => {
       clearInterval(interval);
@@ -64,46 +64,33 @@ const Preloader = () => {
 
   return (
     <div className={`${styles.preloaderWrapper} ${fade ? styles.fadeOut : ''}`}>
-      {/* Background cyber grid scan line */}
-      <div className={styles.gridOverlay} />
-      
+      {/* Premium organic ambient glow */}
+      <div className={styles.ambientGlow} />
+
       <div className={styles.loaderContent}>
-        {/* Sleek SVG Rotating Ring Structure */}
-        <div className={styles.svgContainer}>
-          <svg className={styles.svgScanner} viewBox="0 0 100 100">
-            <circle 
-              className={styles.track} 
-              cx="50" 
-              cy="50" 
-              r="40" 
-            />
-            <circle 
-              className={styles.fill} 
-              cx="50" 
-              cy="50" 
-              r="40" 
-              style={{ strokeDashoffset: 251.2 - (251.2 * progress) / 100 }}
-            />
-          </svg>
-          <div className={styles.percentText}>
-            {progress}<span>%</span>
-          </div>
+        {/* Sleek Logo Container */}
+        <div className={styles.logoContainer}>
+          <img src="/logo.png" alt="Ratel Plus" className={styles.logoImage} />
         </div>
 
-        {/* Brand Header */}
-        <h2 className={styles.brandTitle}>
-          RATEL <span>PLUS</span>
-        </h2>
-        
-        {/* Dynamic Status Log */}
-        <div className={styles.statusBox}>
-          <div className={styles.pulseDot}></div>
-          <span className={styles.loadingText}>{statusText}</span>
+        {/* Brand Tagline */}
+        <div className={styles.tagline}>
+          {t('Broadband • Voice • LTE')}
         </div>
         
-        {/* Sub-bar */}
+        {/* Dynamic Connection Status */}
+        <div className={styles.statusBox}>
+          <span className={styles.loadingText}>{t(statusText)}</span>
+        </div>
+        
+        {/* Minimal High-Speed Fiber progress bar */}
         <div className={styles.progressBarBg}>
           <div className={styles.progressBarFill} style={{ width: `${progress}%` }}></div>
+        </div>
+        
+        {/* Percent indicator */}
+        <div className={styles.percentText}>
+          {progress}%
         </div>
       </div>
     </div>

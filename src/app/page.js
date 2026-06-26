@@ -7,25 +7,25 @@ import styles from './page.module.css';
 
 const heroSlides = [
   {
-    title: "Mandatory National Identification Number (NIN)",
-    subtitle: "Nigerian Communications Commission (NCC) Alert",
-    desc: "According to the NCC, it is mandatory for all subscribers to provide their National Identification Number (NIN) to keep their telephone lines active.",
-    img: "facade-206925_1920.jpg",
-    badge: "Compliance Update"
+    title: "High-Definition VoIP Services",
+    subtitle: "Crystal Clear Voice Calls",
+    desc: "Experience high-definition voice calling over the internet at the lowest call rates using our SIP softphone app.",
+    img: "phone_mockup.png",
+    badge: "VoIP Telephony"
   },
   {
-    title: "Facilities-Based Telecommunications infrastructure",
-    subtitle: "Next-Gen Networking Solutions",
-    desc: "Operating end-to-end reliable, fiber-like connectivity in the exclusively licensed and interference-free 2.3GHz spectrum.",
-    img: "2-GEE1-scaled.jpg",
-    badge: "High Capacity Network"
+    title: "Fibre to the Home (FTTH)",
+    subtitle: "Superfast Broadband Connectivity",
+    desc: "High-speed and reliable fiber optic connection directly to your home or office for seamless streaming, gaming, and remote work.",
+    img: "datacenter_fiber.png",
+    badge: "Broadband Fiber"
   },
   {
-    title: "Co-location & Managed Infrastructure Services",
-    subtitle: "Enterprise Reliability Solutions",
-    desc: "All environments receive redundant power, cooling, fire suppression, and network security drops with SLA-based 99.9% uptime guarantees.",
-    img: "colocation_services.jpg",
-    badge: "Data Services"
+    title: "High-Speed 4G LTE Services",
+    subtitle: "Reliable Mobile Broadband",
+    desc: "Stay connected on the go with our licensed, high-speed LTE data services designed for speed and reliability.",
+    img: "hero_banner.jpg",
+    badge: "4G LTE Network"
   }
 ];
 
@@ -34,9 +34,6 @@ export default function Home() {
 
   // 1. Tab State for Features Section
   const [activeTab, setActiveTab] = useState('mission');
-
-  // 2. Filter State for Devices Gallery
-  const [activeFilter, setActiveFilter] = useState('*');
 
   // 3. FAQ Accordion State (index of active FAQ, or null)
   const [activeFaq, setActiveFaq] = useState(0);
@@ -80,7 +77,7 @@ export default function Home() {
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [activeTab]);
 
   // 5. Hero Slider Background index
   const [heroSlide, setHeroSlide] = useState(0);
@@ -195,83 +192,9 @@ export default function Home() {
 
   const bandwidthSpecs = getBandwidthSpecs();
 
-  useEffect(() => {
-    if (calcProfile === 'home') {
-      setCalcDevices(5);
-    } else if (calcProfile === 'office') {
-      setCalcDevices(15);
-    } else {
-      setCalcDevices(50);
-    }
-  }, [calcProfile]);
 
-  // Devices Listing Data
-  const devices = [
-    {
-      id: 1,
-      title: t("Ratel Phone App"),
-      category: "app",
-      desc: t("A free SIP softphone that connects you to our network for high-definition voice calling over the internet."),
-      badge: t("Google Play / App Store"),
-      icon: "bi-phone-fill",
-      img: "/phone_mockup.png",
-      link: "https://play.google.com/store/apps/details?id=net.ratelplus.phone"
-    },
-    {
-      id: 2,
-      title: t("Smart Homes Solution"),
-      category: "smart-homes",
-      desc: t("Integrated smart home controls of the future, enabling video surveillance and lighting control over broadband."),
-      badge: t("Future IoT"),
-      icon: "bi-house-gear-fill",
-      img: "/datacenter_fiber.png",
-      link: "/#contact"
-    },
-    {
-      id: 3,
-      title: t("4G LTE Smartphone"),
-      category: "smart-phones",
-      desc: t("Brand new 6.5 inch Android smartphone optimized to support HD VoLTE calls on our high-speed network."),
-      badge: t("LTE Device"),
-      icon: "bi-phone-vibrate-fill",
-      img: "/phone_mockup.png",
-      link: "/#contact"
-    },
-    {
-      id: 4,
-      title: t("RATEL 4G LTE Hub Router"),
-      category: "broadband",
-      desc: t("High-speed wireless hubs with built-in router, converting your home or office into a high-speed hotspot."),
-      badge: t("Broadband Hub"),
-      icon: "bi-router-fill",
-      img: "/router_hub.png",
-      link: "/#contact"
-    },
-    {
-      id: 5,
-      title: t("RatelSIM Application"),
-      category: "app",
-      desc: t("Virtual SIM management interface to configure your VoIP lines, account balance, and subscription packages."),
-      badge: t("eSIM Utility"),
-      icon: "bi-sim-fill",
-      img: "/phone_mockup.png",
-      link: "https://apps.apple.com/ng/app/ratelplus-phone/id1659297972"
-    },
-    {
-      id: 6,
-      title: t("Enterprise Fixed Terminal"),
-      category: "smart-phones",
-      desc: t("Desk-bound smart cordless terminal supporting high-quality video calls and 5G Wi-Fi with SIM slots."),
-      badge: t("Office VoIP"),
-      icon: "bi-telephone-fill",
-      img: "/router_hub.png",
-      link: "/#contact"
-    }
-  ];
 
-  const filteredDevices = activeFilter === '*'
-    ? devices
-    : devices.filter(d => d.category === activeFilter);
+
 
   // FAQ Accordion Data
   const faqs = [
@@ -332,200 +255,172 @@ export default function Home() {
 
   return (
     <div>
-      {/* 1. Hero Banner with Aurora Blur Backgrounds */}
-      <section className={`${styles.heroSection} animate-fadeIn`}>
-        <div className={styles.aurora1} />
-        <div className={styles.aurora2} />
+      {/* 1. Hero Banner — Redesigned Premium Split Layout */}
+      <section className={`${styles.heroSection} ${styles.heroDark}`}>
+        {/* Layered background orbs */}
+        <div className={styles.heroOrb1} />
+        <div className={styles.heroOrb2} />
+        <div className={styles.heroOrb3} />
+
+        {/* Subtle background image */}
         {heroSlides[heroSlide] && heroSlides[heroSlide].img && (
           <img
             src={`/${heroSlides[heroSlide].img}`}
-            alt="Hero Background"
+            alt=""
+            aria-hidden="true"
             className={styles.heroImage}
           />
         )}
 
         <div className={`container ${styles.heroContainer}`}>
-          {/* Left Column: Slides Content */}
-          <div key={heroSlide} className={`${styles.heroContent} animate-fadeIn`} style={{ animationDelay: '0.2s' }}>
+          {/* LEFT COLUMN */}
+          <div key={heroSlide} className={`${styles.heroContent} animate-fadeIn`} style={{ animationDelay: '0.1s' }}>
+
+
+            {/* Headline */}
             <h1 className={styles.heroTitle}>
               {t(heroSlides[heroSlide].title)}
             </h1>
+
+            {/* Description */}
             <p className={styles.heroDesc}>
               {t(heroSlides[heroSlide].desc)}
             </p>
+
+            {/* CTA Buttons */}
             <div className={styles.heroBtns}>
-              <Link href="/reg-options" className={styles.heroRegisterBtn}>
-                {t('Register Now Btn')} <i className="bi bi-chevron-right"></i>
+              <Link href="/reg-options" id="hero-register-btn" className={styles.heroRegisterBtn}>
+                <i className="bi bi-person-plus-fill"></i>
+                {t('Register Now Btn')}
               </Link>
-              <Link href="/airtime" className={styles.heroAirtimeBtn}>
-                {t('Buy Airtime Btn')} <i className="bi bi-wallet2"></i>
+              <Link href="/airtime" id="hero-airtime-btn" className={styles.heroAirtimeBtn}>
+                <i className="bi bi-wallet2"></i>
+                {t('Buy Airtime Btn')}
               </Link>
+            </div>
+
+            {/* Watch video + slide dots row */}
+            <div className={styles.heroBottomRow}>
               <button
                 className={styles.btnWatch}
                 onClick={() => window.open('https://youtu.be/dP2eLpavzKc', '_blank')}
-                style={{ color: 'var(--text-main)' }}
               >
                 <i className="bi bi-play-circle-fill"></i>
                 <span>{t('Watch Video')}</span>
               </button>
+              <div className={styles.slideDotsRow}>
+                {heroSlides.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setHeroSlide(idx)}
+                    className={`${styles.slideDot} ${heroSlide === idx ? styles.slideDotActive : ''}`}
+                    aria-label={`Go to slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
             </div>
 
-            {/* Slider Controls */}
-            <div style={{ display: 'flex', gap: '10px', marginTop: '40px' }}>
-              {heroSlides.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setHeroSlide(idx)}
-                  style={{
-                    width: '12px',
-                    height: '12px',
-                    borderRadius: '50%',
-                    border: 'none',
-                    background: heroSlide === idx ? 'var(--primary)' : 'rgba(15, 23, 42, 0.2)',
-                    cursor: 'pointer',
-                    transition: 'var(--transition)'
-                  }}
-                  aria-label={`Go to slide ${idx + 1}`}
-                />
-              ))}
+            {/* Inline stat pills */}
+            <div className={styles.heroStatPills}>
+              <div className={styles.heroStatPill}>
+                <span className={styles.heroStatValue}>99.9%</span>
+                <span className={styles.heroStatLabel}>{t('Uptime')}</span>
+              </div>
+              <div className={styles.heroStatPillDivider} />
+              <div className={styles.heroStatPill}>
+                <span className={styles.heroStatValue}>24/7</span>
+                <span className={styles.heroStatLabel}>{t('Support')}</span>
+              </div>
+              <div className={styles.heroStatPillDivider} />
+              <div className={styles.heroStatPill}>
+                <span className={styles.heroStatValue}>15ms</span>
+                <span className={styles.heroStatLabel}>{t('Avg Latency')}</span>
+              </div>
             </div>
           </div>
 
-          {/* Right Column: Premium Interactive Widget Card */}
+          {/* RIGHT COLUMN: Premium Airtime Calculator */}
           <div className={styles.heroGraphic}>
-            <div className={styles.interactiveWidgetCard}>
-              <div className={styles.widgetHeader}>
-                <button
-                  className={`${styles.widgetTabBtn} ${heroWidgetTab === 'recharge' ? styles.widgetTabBtnActive : ''}`}
-                  onClick={() => setHeroWidgetTab('recharge')}
-                >
-                  <i className="bi bi-lightning-charge-fill"></i> {t('Quick Recharge')}
-                </button>
-                <button
-                  className={`${styles.widgetTabBtn} ${heroWidgetTab === 'coverage' ? styles.widgetTabBtnActive : ''}`}
-                  onClick={() => setHeroWidgetTab('coverage')}
-                >
-                  <i className="bi bi-geo-alt-fill"></i> {t('Coverage Check')}
-                </button>
-              </div>
+            <div className={styles.calcCardOuter}>
+              <div className={styles.calcCardRing} />
+              <div className={styles.calcCard}>
 
-              <div className={styles.widgetContent}>
-                {heroWidgetTab === 'recharge' ? (
-                  <div className={styles.rechargeTab}>
-                    <h4>{t('Quick Airtime Calculator')}</h4>
-                    <p className={styles.widgetSubtext}>{t('Enter recharge amount to calculate bonuses & instant credits.')}</p>
-                    <div className={styles.rechargeForm}>
-                      <div className={styles.widgetRow}>
-                        <div style={{ flex: 1 }}>
-                          <label className={styles.widgetLabel}>{t('Operator')}</label>
-                          <select
-                            value={rechargeOperator}
-                            onChange={(e) => setRechargeOperator(e.target.value)}
-                            className={styles.widgetSelect}
-                          >
-                            <option value="ratelphone">{t('Ratel Phone App (VoIP)')}</option>
-                            <option value="ratelsim">{t('RatelSIM Mobile')}</option>
-                          </select>
-                        </div>
-                        <div style={{ flex: 1 }}>
-                          <label className={styles.widgetLabel}>{t('Phone Number')}</label>
-                          <input
-                            type="tel"
-                            placeholder="e.g. 02064700000"
-                            value={rechargePhone}
-                            onChange={(e) => setRechargePhone(e.target.value)}
-                            className={styles.widgetInputTel}
-                          />
-                        </div>
-                      </div>
 
-                      <div className={styles.sliderGroup}>
-                        <label className={styles.widgetLabel}>{t('Recharge Amount (₦)')}</label>
-                        <div className={styles.widgetInputWrapper}>
-                          <i className="bi bi-wallet2"></i>
-                          <input
-                            type="number"
-                            placeholder="Enter Recharge Amount (e.g. 2000)"
-                            value={rechargeAmt || ''}
-                            onChange={(e) => setRechargeAmt(Number(e.target.value))}
-                            className={styles.widgetInput}
-                            min="100"
-                            max="100000"
-                            required
-                          />
-                        </div>
-                      </div>
+                {/* Amount display */}
+                <div className={styles.calcAmountDisplay}>
+                  <span className={styles.calcCurrency}>&#8358;</span>
+                  <span className={styles.calcAmountValue}>
+                    {rechargeAmt ? rechargeAmt.toLocaleString() : '0'}
+                  </span>
+                </div>
 
-                      <Link
-                        href={`/airtime?phone=${rechargePhone}&amount=${rechargeAmt}&operator=${rechargeOperator}`}
-                        className={styles.widgetSubmitBtn}
-                      >
-                        <i className="bi bi-cart-check-fill"></i> {t('Recharge Now')}
-                      </Link>
+                {/* Quick amount chips */}
+                <div className={styles.calcAmountChips}>
+                  {[500, 1000, 2000, 5000].map(amt => (
+                    <button
+                      key={amt}
+                      className={`${styles.calcChip} ${rechargeAmt === amt ? styles.calcChipActive : ''}`}
+                      onClick={() => setRechargeAmt(amt)}
+                    >
+                      &#8358;{amt.toLocaleString()}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Form fields */}
+                <div className={styles.calcForm}>
+                  <div className={styles.calcField}>
+                    <label className={styles.calcLabel}>{t('Phone Number')}</label>
+                    <div className={styles.calcInputWrap}>
+                      <i className="bi bi-telephone-fill"></i>
+                      <input
+                        type="tel"
+                        placeholder="e.g. 02064700000"
+                        value={rechargePhone}
+                        onChange={(e) => setRechargePhone(e.target.value)}
+                        className={styles.calcInput}
+                      />
                     </div>
                   </div>
-                ) : (
-                  <div className={styles.coverageTab}>
-                    <h4>{t('Check Network Coverage')}</h4>
-                    <p className={styles.widgetSubtext}>{t('Find out if our high-speed LTE and Metro Fiber services are active in your area.')}</p>
-                    <form onSubmit={handleCoverageCheck} className={styles.coverageForm}>
-                      <div className={styles.widgetInputWrapper}>
-                        <i className="bi bi-search"></i>
-                        <input
-                          type="text"
-                          placeholder={t('Enter Neighborhood or City (e.g. Kano, Gwarinpa)')}
-                          value={coverageSearch}
-                          onChange={(e) => setCoverageSearch(e.target.value)}
-                          className={styles.widgetInput}
-                          required
-                        />
-                      </div>
-                      <button type="submit" className={styles.widgetBtn} disabled={isCheckingCoverage}>
-                        {isCheckingCoverage ? (
-                          <>
-                            <span className={`${styles.spinner} bi bi-arrow-repeat`}></span> {t('Checking...')}
-                          </>
-                        ) : (
-                          <>{t('Check Service Status')}</>
-                        )}
-                      </button>
-                    </form>
-
-                    {coverageResult && (
-                      <div className={`${styles.coverageResultCard} ${coverageResult.active ? styles.coverageResultSuccess : styles.coverageResultWarning}`}>
-                        <div className={styles.coverageResultHeader}>
-                          <span className={styles.coverageResultIndicator}>
-                            <span className={styles.pulseDot}></span>
-                            {coverageResult.status}
-                          </span>
-                          <div className={styles.signalBars}>
-                            {[1, 2, 3, 4, 5].map((bar) => (
-                              <div
-                                key={bar}
-                                className={`${styles.signalBar} ${bar <= coverageResult.strength ? styles.signalBarActive : ''}`}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        <p className={styles.coverageResultDetails}>{coverageResult.details}</p>
-                        {coverageResult.active ? (
-                          <Link href="/reg-options" className={styles.resultActionBtn}>
-                            {t('Register SIM Now')} <i className="bi bi-arrow-right"></i>
-                          </Link>
-                        ) : (
-                          <Link href="/#contact" className={styles.resultActionBtnSecondary}>
-                            {t('Request Coverage Expansion')} <i className="bi-envelope-fill"></i>
-                          </Link>
-                        )}
-                      </div>
-                    )}
+                  <div className={styles.calcField}>
+                    <label className={styles.calcLabel}>{t('Recharge Amount (&#8358;)')}</label>
+                    <div className={styles.calcInputWrap}>
+                      <i className="bi bi-wallet2"></i>
+                      <input
+                        type="number"
+                        placeholder="Enter amount (e.g. 2000)"
+                        value={rechargeAmt || ''}
+                        onChange={(e) => setRechargeAmt(Number(e.target.value))}
+                        className={styles.calcInput}
+                        min="100"
+                        max="100000"
+                      />
+                    </div>
                   </div>
-                )}
+                </div>
+
+
+
+                {/* Recharge Now button */}
+                <Link
+                  href={`/airtime?phone=${rechargePhone}&amount=${rechargeAmt}&operator=${rechargeOperator}`}
+                  className={styles.calcSubmitBtn}
+                  id="hero-recharge-btn"
+                >
+                  <i className="bi bi-cart-check-fill"></i>
+                  {t('Recharge Now')}
+                </Link>
+
+                <p className={styles.calcFootNote}>
+                  <i className="bi bi-shield-fill-check"></i>
+                  {t('Secured & encrypted payment')}
+                </p>
               </div>
             </div>
           </div>
         </div>
       </section>
+
 
       {/* Live Network Activity Bar */}
       <section className={styles.liveActivityBar}>
@@ -639,7 +534,7 @@ export default function Home() {
             <div className={`${styles.appGraphic} revealRight`}>
               <div className={styles.appImgCard}>
                 <div className={styles.appImgGlow} />
-                <img src="/hand_phone.png" alt="Ratel Phone App in Hand" className={styles.appImgCover} />
+                <img src="/phone_dialer.png" alt="Ratel Phone App Dialer" className={styles.appImgCover} />
               </div>
             </div>
           </div>
@@ -763,250 +658,102 @@ export default function Home() {
           <div className={`${styles.sectionHeader} reveal`}>
             <span className={styles.sectionSubtitle}>{t('What We Offer')}</span>
             <h2 className={styles.sectionTitle}>{t('State-of-the-Art Telecom Services')}</h2>
-            <p>{t('Delivering converged telephony, Surviellance, fast transit, and high-speed data transmission over a reliable fiber-grade backbone.')}</p>
+            <p>{t('Delivering crystal-clear VoIP calling, superfast Fibre to the Home, and high-speed LTE data services.')}</p>
           </div>
 
           <div className={`${styles.servicesGrid} revealScale`}>
             {/* Voice Services */}
             <div className={`glass-panel ${styles.serviceCard}`}>
-              <div className={styles.serviceIcon}>
-                <i className="bi bi-telephone-outbound-fill"></i>
+              <div className={styles.serviceCardHeaderRow}>
+                <div className={styles.serviceIcon}>
+                  <i className="bi bi-telephone-outbound-fill"></i>
+                </div>
+                <span className={styles.serviceCardBadge}>{t('Cloud PBX & SIP')}</span>
               </div>
               <h4>{t('Voice Services')}</h4>
-              <p>{t('Converged Voice telephony using SIP softphones and custom VoIP routing to offer cheap call rates and advanced cloud PBX configurations.')}</p>
+              <p className={styles.serviceDesc}>{t('Converged Voice telephony using SIP softphones and custom VoIP routing to offer cheap call rates and advanced cloud PBX configurations.')}</p>
+              <ul className={styles.serviceFeatures}>
+                <li className={styles.serviceFeatureItem}>
+                  <i className="bi bi-patch-check-fill"></i>
+                  <span>{t('Cheap local & international calls')}</span>
+                </li>
+                <li className={styles.serviceFeatureItem}>
+                  <i className="bi bi-patch-check-fill"></i>
+                  <span>{t('SIP softphone integration')}</span>
+                </li>
+                <li className={styles.serviceFeatureItem}>
+                  <i className="bi bi-patch-check-fill"></i>
+                  <span>{t('HD calling over mobile/data')}</span>
+                </li>
+              </ul>
               <Link href="/services/voice" className={styles.serviceLink}>
                 {t('Learn More')} <i className="bi bi-arrow-right"></i>
               </Link>
             </div>
 
-            {/* Metro Connectivity */}
-            <div className={`glass-panel ${styles.serviceCard}`}>
-              <div className={styles.serviceIcon}>
-                <i className="bi bi-hdd-network-fill"></i>
+            {/* Fibre to the Home (Featured) */}
+            <div className={`glass-panel ${styles.serviceCard} ${styles.serviceCardFeatured}`}>
+              <div className={styles.featuredRibbon}>{t('Most Popular')}</div>
+              <div className={styles.serviceCardHeaderRow}>
+                <div className={styles.serviceIcon}>
+                  <i className="bi bi-hdd-network-fill"></i>
+                </div>
+                <span className={styles.serviceCardBadge}>{t('Ultra-Fast Core')}</span>
               </div>
-              <h4>{t('Metro Connectivity')}</h4>
-              <p>{t('Point-to-point and multipoint fiber layout solutions (FTTH) designed to fit your preferred network transit and distribution architectures.')}</p>
+              <h4>{t('Fibre to the Home (FTTH)')}</h4>
+              <p className={styles.serviceDesc}>{t('High-speed and reliable fiber optic broadband connection directly to your home or office for seamless streaming, gaming, and remote work.')}</p>
+              <ul className={styles.serviceFeatures}>
+                <li className={styles.serviceFeatureItem}>
+                  <i className="bi bi-patch-check-fill"></i>
+                  <span>{t('Gigabit-capable optical line')}</span>
+                </li>
+                <li className={styles.serviceFeatureItem}>
+                  <i className="bi bi-patch-check-fill"></i>
+                  <span>{t('Buffer-free 4K/8K media stream')}</span>
+                </li>
+                <li className={styles.serviceFeatureItem}>
+                  <i className="bi bi-patch-check-fill"></i>
+                  <span>{t('Dedicated business & residential SLA')}</span>
+                </li>
+              </ul>
               <Link href="/aboutus" className={styles.serviceLink}>
                 {t('Learn More')} <i className="bi bi-arrow-right"></i>
               </Link>
             </div>
 
-            {/* IP Wholesale */}
+            {/* LTE Services */}
             <div className={`glass-panel ${styles.serviceCard}`}>
-              <div className={styles.serviceIcon}>
-                <i className="bi bi-globe2"></i>
+              <div className={styles.serviceCardHeaderRow}>
+                <div className={styles.serviceIcon}>
+                  <i className="bi bi-phone-vibrate-fill"></i>
+                </div>
+                <span className={styles.serviceCardBadge}>{t('4G LTE Broadband')}</span>
               </div>
-              <h4>{t('IP Wholesale')}</h4>
-              <p>{t('IP Wholesale Desc')}</p>
-              <Link href="/services/ip-wholesale" className={styles.serviceLink}>
+              <h4>{t('LTE Services')}</h4>
+              <p className={styles.serviceDesc}>{t('Experience high-speed, low-latency, and highly reliable mobile connectivity with our licensed 4G LTE data solutions.')}</p>
+              <ul className={styles.serviceFeatures}>
+                <li className={styles.serviceFeatureItem}>
+                  <i className="bi bi-patch-check-fill"></i>
+                  <span>{t('High-speed wireless router hubs')}</span>
+                </li>
+                <li className={styles.serviceFeatureItem}>
+                  <i className="bi bi-patch-check-fill"></i>
+                  <span>{t('Symmetrical data transmissions')}</span>
+                </li>
+                <li className={styles.serviceFeatureItem}>
+                  <i className="bi bi-patch-check-fill"></i>
+                  <span>{t('eSIM & digital account topup')}</span>
+                </li>
+              </ul>
+              <Link href="/reg-options" className={styles.serviceLink}>
                 {t('Learn More')} <i className="bi bi-arrow-right"></i>
               </Link>
             </div>
-
-            {/* Backhaul Services */}
-            <div className={`glass-panel ${styles.serviceCard}`}>
-              <div className={styles.serviceIcon}>
-                <i className="bi bi-router"></i>
-              </div>
-              <h4>{t('Backhaul Services')}</h4>
-              <p>{t('Backhaul Services Desc')}</p>
-              <Link href="/services/backhaul" className={styles.serviceLink}>
-                {t('Learn More')} <i className="bi bi-arrow-right"></i>
-              </Link>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* 5. Interactive Network Planner (Bandwidth & Speed Estimator) */}
-      <section id="unique_service" className={`${styles.sectionPadding} ${styles.plannerSection} reveal`}>
-        <div className={styles.aurora3} />
-        <div className="container">
-          <div className={`${styles.sectionHeader} reveal`}>
-            <span className={styles.sectionSubtitle}>{t('Plan Your Requirements')}</span>
-            <h2 className={styles.sectionTitle}>{t('Interactive Bandwidth Planner')}</h2>
-            <p>{t('Select your operational profile and drag the device slider to calculate recommended speeds and hardware setups dynamically.')}</p>
-          </div>
 
-          <div className={styles.plannerGrid}>
-            {/* Left Side: Interactive Controls */}
-            <div className={`glass-panel ${styles.plannerControls} revealLeft`}>
-              <div className={styles.plannerTabs}>
-                <button
-                  className={`${styles.plannerTabBtn} ${calcProfile === 'home' ? styles.plannerTabBtnActive : ''}`}
-                  onClick={() => setCalcProfile('home')}
-                >
-                  <i className="bi bi-house-door-fill"></i> {t('Home / SOHO')}
-                </button>
-                <button
-                  className={`${styles.plannerTabBtn} ${calcProfile === 'office' ? styles.plannerTabBtnActive : ''}`}
-                  onClick={() => setCalcProfile('office')}
-                >
-                  <i className="bi bi-building-fill"></i> {t('Office / Corporate')}
-                </button>
-                <button
-                  className={`${styles.plannerTabBtn} ${calcProfile === 'enterprise' ? styles.plannerTabBtnActive : ''}`}
-                  onClick={() => setCalcProfile('enterprise')}
-                >
-                  <i className="bi bi-clouds-fill"></i> {t('Carrier / Wholesale')}
-                </button>
-              </div>
-
-              <div className={styles.sliderGroupPlanner}>
-                <div className={styles.sliderHeaderPlanner}>
-                  <span>{t('Estimated Concurrent Users/Devices:')}</span>
-                  <strong className={styles.sliderValuePlanner}>{calcDevices}</strong>
-                </div>
-                <input
-                  type="range"
-                  min={calcProfile === 'home' ? '1' : calcProfile === 'office' ? '5' : '20'}
-                  max={calcProfile === 'home' ? '25' : calcProfile === 'office' ? '100' : '500'}
-                  step={calcProfile === 'home' ? '1' : calcProfile === 'office' ? '5' : '10'}
-                  value={calcDevices}
-                  onChange={(e) => setCalcDevices(Number(e.target.value))}
-                  className={styles.widgetSlider}
-                />
-                <div className={styles.sliderStepsPlanner}>
-                  <span>{calcProfile === 'home' ? t('1 Device') : calcProfile === 'office' ? t('5 Users') : t('20 Nodes')}</span>
-                  <span>{calcProfile === 'home' ? t('25 Devices') : calcProfile === 'office' ? t('100 Users') : t('500 Nodes')}</span>
-                </div>
-              </div>
-
-              <div className={styles.plannerQuickFeatures}>
-                <div className={styles.plannerFeatureItem}>
-                  <i className="bi bi-shield-fill-check"></i>
-                  <span><strong>{t('NLOS Setup:')}</strong> {t('High-gain receivers support seamless operations without high mast antennas.')}</span>
-                </div>
-                <div className={styles.plannerFeatureItem}>
-                  <i className="bi bi-lightning-charge-fill"></i>
-                  <span><strong>{t('99.9% Uptime:')}</strong> {t('Managed channels are protected under custom SLAs.')}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Side: Calculation Output Mockup */}
-            <div className={`glass-panel ${styles.plannerOutputCard} revealRight`}>
-              <div className={styles.scannerLine} />
-              <div className={styles.plannerOutputHeader}>
-                <span className={styles.liveBadge}>{t('LIVE CALCULATION')}</span>
-                <h3>{t('Recommended Configuration')}</h3>
-              </div>
-
-              <div className={styles.plannerSpeedDisplay}>
-                <span className={styles.plannerSpeedLabel}>{t('SUGGESTED BANDWIDTH')}</span>
-                <h2 className={styles.plannerSpeedValue}>
-                  {bandwidthSpecs.speed} <span className={styles.plannerSpeedUnit}>Mbps</span>
-                </h2>
-              </div>
-
-              <div className={styles.plannerOutputDetails}>
-                <p>{bandwidthSpecs.description}</p>
-
-                <div className={styles.recommendedEquipmentCard}>
-                  <div className={styles.recommendedEquipmentIcon}>
-                    <img src={bandwidthSpecs.image} alt={bandwidthSpecs.recommendation} className={styles.equipmentImg} />
-                  </div>
-                  <div>
-                    <h5>{t('Ideal Delivery Setup')}</h5>
-                    <p className={styles.recommendedEquipmentText}>{bandwidthSpecs.recommendation}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className={styles.plannerActions}>
-                {bandwidthSpecs.link.startsWith('http') ? (
-                  <a href={bandwidthSpecs.link} target="_blank" rel="noopener noreferrer" className={styles.plannerPrimaryBtn}>
-                    {t('Get Started')} <i className="bi bi-arrow-right-short"></i>
-                  </a>
-                ) : (
-                  <Link href={bandwidthSpecs.link} className={styles.plannerPrimaryBtn}>
-                    {t('Inquire for Plan')} <i className="bi bi-arrow-right-short"></i>
-                  </Link>
-                )}
-                <Link href="/reg-options" className={styles.plannerSecondaryBtn}>
-                  {t('View All Rates')}
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. Devices Filtering Gallery */}
-      <section id="devices" className={`${styles.sectionPadding} reveal`}>
-        <div className="container">
-          <div className={`${styles.sectionHeader} reveal`}>
-            <span className={styles.sectionSubtitle}>{t('Product Showcase')}</span>
-            <h2 className={styles.sectionTitle}>{t('Explore Our Smart Devices')}</h2>
-            <p>{t('Download our softphone apps, set up enterprise fixed desk terminals, or configure high-performance broadband hubs.')}</p>
-          </div>
-
-          {/* Filter Controls */}
-          <div className={`${styles.filterList} revealScale`}>
-            <button
-              className={`${styles.filterBtn} ${activeFilter === '*' ? styles.filterBtnActive : ''}`}
-              onClick={() => setActiveFilter('*')}
-            >
-              {t('All Products')}
-            </button>
-            <button
-              className={`${styles.filterBtn} ${activeFilter === 'app' ? styles.filterBtnActive : ''}`}
-              onClick={() => setActiveFilter('app')}
-            >
-              {t('Mobile Apps')}
-            </button>
-            <button
-              className={`${styles.filterBtn} ${activeFilter === 'broadband' ? styles.filterBtnActive : ''}`}
-              onClick={() => setActiveFilter('broadband')}
-            >
-              {t('Broadband Hubs')}
-            </button>
-            <button
-              className={`${styles.filterBtn} ${activeFilter === 'smart-phones' ? styles.filterBtnActive : ''}`}
-              onClick={() => setActiveFilter('smart-phones')}
-            >
-              {t('Smart Phones')}
-            </button>
-            <button
-              className={`${styles.filterBtn} ${activeFilter === 'smart-homes' ? styles.filterBtnActive : ''}`}
-              onClick={() => setActiveFilter('smart-homes')}
-            >
-              {t('Smart Homes')}
-            </button>
-          </div>
-
-          {/* Device Showcase Grid */}
-          <div className={`${styles.deviceGrid} revealScale`}>
-            {filteredDevices.map(device => (
-              <div key={device.id} className={`glass-panel ${styles.deviceCard}`}>
-                <div className={styles.deviceImgWrapper}>
-                  {device.img ? (
-                    <img src={device.img} alt={device.title} className={styles.deviceImage} />
-                  ) : (
-                    <i className={`bi ${device.icon}`}></i>
-                  )}
-                </div>
-                <div className={styles.deviceInfo}>
-                  <span className={styles.deviceBadge}>{device.badge}</span>
-                  <h4>{device.title}</h4>
-                  <p>{device.desc}</p>
-                  <div className={styles.deviceAction}>
-                    {device.link.startsWith('http') ? (
-                      <a href={device.link} target="_blank" rel="noopener noreferrer" className={styles.deviceActionLink}>
-                        {t('Visit Store')} <i className="bi bi-box-arrow-up-right"></i>
-                      </a>
-                    ) : (
-                      <Link href={device.link} className={styles.deviceActionLink}>
-                        {t('Inquire Details')} <i className="bi bi-chevron-right"></i>
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* 7. Partners Infinite Scroll (simulated) */}
       <section id="client" className={`${styles.sectionPadding} ${styles.partnersSection} reveal`}>
@@ -1015,58 +762,58 @@ export default function Home() {
             <span className={styles.sectionSubtitle}>{t('Clients & Partners')}</span>
             <h2 className={styles.sectionTitle}>{t('Trusted by Mobile Operators & Governments')}</h2>
           </div>
+        </div>
 
-          <div style={{ position: 'relative', overflow: 'hidden', padding: '10px 0' }}>
-            <div className={styles.partnersTrack}>
-              <div className={styles.partnerLogo} title="MTN">
-                <img src="/testimonials/MTN-logo.jpg" alt="MTN Logo" />
-              </div>
-              <div className={styles.partnerLogo} title="Airtel">
-                <img src="/testimonials/New-Airtel-Logo.png" alt="Airtel Logo" />
-              </div>
-              <div className={styles.partnerLogo} title="9Mobile">
-                <img src="/testimonials/nine.jpg" alt="9Mobile Logo" />
-              </div>
-              <div className={styles.partnerLogo} title="NITDA">
-                <img src="/testimonials/nitda.jpg" alt="NITDA Logo" />
-              </div>
-              <div className={styles.partnerLogo} title="FCDA">
-                <img src="/testimonials/fcta.jpg" alt="FCDA Logo" />
-              </div>
-              <div className={styles.partnerLogo} title="NJI">
-                <img src="/testimonials/nji.jpg" alt="NJI Logo" />
-              </div>
-              <div className={styles.partnerLogo} title="Gombe Govt">
-                <img src="/testimonials/govt_gombe.jpg" alt="Gombe Govt Logo" />
-              </div>
-              <div className={styles.partnerLogo} title="Bauchi Govt">
-                <img src="/testimonials/bauchi.jpg" alt="Bauchi Govt Logo" />
-              </div>
-              {/* Duplicate for infinite scroll simulation */}
-              <div className={styles.partnerLogo} title="MTN">
-                <img src="/testimonials/MTN-logo.jpg" alt="MTN Logo" />
-              </div>
-              <div className={styles.partnerLogo} title="Airtel">
-                <img src="/testimonials/New-Airtel-Logo.png" alt="Airtel Logo" />
-              </div>
-              <div className={styles.partnerLogo} title="9Mobile">
-                <img src="/testimonials/nine.jpg" alt="9Mobile Logo" />
-              </div>
-              <div className={styles.partnerLogo} title="NITDA">
-                <img src="/testimonials/nitda.jpg" alt="NITDA Logo" />
-              </div>
-              <div className={styles.partnerLogo} title="FCDA">
-                <img src="/testimonials/fcta.jpg" alt="FCDA Logo" />
-              </div>
-              <div className={styles.partnerLogo} title="NJI">
-                <img src="/testimonials/nji.jpg" alt="NJI Logo" />
-              </div>
-              <div className={styles.partnerLogo} title="Gombe Govt">
-                <img src="/testimonials/govt_gombe.jpg" alt="Gombe Govt Logo" />
-              </div>
-              <div className={styles.partnerLogo} title="Bauchi Govt">
-                <img src="/testimonials/bauchi.jpg" alt="Bauchi Govt Logo" />
-              </div>
+        <div style={{ position: 'relative', overflow: 'hidden', padding: '20px 0', width: '100%' }}>
+          <div className={styles.partnersTrack}>
+            <div className={styles.partnerLogo} title="MTN">
+              <img src="/testimonials/MTN-logo.jpg" alt="MTN Logo" />
+            </div>
+            <div className={styles.partnerLogo} title="Airtel">
+              <img src="/testimonials/New-Airtel-Logo.png" alt="Airtel Logo" />
+            </div>
+            <div className={styles.partnerLogo} title="9Mobile">
+              <img src="/testimonials/nine.jpg" alt="9Mobile Logo" />
+            </div>
+            <div className={styles.partnerLogo} title="NITDA">
+              <img src="/testimonials/nitda.jpg" alt="NITDA Logo" />
+            </div>
+            <div className={styles.partnerLogo} title="FCDA">
+              <img src="/testimonials/fcta.jpg" alt="FCDA Logo" />
+            </div>
+            <div className={styles.partnerLogo} title="NJI">
+              <img src="/testimonials/nji.jpg" alt="NJI Logo" />
+            </div>
+            <div className={styles.partnerLogo} title="Gombe Govt">
+              <img src="/testimonials/govt_gombe.jpg" alt="Gombe Govt Logo" />
+            </div>
+            <div className={styles.partnerLogo} title="Bauchi Govt">
+              <img src="/testimonials/bauchi.jpg" alt="Bauchi Govt Logo" />
+            </div>
+            {/* Duplicate for infinite scroll simulation */}
+            <div className={styles.partnerLogo} title="MTN">
+              <img src="/testimonials/MTN-logo.jpg" alt="MTN Logo" />
+            </div>
+            <div className={styles.partnerLogo} title="Airtel">
+              <img src="/testimonials/New-Airtel-Logo.png" alt="Airtel Logo" />
+            </div>
+            <div className={styles.partnerLogo} title="9Mobile">
+              <img src="/testimonials/nine.jpg" alt="9Mobile Logo" />
+            </div>
+            <div className={styles.partnerLogo} title="NITDA">
+              <img src="/testimonials/nitda.jpg" alt="NITDA Logo" />
+            </div>
+            <div className={styles.partnerLogo} title="FCDA">
+              <img src="/testimonials/fcta.jpg" alt="FCDA Logo" />
+            </div>
+            <div className={styles.partnerLogo} title="NJI">
+              <img src="/testimonials/nji.jpg" alt="NJI Logo" />
+            </div>
+            <div className={styles.partnerLogo} title="Gombe Govt">
+              <img src="/testimonials/govt_gombe.jpg" alt="Gombe Govt Logo" />
+            </div>
+            <div className={styles.partnerLogo} title="Bauchi Govt">
+              <img src="/testimonials/bauchi.jpg" alt="Bauchi Govt Logo" />
             </div>
           </div>
         </div>
@@ -1082,6 +829,7 @@ export default function Home() {
           </div>
 
           <div className={`${styles.teamGrid} revealScale`}>
+            {/* CEO */}
             <div className={`glass-panel ${styles.memberCard}`}>
               <div className={styles.memberImgArea}>
                 <div className={styles.memberGlow} />
@@ -1099,57 +847,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className={`glass-panel ${styles.memberCard}`}>
-              <div className={styles.memberImgArea}>
-                <div className={styles.memberGlow} />
-                <img src="/team/auta.jpeg" alt="Shehu Hauwa Ahmed" className={styles.memberImage} />
-                <div className={styles.memberOverlay}>
-                  <div className={styles.memberSocials}>
-                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className={styles.socialIcon}><i className="bi bi-linkedin"></i></a>
-                    <a href="mailto:customercare@ratelplus.net.ng" className={styles.socialIcon}><i className="bi bi-envelope-fill"></i></a>
-                  </div>
-                </div>
-              </div>
-              <div className={styles.memberInfo}>
-                <h4>Shehu Hauwa Ahmed</h4>
-                <span>{t('Compliance & Regulatory Officer')}</span>
-              </div>
-            </div>
-
-            <div className={`glass-panel ${styles.memberCard}`}>
-              <div className={styles.memberImgArea}>
-                <div className={styles.memberGlow} />
-                <img src="/team/blessing.jpeg" alt="John Blessing Odah" className={styles.memberImage} />
-                <div className={styles.memberOverlay}>
-                  <div className={styles.memberSocials}>
-                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className={styles.socialIcon}><i className="bi bi-linkedin"></i></a>
-                    <a href="mailto:customercare@ratelplus.net.ng" className={styles.socialIcon}><i className="bi bi-envelope-fill"></i></a>
-                  </div>
-                </div>
-              </div>
-              <div className={styles.memberInfo}>
-                <h4>John Blessing Odah</h4>
-                <span>{t('LTE Marketing Manager')}</span>
-              </div>
-            </div>
-
-            <div className={`glass-panel ${styles.memberCard}`}>
-              <div className={styles.memberImgArea}>
-                <div className={styles.memberGlow} />
-                <img src="/team/Shamsuddeen-Abba-Labaran.jpeg" alt="Shamsuddeen Abba Labaran" className={styles.memberImage} />
-                <div className={styles.memberOverlay}>
-                  <div className={styles.memberSocials}>
-                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className={styles.socialIcon}><i className="bi bi-linkedin"></i></a>
-                    <a href="mailto:customercare@ratelplus.net.ng" className={styles.socialIcon}><i className="bi bi-envelope-fill"></i></a>
-                  </div>
-                </div>
-              </div>
-              <div className={styles.memberInfo}>
-                <h4>Shamsuddeen Abba Labaran</h4>
-                <span>{t('Chief Accountant')}</span>
-              </div>
-            </div>
-
+            {/* General Manager */}
             <div className={`glass-panel ${styles.memberCard}`}>
               <div className={styles.memberImgArea}>
                 <div className={styles.memberGlow} />
@@ -1167,10 +865,11 @@ export default function Home() {
               </div>
             </div>
 
+            {/* Compliance & Regulatory Officer */}
             <div className={`glass-panel ${styles.memberCard}`}>
               <div className={styles.memberImgArea}>
                 <div className={styles.memberGlow} />
-                <img src="/team/auta.jpeg" alt="Ahmad Auta" className={styles.memberImage} />
+                <img src="/team/hauwa.jpeg" alt="Shehu Hauwa Ahmed" className={styles.memberImage} />
                 <div className={styles.memberOverlay}>
                   <div className={styles.memberSocials}>
                     <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className={styles.socialIcon}><i className="bi bi-linkedin"></i></a>
@@ -1179,11 +878,66 @@ export default function Home() {
                 </div>
               </div>
               <div className={styles.memberInfo}>
-                <h4>Ahmad Auta</h4>
-                <span>{t('HoD LTE Services')}</span>
+                <h4>Shehu Hauwa Ahmed</h4>
+                <span>{t('Compliance & Regulatory Officer')}</span>
               </div>
             </div>
 
+            {/* Chief Accountant */}
+            <div className={`glass-panel ${styles.memberCard}`}>
+              <div className={styles.memberImgArea}>
+                <div className={styles.memberGlow} />
+                <img src="/team/Shamsuddeen-Abba-Labaran.jpeg" alt="Shamsuddeen Abba Labaran" className={styles.memberImage} />
+                <div className={styles.memberOverlay}>
+                  <div className={styles.memberSocials}>
+                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className={styles.socialIcon}><i className="bi bi-linkedin"></i></a>
+                    <a href="mailto:customercare@ratelplus.net.ng" className={styles.socialIcon}><i className="bi bi-envelope-fill"></i></a>
+                  </div>
+                </div>
+              </div>
+              <div className={styles.memberInfo}>
+                <h4>Shamsuddeen Abba Labaran</h4>
+                <span>{t('Chief Accountant')}</span>
+              </div>
+            </div>
+
+            {/* LTE Marketing Manager */}
+            <div className={`glass-panel ${styles.memberCard}`}>
+              <div className={styles.memberImgArea}>
+                <div className={styles.memberGlow} />
+                <img src="/team/blessing.jpeg" alt="John Blessing Odah" className={styles.memberImage} />
+                <div className={styles.memberOverlay}>
+                  <div className={styles.memberSocials}>
+                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className={styles.socialIcon}><i className="bi bi-linkedin"></i></a>
+                    <a href="mailto:customercare@ratelplus.net.ng" className={styles.socialIcon}><i className="bi bi-envelope-fill"></i></a>
+                  </div>
+                </div>
+              </div>
+              <div className={styles.memberInfo}>
+                <h4>John Blessing Odah</h4>
+                <span>{t('LTE Marketing Manager')}</span>
+              </div>
+            </div>
+
+            {/* HoD Software Development */}
+            <div className={`glass-panel ${styles.memberCard}`}>
+              <div className={styles.memberImgArea}>
+                <div className={styles.memberGlow} />
+                <img src="/team/alameen.jpg" alt="Muhammad Abubakar Al-ameen" className={styles.memberImage} style={{ objectPosition: 'center 20%', transform: 'scale(0.95)' }} />
+                <div className={styles.memberOverlay}>
+                  <div className={styles.memberSocials}>
+                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className={styles.socialIcon}><i className="bi bi-linkedin"></i></a>
+                    <a href="mailto:customercare@ratelplus.net.ng" className={styles.socialIcon}><i className="bi bi-envelope-fill"></i></a>
+                  </div>
+                </div>
+              </div>
+              <div className={styles.memberInfo}>
+                <h4>Muhammad Abubakar Al-ameen</h4>
+                <span>{t('HoD Software Development')}</span>
+              </div>
+            </div>
+
+            {/* HoD VoIP Services */}
             <div className={`glass-panel ${styles.memberCard}`}>
               <div className={styles.memberImgArea}>
                 <div className={styles.memberGlow} />

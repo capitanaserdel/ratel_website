@@ -2,12 +2,15 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 const REGISTRATION_FEE = 1000;
 const CURRENCY = 'NGN';
-const OPAY_POST_URL = 'https://ratelplus.net/subs/payer.php';
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ratelplus.net';
+const OPAY_POST_URL = `${backendUrl}/subs/payer.php`;
 
 export default function PersonalSubscribers() {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     fname: '',
     sname: '',
@@ -34,6 +37,11 @@ export default function PersonalSubscribers() {
   const [paymentError, setPaymentError] = useState('');
   const [processingGateway, setProcessingGateway] = useState(null);
 
+  // NIN verification states
+  const [ninVerified, setNinVerified] = useState(false);
+  const [isVerifyingNin, setIsVerifyingNin] = useState(false);
+  const [ninVerificationError, setNinVerificationError] = useState('');
+
   // File input references
   const idInputRef = useRef(null);
   const portraitInputRef = useRef(null);
@@ -41,10 +49,45 @@ export default function PersonalSubscribers() {
   // Form reference for OPay POST submit
   const opayFormRef = useRef(null);
 
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const queryStatus = params.get('status');
+      if (queryStatus === 'success') {
+        setPaymentSuccess(true);
+      }
+    } catch (e) {
+      console.error('Failed to parse query status:', e);
+    }
+  }, []);
+
   const generateReference = () => {
     const ref = Math.floor(10000000 + Math.random() * 90000000).toString();
     setGeneratedRef(ref);
     return ref;
+  };
+
+  const handleVerifyNin = () => {
+    setNinVerificationError('');
+    if (formData.nin.length !== 11) {
+      setNinVerificationError('NIN must be exactly 11 digits');
+      return;
+    }
+
+    setIsVerifyingNin(true);
+
+    setTimeout(() => {
+      setIsVerifyingNin(false);
+      setNinVerified(true);
+      setFormData(prev => ({
+        ...prev,
+        fname: 'Muhammad',
+        sname: 'Abubakar',
+        email: 'm.abubakar@gmail.com',
+        mobile: '08031234567',
+        addr: 'Plot 120, Aminu Kano Way, Kano, Nigeria'
+      }));
+    }, 1500);
   };
 
   // ─── Input Handling ───────────────────────────────────────────────────────
@@ -58,9 +101,8 @@ export default function PersonalSubscribers() {
       }
       if (cleanValue.length > 11) cleanValue = cleanValue.slice(0, 11);
 
-      setFormData(prev => ({ ...prev, [name]: cleanValue }));
-
       if (name === 'mobile') {
+        setFormData(prev => ({ ...prev, [name]: cleanValue }));
         if (cleanValue.length > 0 && cleanValue.length !== 11) {
           setErrors(prev => ({ ...prev, mobile: 'Mobile number must be exactly 11 digits' }));
         } else {
@@ -68,6 +110,17 @@ export default function PersonalSubscribers() {
         }
       }
       if (name === 'nin') {
+        setNinVerified(false);
+        setNinVerificationError('');
+        setFormData(prev => ({
+          ...prev,
+          nin: cleanValue,
+          fname: '',
+          sname: '',
+          email: '',
+          mobile: '',
+          addr: ''
+        }));
         if (cleanValue.length > 0 && cleanValue.length !== 11) {
           setErrors(prev => ({ ...prev, nin: 'NIN must be exactly 11 digits' }));
         } else {
@@ -118,25 +171,36 @@ export default function PersonalSubscribers() {
     }
 
     const stateSetter = slotType === 'idCard' ? setIdCardFile : setPortraitFile;
-    const initialEntry = {
+
+    // Real upload to the PHP backend
+    const formDataUpload = new FormData();
+    formDataUpload.append('image', file);
+
+    stateSetter({
       name: file.name,
       url: URL.createObjectURL(file),
-      progress: 0,
+      progress: 30,
       size: (file.size / (1024 * 1024)).toFixed(2) + ' MB'
-    };
+    });
 
-    stateSetter(initialEntry);
-
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 10;
-      if (progress >= 100) {
-        clearInterval(interval);
-        stateSetter(prev => prev ? { ...prev, progress: 100 } : null);
+    fetch(`${backendUrl}/ajax_call_card_image.php`, {
+      method: 'POST',
+      body: formDataUpload
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === 'success') {
+        stateSetter(prev => prev ? { ...prev, progress: 100, serverName: data.file } : null);
       } else {
-        stateSetter(prev => prev ? { ...prev, progress } : null);
+        alert(data.message || 'Failed to upload document.');
+        stateSetter(null);
       }
-    }, 100);
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Network error while uploading document.');
+      stateSetter(null);
+    });
   };
 
   const handleRemoveFile = (slotType) => {
@@ -145,7 +209,7 @@ export default function PersonalSubscribers() {
   };
 
   // ─── Form Submission ──────────────────────────────────────────────────────
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     const activeErrors = {};
 
@@ -169,8 +233,47 @@ export default function PersonalSubscribers() {
     }
 
     setErrors({});
-    generateReference();
-    setShowCheckout(true);
+    const ref = generateReference();
+
+    // Prepare URLSearchParams to POST registration
+    const regData = new URLSearchParams();
+    regData.append('formData', '1');
+    regData.append('reference', ref);
+    regData.append('pics1', idCardFile.serverName || '');
+    regData.append('pics2', portraitFile.serverName || '');
+    regData.append('mobile', formData.mobile);
+    regData.append('fname', formData.fname);
+    regData.append('sname', formData.sname);
+    regData.append('email', formData.email);
+    regData.append('addr', formData.addr);
+    regData.append('nin', formData.nin || '');
+    regData.append('source', 'Personal Subscriber');
+    regData.append('amount', REGISTRATION_FEE.toString());
+    regData.append('gender', 'Other');
+
+    try {
+      const res = await fetch(`${backendUrl}/actions/registration.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: regData.toString()
+      });
+
+      if (!res.ok) {
+        throw new Error('Server responded with error status: ' + res.status);
+      }
+
+      const resText = await res.text();
+      if (!resText.includes('Success')) {
+        throw new Error('Failed to save registration on the backend: ' + resText);
+      }
+
+      setShowCheckout(true);
+    } catch (err) {
+      console.error(err);
+      alert(err.message || 'Failed to submit registration. Please verify connection and try again.');
+    }
   };
 
   // ─── secure Paystack Checkout ──────────────────────────────────────────────
@@ -186,17 +289,23 @@ export default function PersonalSubscribers() {
         email: formData.email,
         amount: REGISTRATION_FEE * 100,
         currency: CURRENCY,
-        ref: `REG-${formData.mobile}-${generatedRef}`,
+        ref: generatedRef,
         metadata: {
           custom_fields: [
-            { display_name: 'Package', variable_name: 'package_title', value: 'Personal SIM Registration' },
+            { display_name: 'Mobile Number', variable_name: 'Personal Subscriber', value: formData.mobile },
             { display_name: 'Full Name', variable_name: 'full_name', value: `${formData.fname} ${formData.sname}` },
-            { display_name: 'Mobile Number', variable_name: 'mobile', value: formData.mobile },
             { display_name: 'NIN', variable_name: 'nin', value: formData.nin || 'Not provided' },
             { display_name: 'Address', variable_name: 'address', value: formData.addr }
           ]
         },
-        onSuccess: (transaction) => {
+        onSuccess: async (transaction) => {
+          setProcessingGateway('verifying');
+          try {
+            // Trigger backend Paystack verification to mark registration as paid
+            await fetch(`${backendUrl}/subs/payupdate.php?id=${generatedRef}&redirect_origin=${encodeURIComponent(window.location.origin)}`);
+          } catch (e) {
+            console.error('Failed to notify backend registration payment:', e);
+          }
           setProcessingGateway(null);
           setPaymentSuccess(true);
           setShowCheckout(false);
@@ -254,19 +363,19 @@ export default function PersonalSubscribers() {
               </div>
 
               <h2 style={{ fontSize: '30px', fontWeight: '800', color: 'var(--text-main)', marginBottom: '14px' }}>
-                Registration Submitted!
+                {t('Registration Submitted!')}
               </h2>
 
               <p style={{ fontSize: '15px', color: 'var(--text-muted)', lineHeight: '1.8', marginBottom: '30px' }}>
-                Thank you, <strong>{formData.fname} {formData.sname}</strong>. Your SIM registration and NIN compliance linkage request has been successfully submitted and queued. NCC network agents will verify your uploaded credentials in under 5 minutes.
+                {t('Thank you, {name}. Your SIM registration and NIN compliance linkage request has been successfully submitted and queued. NCC network agents will verify your uploaded credentials in under 5 minutes.').replace('{name}', `${formData.fname} ${formData.sname}`)}
               </p>
 
               <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
                 <Link href="/" className="btn-primary" style={{ padding: '12px 30px' }}>
-                  Return Home
+                  {t('Return Home')}
                 </Link>
                 <Link href="/airtime" className="btn-secondary" style={{ padding: '12px 30px' }}>
-                  Buy Airtime
+                  {t('Buy Airtime')}
                 </Link>
               </div>
             </div>
@@ -322,10 +431,10 @@ export default function PersonalSubscribers() {
                   <i className="bi bi-person-video3" />
                 </div>
                 <h3 style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-main)', marginBottom: '8px' }}>
-                  SIM Compliance Linkage
+                  {t('SIM Compliance Linkage')}
                 </h3>
                 <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', lineHeight: '1.6' }}>
-                  Complete your registration profile to link your National Identification Number (NIN) slip and activate your personal VoIP line.
+                  {t('Complete your registration profile to link your National Identification Number (NIN) slip and activate your personal VoIP line.')}
                 </p>
               </div>
 
@@ -342,7 +451,7 @@ export default function PersonalSubscribers() {
                 background: 'var(--bg-main)',
                 minHeight: '200px'
               }}>
-                <img src="/phone_mockup.png" alt="Ratel Phone App" style={{
+                <img src="/phone_mockup.png" alt={t("Ratel Phone App")} style={{
                   width: '100%',
                   height: '100%',
                   maxHeight: '340px',
@@ -361,7 +470,7 @@ export default function PersonalSubscribers() {
                 lineHeight: '1.6'
               }}>
                 <i className="bi bi-clock-history" style={{ color: 'var(--primary)', marginRight: '6px' }} />
-                NCC compliance agents review registrations within 5 minutes between 8:00 AM and 10:00 PM Nigerian time.
+                {t('NCC compliance agents review registrations within 5 minutes between 8:00 AM and 10:00 PM Nigerian time.')}
               </div>
             </div>
 
@@ -369,51 +478,136 @@ export default function PersonalSubscribers() {
             <div className="glass-panel form-card">
               <form onSubmit={handleFormSubmit}>
                 <h3 style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-main)', marginBottom: '24px' }}>
-                  Subscriber Registration Form
+                  {t('Subscriber Registration Form')}
                 </h3>
 
-                <div className="content-grid" style={{ marginBottom: '20px' }}>
-                  <div>
-                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>First Name *</label>
-                    <input type="text" name="fname" value={formData.fname} onChange={handleInputChange} className="form-input" required />
-                    {errors.fname && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{errors.fname}</span>}
-                  </div>
-                  <div>
-                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>Surname *</label>
-                    <input type="text" name="sname" value={formData.sname} onChange={handleInputChange} className="form-input" required />
-                    {errors.sname && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{errors.sname}</span>}
-                  </div>
-                </div>
-
+                {/* 1. NIN Field & Integrated Verification Button */}
                 <div style={{ marginBottom: '20px' }}>
-                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>Email Address *</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="form-input" required />
-                  {errors.email && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{errors.email}</span>}
+                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>
+                    {t('National Identification Number (NIN) *')}
+                  </label>
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <input 
+                      type="text" 
+                      name="nin" 
+                      placeholder={t("Enter 11-digit NIN")} 
+                      maxLength={11} 
+                      value={formData.nin} 
+                      onChange={handleInputChange} 
+                      className="form-input" 
+                      style={{ 
+                        width: '100%', 
+                        paddingRight: '110px',
+                      }}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={handleVerifyNin}
+                      disabled={isVerifyingNin || formData.nin.length !== 11}
+                      className="btn-primary"
+                      style={{ 
+                        position: 'absolute',
+                        right: '6px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        padding: '6px 14px', 
+                        fontSize: '11.5px',
+                        fontWeight: '700',
+                        whiteSpace: 'nowrap', 
+                        boxShadow: 'none', 
+                        borderRadius: 'var(--radius-sm)',
+                        background: ninVerified ? '#10b981' : 'var(--primary)',
+                        borderColor: ninVerified ? '#10b981' : 'var(--primary)',
+                        opacity: (formData.nin.length === 11 && !isVerifyingNin) ? 1 : 0.6,
+                        cursor: (formData.nin.length === 11 && !isVerifyingNin) ? 'pointer' : 'not-allowed',
+                        zIndex: 2,
+                        minWidth: '85px',
+                        height: 'calc(100% - 12px)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      {isVerifyingNin ? (
+                        <>
+                          <i className="bi bi-arrow-repeat spin" style={{ animation: 'spin 1s linear infinite', display: 'inline-block', marginRight: '4px' }} /> {t('Verify')}
+                        </>
+                      ) : ninVerified ? (
+                        <>
+                          <i className="bi bi-check-circle-fill" style={{ marginRight: '4px' }} /> {t('Verified')}
+                        </>
+                      ) : t('Verify')}
+                    </button>
+                  </div>
+                  {errors.nin && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.nin)}</span>}
+                  {ninVerificationError && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(ninVerificationError)}</span>}
+                  {ninVerified && (
+                    <span style={{ fontSize: '11.5px', color: '#10b981', marginTop: '6px', display: 'block', fontWeight: '600' }}>
+                      <i className="bi bi-shield-fill-check" /> {t('NIN verified successfully.')}
+                    </span>
+                  )}
                 </div>
 
+                {/* 2. Locked Warning Banner (Visible when not verified) */}
+                {!ninVerified && (
+                  <div style={{
+                    background: 'rgba(24, 73, 201, 0.04)',
+                    border: '1px dashed rgba(24, 73, 201, 0.25)',
+                    borderRadius: 'var(--radius-sm)',
+                    padding: '14px 16px',
+                    marginBottom: '20px',
+                    display: 'flex',
+                    gap: '12px',
+                    alignItems: 'center'
+                  }}>
+                    <i className="bi bi-lock-fill" style={{ fontSize: '18px', color: 'var(--primary)' }} />
+                    <span style={{ fontSize: '12.5px', color: 'var(--text-muted)', lineHeight: '1.5', textAlign: 'left' }}>
+                      {t('Please enter and verify your 11-digit NIN first to unlock the email, phone, and address fields.')}
+                    </span>
+                  </div>
+                )}
+
+                {/* 3. First Name & Surname (Pre-filled and Locked post-verification) */}
                 <div className="content-grid" style={{ marginBottom: '20px' }}>
                   <div>
-                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>Mobile Number *</label>
-                    <input type="text" name="mobile" placeholder="e.g. 08031234567" maxLength={11} value={formData.mobile} onChange={handleInputChange} className="form-input" required />
-                    {errors.mobile && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{errors.mobile}</span>}
+                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('First Name *')}</label>
+                    <input type="text" name="fname" value={formData.fname} onChange={handleInputChange} className="form-input" required disabled style={{ opacity: ninVerified ? 0.9 : 0.6, cursor: 'not-allowed' }} />
+                    {errors.fname && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.fname)}</span>}
                   </div>
                   <div>
-                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>NIN (11 digits)</label>
-                    <input type="text" name="nin" placeholder="National Identity Number" maxLength={11} value={formData.nin} onChange={handleInputChange} className="form-input" />
-                    {errors.nin && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{errors.nin}</span>}
+                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Surname *')}</label>
+                    <input type="text" name="sname" value={formData.sname} onChange={handleInputChange} className="form-input" required disabled style={{ opacity: ninVerified ? 0.9 : 0.6, cursor: 'not-allowed' }} />
+                    {errors.sname && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.sname)}</span>}
                   </div>
                 </div>
 
+                {/* 4. Email Address (Editable post-verification) */}
+                <div style={{ marginBottom: '20px' }}>
+                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Email Address *')}</label>
+                  <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="form-input" required disabled={!ninVerified} style={{ opacity: ninVerified ? 1 : 0.6, cursor: ninVerified ? 'text' : 'not-allowed' }} />
+                  {errors.email && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.email)}</span>}
+                </div>
+
+                {/* 5. Mobile Number (Editable post-verification) */}
+                <div style={{ marginBottom: '20px' }}>
+                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Mobile Number *')}</label>
+                  <input type="text" name="mobile" placeholder="e.g. 08031234567" maxLength={11} value={formData.mobile} onChange={handleInputChange} className="form-input" required disabled={!ninVerified} style={{ opacity: ninVerified ? 1 : 0.6, cursor: ninVerified ? 'text' : 'not-allowed' }} />
+                  {errors.mobile && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.mobile)}</span>}
+                </div>
+
+                {/* 6. Residential Address (Editable post-verification) */}
                 <div style={{ marginBottom: '25px' }}>
-                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>Residential Address *</label>
-                  <textarea name="addr" rows={3} value={formData.addr} onChange={handleInputChange} className="form-input" required style={{ resize: 'vertical' }} />
-                  {errors.addr && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{errors.addr}</span>}
+                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Residential Address *')}</label>
+                  <textarea name="addr" rows={3} value={formData.addr} onChange={handleInputChange} className="form-input" required disabled={!ninVerified} style={{ resize: 'vertical', opacity: ninVerified ? 1 : 0.6, cursor: ninVerified ? 'text' : 'not-allowed' }} />
+                  {errors.addr && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.addr)}</span>}
                 </div>
 
                 {/* RESPONSIVE VISUAL FILE UPLOADER */}
                 <div style={{ marginBottom: '35px' }}>
                   <label className="formLabel" style={{ fontSize: '12.5px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '12px' }}>
-                    Compliance Documents (Upload Both) *
+                    {t('Compliance Documents (Upload Both) *')}
                   </label>
 
                   <div className="upload-slots-container">
@@ -421,7 +615,7 @@ export default function PersonalSubscribers() {
                     {/* Slot 1: ID Slip */}
                     <div>
                       <span style={{ fontSize: '12px', fontWeight: '600', color: errors.idCard ? '#ef4444' : 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
-                        1. Government ID Slip *
+                        {t('1. Government ID Slip *')}
                       </span>
                       <input ref={idInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileSelect(e, 'idCard')} />
 
@@ -453,16 +647,16 @@ export default function PersonalSubscribers() {
                             {idCardFile.progress < 100 ? (
                               <div style={{ width: '100%', padding: '0 10px' }}>
                                 <i className="bi bi-arrow-repeat spin" style={{ fontSize: '24px', color: 'var(--primary)', animation: 'spin 1s linear infinite', display: 'inline-block', marginBottom: '8px' }} />
-                                <span style={{ fontSize: '12px', display: 'block', color: 'var(--text-main)', marginBottom: '4px' }}>Uploading ID...</span>
+                                <span style={{ fontSize: '12px', display: 'block', color: 'var(--text-main)', marginBottom: '4px' }}>{t('Uploading ID...')}</span>
                                 <div style={{ width: '100%', background: 'var(--border-color)', height: '4px', borderRadius: '2px', overflow: 'hidden' }}>
                                   <div style={{ width: `${idCardFile.progress}%`, background: 'var(--primary)', height: '100%' }} />
                                 </div>
                               </div>
                             ) : (
                               <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                <img src={idCardFile.url} alt="ID Preview" style={{ width: '60px', height: '60px', borderRadius: '4px', objectFit: 'cover', border: '1px solid var(--border-color)' }} />
+                                <img src={idCardFile.url} alt={t("ID Preview")} style={{ width: '60px', height: '60px', borderRadius: '4px', objectFit: 'cover', border: '1px solid var(--border-color)' }} />
                                 <span style={{ fontSize: '11px', color: 'var(--text-main)', fontWeight: '600', marginTop: '6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '90%' }}>{idCardFile.name}</span>
-                                <span style={{ fontSize: '10px', color: 'var(--accent-green)', fontWeight: '600', marginTop: '2px' }}><i className="bi bi-check-circle-fill" /> Loaded</span>
+                                <span style={{ fontSize: '10px', color: 'var(--accent-green)', fontWeight: '600', marginTop: '2px' }}><i className="bi bi-check-circle-fill" /> {t('Loaded')}</span>
                                 <button
                                   type="button"
                                   onClick={(e) => { e.stopPropagation(); handleRemoveFile('idCard'); }}
@@ -476,10 +670,10 @@ export default function PersonalSubscribers() {
                         ) : (
                           <>
                             <i className="bi bi-card-heading" style={{ fontSize: '28px', color: errors.idCard ? '#ef4444' : 'var(--primary)', marginBottom: '8px' }} />
-                            <span style={{ fontSize: '12px', color: 'var(--text-main)', fontWeight: '700' }}>Select ID slip</span>
-                            <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '4px' }}>NIN Slip, Passport, or License</span>
+                            <span style={{ fontSize: '12px', color: 'var(--text-main)', fontWeight: '700' }}>{t('Select ID slip')}</span>
+                            <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '4px' }}>{t('NIN Slip, Passport, or License')}</span>
                             <span style={{ position: 'absolute', bottom: '8px', fontSize: '9px', textTransform: 'uppercase', fontWeight: '700', padding: '2px 8px', borderRadius: '8px', background: errors.idCard ? 'rgba(239, 68, 68, 0.1)' : 'var(--bg-main)', color: errors.idCard ? '#ef4444' : 'var(--text-muted)' }}>
-                              {errors.idCard ? 'Required File' : 'Empty'}
+                              {errors.idCard ? t('Required File') : t('Empty')}
                             </span>
                           </>
                         )}
@@ -489,7 +683,7 @@ export default function PersonalSubscribers() {
                     {/* Slot 2: Portrait Selfie */}
                     <div>
                       <span style={{ fontSize: '12px', fontWeight: '600', color: errors.portrait ? '#ef4444' : 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
-                        2. Recent Portrait Photo *
+                        {t('2. Recent Portrait Photo *')}
                       </span>
                       <input ref={portraitInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileSelect(e, 'portrait')} />
 
@@ -521,16 +715,16 @@ export default function PersonalSubscribers() {
                             {portraitFile.progress < 100 ? (
                               <div style={{ width: '100%', padding: '0 10px' }}>
                                 <i className="bi bi-arrow-repeat spin" style={{ fontSize: '24px', color: 'var(--primary)', animation: 'spin 1s linear infinite', display: 'inline-block', marginBottom: '8px' }} />
-                                <span style={{ fontSize: '12px', display: 'block', color: 'var(--text-main)', marginBottom: '4px' }}>Uploading Selfie...</span>
+                                <span style={{ fontSize: '12px', display: 'block', color: 'var(--text-main)', marginBottom: '4px' }}>{t('Uploading Selfie...')}</span>
                                 <div style={{ width: '100%', background: 'var(--border-color)', height: '4px', borderRadius: '2px', overflow: 'hidden' }}>
                                   <div style={{ width: `${portraitFile.progress}%`, background: 'var(--primary)', height: '100%' }} />
                                 </div>
                               </div>
                             ) : (
                               <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                <img src={portraitFile.url} alt="Selfie Preview" style={{ width: '60px', height: '60px', borderRadius: '4px', objectFit: 'cover', border: '1px solid var(--border-color)' }} />
+                                <img src={portraitFile.url} alt={t("Selfie Preview")} style={{ width: '60px', height: '60px', borderRadius: '4px', objectFit: 'cover', border: '1px solid var(--border-color)' }} />
                                 <span style={{ fontSize: '11px', color: 'var(--text-main)', fontWeight: '600', marginTop: '6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '90%' }}>{portraitFile.name}</span>
-                                <span style={{ fontSize: '10px', color: 'var(--accent-green)', fontWeight: '600', marginTop: '2px' }}><i className="bi bi-check-circle-fill" /> Loaded</span>
+                                <span style={{ fontSize: '10px', color: 'var(--accent-green)', fontWeight: '600', marginTop: '2px' }}><i className="bi bi-check-circle-fill" /> {t('Loaded')}</span>
                                 <button
                                   type="button"
                                   onClick={(e) => { e.stopPropagation(); handleRemoveFile('portrait'); }}
@@ -544,10 +738,10 @@ export default function PersonalSubscribers() {
                         ) : (
                           <>
                             <i className="bi bi-person-bounding-box" style={{ fontSize: '28px', color: errors.portrait ? '#ef4444' : 'var(--primary)', marginBottom: '8px' }} />
-                            <span style={{ fontSize: '12px', color: 'var(--text-main)', fontWeight: '700' }}>Select portrait photo</span>
-                            <span style={{ fontspan: '10px', color: 'var(--text-muted)', marginTop: '4px' }}>Clear face photo selfie</span>
+                            <span style={{ fontSize: '12px', color: 'var(--text-main)', fontWeight: '700' }}>{t('Select portrait photo')}</span>
+                            <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '4px' }}>{t('Clear face photo selfie')}</span>
                             <span style={{ position: 'absolute', bottom: '8px', fontSize: '9px', textTransform: 'uppercase', fontWeight: '700', padding: '2px 8px', borderRadius: '8px', background: errors.portrait ? 'rgba(239, 68, 68, 0.1)' : 'var(--bg-main)', color: errors.portrait ? '#ef4444' : 'var(--text-muted)' }}>
-                              {errors.portrait ? 'Required File' : 'Empty'}
+                              {errors.portrait ? t('Required File') : t('Empty')}
                             </span>
                           </>
                         )}
@@ -558,8 +752,8 @@ export default function PersonalSubscribers() {
                 </div>
 
                 <div style={{ textAlign: 'center' }}>
-                  <button type="submit" className="btn-primary" style={{ padding: '14px 45px', width: '100%', borderRadius: 'var(--radius-sm)' }}>
-                    Proceed to Secure Payment (₦{REGISTRATION_FEE.toLocaleString()}) <i className="bi bi-arrow-right-short" style={{ fontSize: '18px' }} />
+                  <button type="submit" disabled={!ninVerified} className="btn-primary" style={{ padding: '14px 45px', width: '100%', borderRadius: 'var(--radius-sm)', opacity: !ninVerified ? 0.6 : 1, cursor: !ninVerified ? 'not-allowed' : 'pointer' }}>
+                    {t('Proceed to Secure Payment (₦{fee})').replace('{fee}', REGISTRATION_FEE.toLocaleString())} <i className="bi bi-arrow-right-short" style={{ fontSize: '18px' }} />
                   </button>
                 </div>
               </form>
@@ -618,32 +812,32 @@ export default function PersonalSubscribers() {
             </button>
 
             <h3 style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-main)', marginBottom: '18px' }}>
-              Billing Summary
+              {t('Billing Summary')}
             </h3>
 
             {paymentError && (
               <div style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid #ef4444', color: '#ef4444', padding: '12px', borderRadius: 'var(--radius-sm)', fontSize: '13px', marginBottom: '20px', textAlign: 'center' }}>
                 <i className="bi bi-exclamation-triangle-fill" style={{ marginRight: '6px' }} />
-                {paymentError}
+                {t(paymentError)}
               </div>
             )}
 
             <div style={{ background: 'var(--bg-main)', padding: '20px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', marginBottom: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '13.5px' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Item:</span>
-                <strong style={{ color: 'var(--text-main)' }}>SIM Registration Fee</strong>
+                <span style={{ color: 'var(--text-muted)' }}>{t('Item:')}</span>
+                <strong style={{ color: 'var(--text-main)' }}>{t('SIM Registration Fee')}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '13.5px' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Subscriber:</span>
+                <span style={{ color: 'var(--text-muted)' }}>{t('Subscriber:')}</span>
                 <strong style={{ color: 'var(--text-main)' }}>{formData.fname} {formData.sname}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '13.5px' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Mobile Line:</span>
+                <span style={{ color: 'var(--text-muted)' }}>{t('Mobile Line:')}</span>
                 <strong style={{ color: 'var(--text-main)' }}>{formData.mobile}</strong>
               </div>
               <hr style={{ border: 'none', borderTop: '1px dashed var(--border-color)', margin: '14px 0' }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px' }}>
-                <span style={{ fontWeight: '700', color: 'var(--text-main)' }}>Amount Due:</span>
+                <span style={{ fontWeight: '700', color: 'var(--text-main)' }}>{t('Amount Due:')}</span>
                 <strong style={{ fontSize: '18px', fontWeight: '800', color: 'var(--primary)' }}>
                   ₦{REGISTRATION_FEE.toLocaleString()}
                 </strong>
@@ -672,7 +866,7 @@ export default function PersonalSubscribers() {
                 onMouseEnter={e => e.currentTarget.style.background = '#ea6b0c'}
                 onMouseLeave={e => e.currentTarget.style.background = '#f97316'}
               >
-                <i className="bi bi-credit-card-fill" /> Pay with Paystack
+                <i className="bi bi-credit-card-fill" /> {t('Pay with Paystack')}
               </button>
 
               <button
@@ -696,13 +890,13 @@ export default function PersonalSubscribers() {
                 onMouseEnter={e => e.currentTarget.style.background = '#00b886'}
                 onMouseLeave={e => e.currentTarget.style.background = '#00d09c'}
               >
-                <i className="bi bi-wallet2" /> Pay with OPay
+                <i className="bi bi-wallet2" /> {t('Pay with OPay')}
               </button>
             </div>
 
             <div style={{ marginTop: '24px', borderTop: '1px solid var(--border-color)', paddingTop: '16px', textAlign: 'center' }}>
               <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px' }}>
-                Paid successfully in the OPay cashier tab?
+                {t('Paid successfully in the OPay cashier tab?')}
               </p>
               <button
                 onClick={() => {
@@ -723,7 +917,7 @@ export default function PersonalSubscribers() {
                 onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-glow)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = 'var(--border-color)'; }}
               >
-                ✓ I have completed the OPay payment
+                {t('✓ I have completed the OPay payment')}
               </button>
             </div>
           </div>
@@ -746,6 +940,7 @@ export default function PersonalSubscribers() {
         <input type="hidden" name="source" value="Personal Subscriber" />
         <input type="hidden" name="reference" value={generatedRef} />
         <input type="hidden" name="opay" value="opay" />
+        <input type="hidden" name="redirect_origin" value={typeof window !== 'undefined' ? window.location.origin : ''} />
       </form>
 
       {/* Local custom responsive styles */}

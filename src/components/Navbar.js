@@ -13,6 +13,7 @@ export default function Navbar() {
   const [aboutOpen, setAboutOpen] = useState(false);
   const pathname = usePathname();
   const [theme, setTheme] = useState('light');
+  const [scrolled, setScrolled] = useState(false);
 
   // Close drawer on path change
   useEffect(() => {
@@ -23,6 +24,19 @@ export default function Navbar() {
   useEffect(() => {
     const activeTheme = document.documentElement.getAttribute('data-theme') || 'light';
     setTheme(activeTheme);
+  }, []);
+
+  // Listen to scroll to toggle class
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 40) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const toggleTheme = () => {
@@ -36,11 +50,13 @@ export default function Navbar() {
 
   return (
     <>
-      <header className={styles.navbarWrapper}>
+      <header className={`${styles.navbarWrapper} ${scrolled ? styles.scrolled : ''}`}>
         <div className={`container ${styles.navbarContainer}`}>
-          <Link href="/" className={styles.logo}>
-            <img src="/logo.png" alt="Ratel Plus Logo" className={styles.logoImage} />
-          </Link>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <Link href="/" className={styles.logo}>
+              <img src="/logo.png" alt="Ratel Plus Logo" className={styles.logoImage} />
+            </Link>
+          </div>
 
           {/* Desktop Navigation */}
           <nav>
@@ -55,26 +71,42 @@ export default function Navbar() {
                   {t('Our Services')} <i className="bi bi-chevron-down"></i>
                 </span>
                 <div className={styles.dropdownMenu}>
-                  <Link href="/services/voice" className={styles.dropdownItem}>{t('Voice Services')}</Link>
-                  <Link href="/services/ip-wholesale" className={styles.dropdownItem}>{t('IP Wholesale')}</Link>
-                  <Link href="/services/backhaul" className={styles.dropdownItem}>{t('Backhaul Services')}</Link>
-                  <Link href="/services/training" className={styles.dropdownItem}>{t('Our Training Portfolio')}</Link>
+                  <Link href="/services/voice" className={styles.dropdownItem}>
+                    <i className="bi bi-mic-fill" style={{ marginRight: '8px', color: 'var(--primary)' }}></i>
+                    {t('Voice Services')}
+                  </Link>
+                  <Link href="/aboutus" className={styles.dropdownItem}>
+                    <i className="bi bi-router-fill" style={{ marginRight: '8px', color: 'var(--accent-green)' }}></i>
+                    {t('Fibre to the Home (FTTH)')}
+                  </Link>
+                  <Link href="/reg-options" className={styles.dropdownItem}>
+                    <i className="bi bi-broadcast" style={{ marginRight: '8px', color: 'var(--primary)' }}></i>
+                    {t('LTE Services')}
+                  </Link>
                 </div>
               </li>
-              <li>
-                <Link href="/#devices" className={styles.navLink}>
-                  {t('Devices')}
-                </Link>
-              </li>
+
               <li className={styles.navItem}>
                 <span className={styles.navLink} style={{ cursor: 'pointer' }}>
                   {t('About')} <i className="bi bi-chevron-down"></i>
                 </span>
                 <div className={styles.dropdownMenu}>
-                  <Link href="/aboutus" className={styles.dropdownItem}>{t('About us')}</Link>
-                  <Link href="/about/ceo" className={styles.dropdownItem}>{t('Message from CEO')}</Link>
-                  <Link href="/about/board" className={styles.dropdownItem}>{t('Board Structure')}</Link>
-                  <Link href="/#team" className={styles.dropdownItem}>{t('Management Team')}</Link>
+                  <Link href="/aboutus" className={styles.dropdownItem}>
+                    <i className="bi bi-info-circle-fill" style={{ marginRight: '8px', color: 'var(--primary)' }}></i>
+                    {t('About us')}
+                  </Link>
+                  <Link href="/about/ceo" className={styles.dropdownItem}>
+                    <i className="bi bi-chat-quote-fill" style={{ marginRight: '8px', color: 'var(--accent-green)' }}></i>
+                    {t('Message from CEO')}
+                  </Link>
+                  <Link href="/about/board" className={styles.dropdownItem}>
+                    <i className="bi bi-people-fill" style={{ marginRight: '8px', color: 'var(--primary)' }}></i>
+                    {t('Board Structure')}
+                  </Link>
+                  <Link href="/#team" className={styles.dropdownItem}>
+                    <i className="bi bi-person-workspace" style={{ marginRight: '8px', color: 'var(--accent-green)' }}></i>
+                    {t('Management Team')}
+                  </Link>
                 </div>
               </li>
               <li>
@@ -91,13 +123,13 @@ export default function Navbar() {
               className={styles.themeToggle}
               aria-label="Toggle Language" 
               title="Toggle English / Hausa"
-              style={{ marginRight: '8px', gap: '4px', display: 'inline-flex', alignItems: 'center', fontSize: '12px', fontWeight: '700' }}
+              style={{ marginRight: '4px', gap: '4px', display: 'inline-flex', alignItems: 'center', fontSize: '12px', fontWeight: '700', borderRadius: '20px', width: 'auto', padding: '0 12px' }}
             >
-              <i className="bi bi-globe" style={{ fontSize: '15px' }}></i>
+              <i className="bi bi-globe" style={{ fontSize: '14px' }}></i>
               <span>{language === 'en' ? 'EN' : 'HA'}</span>
             </button>
             <button className={styles.themeToggle} onClick={toggleTheme} aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
-              <i className={`bi ${theme === 'light' ? 'bi-moon-stars-fill' : 'bi-sun-fill'}`}></i>
+              <i className={`bi ${theme === 'light' ? 'bi-moon-stars-fill' : 'bi-sun-fill'}`} style={{ transition: 'transform 0.5s ease' }}></i>
             </button>
             <Link href="/airtime" className={styles.btnAirtime}>
               {t('Buy Airtime')}
@@ -114,9 +146,9 @@ export default function Navbar() {
               className={styles.themeToggleMobile}
               aria-label="Toggle Language" 
               title="Toggle English / Hausa"
-              style={{ marginRight: '8px', gap: '4px', display: 'inline-flex', alignItems: 'center', fontSize: '11px', fontWeight: '700' }}
+              style={{ marginRight: '4px', gap: '4px', display: 'inline-flex', alignItems: 'center', fontSize: '11px', fontWeight: '700', borderRadius: '20px', width: 'auto', padding: '0 10px' }}
             >
-              <i className="bi bi-globe" style={{ fontSize: '14px' }}></i>
+              <i className="bi bi-globe" style={{ fontSize: '13px' }}></i>
               <span>{language === 'en' ? 'EN' : 'HA'}</span>
             </button>
             <button className={styles.themeToggleMobile} onClick={toggleTheme} aria-label="Toggle Theme">
@@ -156,17 +188,12 @@ export default function Navbar() {
             {servicesOpen && (
               <div className={styles.mobileSubmenu}>
                 <Link href="/services/voice" className={styles.mobileSubLink}>{t('Voice Services')}</Link>
-                <Link href="/services/ip-wholesale" className={styles.mobileSubLink}>{t('IP Wholesale')}</Link>
-                <Link href="/services/backhaul" className={styles.mobileSubLink}>{t('Backhaul Services')}</Link>
-                <Link href="/services/training" className={styles.mobileSubLink}>{t('Our Training Portfolio')}</Link>
+                <Link href="/aboutus" className={styles.mobileSubLink}>{t('Fibre to the Home (FTTH)')}</Link>
+                <Link href="/reg-options" className={styles.mobileSubLink}>{t('LTE Services')}</Link>
               </div>
             )}
           </li>
-          <li>
-            <Link href="/#devices" className={styles.mobileNavLink}>
-              {t('Devices')}
-            </Link>
-          </li>
+
           <li>
             <div 
               className={styles.mobileNavLink} 
