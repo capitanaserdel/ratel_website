@@ -1300,6 +1300,55 @@
   z-index: 3;
 }
 
+/* Simple Services Grid (8-item "Our Services" overview) */
+.simpleServicesGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 28px;
+  margin-top: 50px;
+}
+
+@media (max-width: 1024px) {
+  .simpleServicesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .simpleServicesGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.simpleServiceCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 32px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.simpleServiceCard:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg), 0 16px 32px rgba(var(--primary-rgb), 0.08);
+  border-color: rgba(var(--primary-rgb), 0.25);
+}
+
+.simpleServiceCard h4 {
+  font-size: 17.5px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.simpleServiceCard .serviceDesc {
+  font-size: 13.5px;
+}
+
 /* Dynamic Network Planner Section */
 .plannerSection {
   background: var(--bg-sec);
