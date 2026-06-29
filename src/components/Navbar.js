@@ -71,17 +71,37 @@ export default function Navbar() {
                   {t('Our Services')} <i className="bi bi-chevron-down"></i>
                 </span>
                 <div className={styles.dropdownMenu}>
-                  <Link href="/services/voice" className={styles.dropdownItem}>
-                    <i className="bi bi-mic-fill" style={{ marginRight: '8px', color: 'var(--primary)' }}></i>
-                    {t('Voice Services')}
-                  </Link>
-                  <Link href="/aboutus" className={styles.dropdownItem}>
-                    <i className="bi bi-router-fill" style={{ marginRight: '8px', color: 'var(--accent-green)' }}></i>
-                    {t('Fibre to the Home (FTTH)')}
+                  <Link href="/#services" className={styles.dropdownItem}>
+                    <i className="bi bi-wifi" style={{ marginRight: '8px', color: 'var(--primary)' }}></i>
+                    {t('Broadband Internet Services')}
                   </Link>
                   <Link href="/reg-options" className={styles.dropdownItem}>
-                    <i className="bi bi-broadcast" style={{ marginRight: '8px', color: 'var(--primary)' }}></i>
+                    <i className="bi bi-phone-vibrate-fill" style={{ marginRight: '8px', color: 'var(--accent-green)' }}></i>
                     {t('LTE Services')}
+                  </Link>
+                  <Link href="/services/voice" className={styles.dropdownItem}>
+                    <i className="bi bi-telephone-outbound-fill" style={{ marginRight: '8px', color: 'var(--primary)' }}></i>
+                    {t('Voice over Internet Protocol (VoIP) Services')}
+                  </Link>
+                  <Link href="/aboutus" className={styles.dropdownItem}>
+                    <i className="bi bi-hdd-network-fill" style={{ marginRight: '8px', color: 'var(--accent-green)' }}></i>
+                    {t('Fiber-to-the-Home (FTTH) Solutions')}
+                  </Link>
+                  <Link href="/#services" className={styles.dropdownItem}>
+                    <i className="bi bi-building-fill" style={{ marginRight: '8px', color: 'var(--primary)' }}></i>
+                    {t('Enterprise Connectivity Solutions')}
+                  </Link>
+                  <Link href="/#services" className={styles.dropdownItem}>
+                    <i className="bi bi-diagram-3-fill" style={{ marginRight: '8px', color: 'var(--accent-green)' }}></i>
+                    {t('Network Infrastructure Deployment')}
+                  </Link>
+                  <Link href="/#services" className={styles.dropdownItem}>
+                    <i className="bi bi-cpu-fill" style={{ marginRight: '8px', color: 'var(--primary)' }}></i>
+                    {t('ICT Solutions')}
+                  </Link>
+                  <Link href="/#services" className={styles.dropdownItem}>
+                    <i className="bi bi-gear-wide-connected" style={{ marginRight: '8px', color: 'var(--accent-green)' }}></i>
+                    {t('Managed Network Services')}
                   </Link>
                 </div>
               </li>
@@ -187,9 +207,14 @@ export default function Navbar() {
             </div>
             {servicesOpen && (
               <div className={styles.mobileSubmenu}>
-                <Link href="/services/voice" className={styles.mobileSubLink}>{t('Voice Services')}</Link>
-                <Link href="/aboutus" className={styles.mobileSubLink}>{t('Fibre to the Home (FTTH)')}</Link>
+                <Link href="/#services" className={styles.mobileSubLink}>{t('Broadband Internet Services')}</Link>
                 <Link href="/reg-options" className={styles.mobileSubLink}>{t('LTE Services')}</Link>
+                <Link href="/services/voice" className={styles.mobileSubLink}>{t('Voice over Internet Protocol (VoIP) Services')}</Link>
+                <Link href="/aboutus" className={styles.mobileSubLink}>{t('Fiber-to-the-Home (FTTH) Solutions')}</Link>
+                <Link href="/#services" className={styles.mobileSubLink}>{t('Enterprise Connectivity Solutions')}</Link>
+                <Link href="/#services" className={styles.mobileSubLink}>{t('Network Infrastructure Deployment')}</Link>
+                <Link href="/#services" className={styles.mobileSubLink}>{t('ICT Solutions')}</Link>
+                <Link href="/#services" className={styles.mobileSubLink}>{t('Managed Network Services')}</Link>
               </div>
             )}
           </li>
