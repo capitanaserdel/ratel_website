@@ -6,8 +6,18 @@ import { useLanguage } from '@/context/LanguageContext';
 
 const REGISTRATION_FEE = 1000;
 const CURRENCY = 'NGN';
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ratelplus.net';
-const OPAY_POST_URL = `${backendUrl}/subs/payer.php`;
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.ratelplus.net.ng';
+
+// Reads a File into a base64 data URL (vos-portal's registration endpoint takes
+// documents inline as base64 rather than via a separate upload step).
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function PersonalSubscribers() {
   const { t } = useLanguage();
@@ -22,6 +32,7 @@ export default function PersonalSubscribers() {
 
   const [errors, setErrors] = useState({});
   const [generatedRef, setGeneratedRef] = useState('');
+  const [registrationId, setRegistrationId] = useState('');
 
   // Explicit upload slots states
   const [idCardFile, setIdCardFile] = useState(null);
@@ -34,6 +45,7 @@ export default function PersonalSubscribers() {
   // Overlay states
   const [showCheckout, setShowCheckout] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [paymentPending, setPaymentPending] = useState(false);
   const [paymentError, setPaymentError] = useState('');
   const [processingGateway, setProcessingGateway] = useState(null);
 
@@ -46,26 +58,46 @@ export default function PersonalSubscribers() {
   const idInputRef = useRef(null);
   const portraitInputRef = useRef(null);
 
-  // Form reference for OPay POST submit
-  const opayFormRef = useRef(null);
+  // Polls vos-portal's /api/payments/verify/:reference until the registration-fee
+  // payment is confirmed, or gives up. Confirmation here means the Transaction moved
+  // to CONFIRMED (which triggers registrationService.confirmPayment internally) —
+  // unlike airtime there's no separate "rechargeApplied" signal for this purpose.
+  const pollPaymentConfirmed = async (reference, { attempts = 5, delayMs = 4000 } = {}) => {
+    for (let i = 0; i < attempts; i++) {
+      try {
+        const res = await fetch(`${apiUrl}/api/payments/verify/${reference}`);
+        const json = await res.json();
+        if (json?.data?.status === 'CONFIRMED') return true;
+      } catch (err) {
+        console.error('Payment check failed:', err);
+      }
+      if (i < attempts - 1) {
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
+    }
+    return false;
+  };
 
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
       const queryStatus = params.get('status');
-      if (queryStatus === 'success') {
-        setPaymentSuccess(true);
+      const queryReference = params.get('reference');
+      if (queryStatus === 'success' || queryReference) {
+        if (queryReference) {
+          setProcessingGateway('verifying');
+          pollPaymentConfirmed(queryReference, { attempts: 6, delayMs: 4000 }).then(confirmed => {
+            setProcessingGateway(null);
+            confirmed ? setPaymentSuccess(true) : setPaymentPending(true);
+          });
+        } else {
+          setPaymentPending(true);
+        }
       }
     } catch (e) {
       console.error('Failed to parse query status:', e);
     }
   }, []);
-
-  const generateReference = () => {
-    const ref = Math.floor(10000000 + Math.random() * 90000000).toString();
-    setGeneratedRef(ref);
-    return ref;
-  };
 
   const handleVerifyNin = () => {
     setNinVerificationError('');
@@ -172,10 +204,6 @@ export default function PersonalSubscribers() {
 
     const stateSetter = slotType === 'idCard' ? setIdCardFile : setPortraitFile;
 
-    // Real upload to the PHP backend
-    const formDataUpload = new FormData();
-    formDataUpload.append('image', file);
-
     stateSetter({
       name: file.name,
       url: URL.createObjectURL(file),
@@ -183,24 +211,17 @@ export default function PersonalSubscribers() {
       size: (file.size / (1024 * 1024)).toFixed(2) + ' MB'
     });
 
-    fetch(`${backendUrl}/ajax_call_card_image.php`, {
-      method: 'POST',
-      body: formDataUpload
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.status === 'success') {
-        stateSetter(prev => prev ? { ...prev, progress: 100, serverName: data.file } : null);
-      } else {
-        alert(data.message || 'Failed to upload document.');
+    // No separate upload step — vos-portal's registration endpoint takes the
+    // document inline as base64, sent along with the rest of the form on submit.
+    fileToBase64(file)
+      .then(base64 => {
+        stateSetter(prev => prev ? { ...prev, progress: 100, base64 } : null);
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Failed to read document.');
         stateSetter(null);
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      alert('Network error while uploading document.');
-      stateSetter(null);
-    });
+      });
   };
 
   const handleRemoveFile = (slotType) => {
@@ -233,47 +254,50 @@ export default function PersonalSubscribers() {
     }
 
     setErrors({});
-    const ref = generateReference();
-
-    // Prepare URLSearchParams to POST registration
-    const regData = new URLSearchParams();
-    regData.append('formData', '1');
-    regData.append('reference', ref);
-    regData.append('pics1', idCardFile.serverName || '');
-    regData.append('pics2', portraitFile.serverName || '');
-    regData.append('mobile', formData.mobile);
-    regData.append('fname', formData.fname);
-    regData.append('sname', formData.sname);
-    regData.append('email', formData.email);
-    regData.append('addr', formData.addr);
-    regData.append('nin', formData.nin || '');
-    regData.append('source', 'Personal Subscriber');
-    regData.append('amount', REGISTRATION_FEE.toString());
-    regData.append('gender', 'Other');
 
     try {
-      const res = await fetch(`${backendUrl}/actions/registration.php`, {
+      const res = await fetch(`${apiUrl}/api/registrations`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: regData.toString()
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: `${formData.fname} ${formData.sname}`.trim(),
+          phone: formData.mobile,
+          email: formData.email,
+          nin: formData.nin,
+          ninDocument: idCardFile.base64,
+          photo: portraitFile.base64,
+        }),
       });
-
-      if (!res.ok) {
-        throw new Error('Server responded with error status: ' + res.status);
+      const json = await res.json();
+      if (!json.success) {
+        throw new Error(json.error || 'Failed to submit registration.');
       }
 
-      const resText = await res.text();
-      if (!resText.includes('Success')) {
-        throw new Error('Failed to save registration on the backend: ' + resText);
-      }
-
+      setRegistrationId(json.data.id);
       setShowCheckout(true);
     } catch (err) {
       console.error(err);
       alert(err.message || 'Failed to submit registration. Please verify connection and try again.');
     }
+  };
+
+  const initializeRegistrationPayment = async (provider) => {
+    const res = await fetch(`${apiUrl}/api/payments/initialize-registration`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider,
+        registrationId,
+        customerEmail: formData.email,
+        customerName: `${formData.fname} ${formData.sname}`.trim(),
+      }),
+    });
+    const json = await res.json();
+    if (!json.success) {
+      throw new Error(json.error || 'Failed to initialize payment.');
+    }
+    setGeneratedRef(json.data.reference);
+    return json.data;
   };
 
   // ─── secure Paystack Checkout ──────────────────────────────────────────────
@@ -282,33 +306,17 @@ export default function PersonalSubscribers() {
     setProcessingGateway('paystack');
 
     try {
+      const { reference, accessCode } = await initializeRegistrationPayment('PAYSTACK');
+
       const { default: PaystackPop } = await import('@paystack/inline-js');
       const popup = new PaystackPop();
-      popup.newTransaction({
-        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_live_f794eddafa6e2897901b7b801b901188a9526863',
-        email: formData.email,
-        amount: REGISTRATION_FEE * 100,
-        currency: CURRENCY,
-        ref: generatedRef,
-        metadata: {
-          custom_fields: [
-            { display_name: 'Mobile Number', variable_name: 'Personal Subscriber', value: formData.mobile },
-            { display_name: 'Full Name', variable_name: 'full_name', value: `${formData.fname} ${formData.sname}` },
-            { display_name: 'NIN', variable_name: 'nin', value: formData.nin || 'Not provided' },
-            { display_name: 'Address', variable_name: 'address', value: formData.addr }
-          ]
-        },
-        onSuccess: async (transaction) => {
+      popup.resumeTransaction(accessCode, {
+        onSuccess: async () => {
           setProcessingGateway('verifying');
-          try {
-            // Trigger backend Paystack verification to mark registration as paid
-            await fetch(`${backendUrl}/subs/payupdate.php?id=${generatedRef}&redirect_origin=${encodeURIComponent(window.location.origin)}`);
-          } catch (e) {
-            console.error('Failed to notify backend registration payment:', e);
-          }
+          const confirmed = await pollPaymentConfirmed(reference, { attempts: 5, delayMs: 4000 });
           setProcessingGateway(null);
-          setPaymentSuccess(true);
           setShowCheckout(false);
+          confirmed ? setPaymentSuccess(true) : setPaymentPending(true);
         },
         onCancel: () => {
           setProcessingGateway(null);
@@ -317,23 +325,35 @@ export default function PersonalSubscribers() {
       });
     } catch (err) {
       setProcessingGateway(null);
-      setPaymentError('Failed to load Paystack pop-up.');
+      setPaymentError(err.message || 'Failed to load Paystack pop-up.');
     }
   };
 
-  // ─── secure OPay Checkout ──────────────────────────────────────────────────
-  const handlePayWithOpay = (e) => {
+  // ─── secure OPay Checkout (hosted checkout, opened in a new tab) ───────────
+  const handlePayWithOpay = async (e) => {
     e.preventDefault();
     setPaymentError('');
     setProcessingGateway('opay');
 
-    if (opayFormRef.current) {
-      opayFormRef.current.submit();
-    }
-
-    setTimeout(() => {
+    try {
+      const { checkoutUrl } = await initializeRegistrationPayment('OPAY');
+      window.open(checkoutUrl, '_blank');
+    } catch (err) {
+      setPaymentError(err.message || 'Failed to initialize payment.');
+    } finally {
       setProcessingGateway(null);
-    }, 2000);
+    }
+  };
+
+  // Manual confirm button for the OPay tab — actively re-checks rather than blindly
+  // trusting that the customer actually completed payment in the other tab.
+  const handleConfirmOpayPayment = async () => {
+    if (!generatedRef) return;
+    setProcessingGateway('verifying');
+    const confirmed = await pollPaymentConfirmed(generatedRef, { attempts: 3, delayMs: 3000 });
+    setProcessingGateway(null);
+    setShowCheckout(false);
+    confirmed ? setPaymentSuccess(true) : setPaymentPending(true);
   };
 
   // ─── SUCCESS SCREEN ───────────────────────────────────────────────────────
@@ -377,6 +397,51 @@ export default function PersonalSubscribers() {
                 <Link href="/airtime" className="btn-secondary" style={{ padding: '12px 30px' }}>
                   {t('Buy Airtime')}
                 </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  // ─── PENDING SCREEN (paid, but registration not yet confirmed) ─────────────
+  if (paymentPending) {
+    return (
+      <div>
+        <section className="section-padding">
+          <div className="container">
+            <div className="glass-panel form-card" style={{ maxWidth: '650px', margin: '0 auto', textAlign: 'center', padding: '50px 30px' }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                background: 'rgba(245, 158, 11, 0.1)',
+                color: '#f59e0b',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '42px',
+                marginBottom: '24px'
+              }}>
+                <i className="bi bi-hourglass-split" />
+              </div>
+
+              <h2 style={{ fontSize: '30px', fontWeight: '800', color: 'var(--text-main)', marginBottom: '14px' }}>
+                {t('Payment Received, Confirming...')}
+              </h2>
+
+              <p style={{ fontSize: '15px', color: 'var(--text-muted)', lineHeight: '1.8', marginBottom: '30px' }}>
+                {t("We've received your payment but haven't been able to confirm it yet. This can occasionally take a few extra minutes. If your registration status doesn't update shortly, please contact support with this reference: {ref}").replace('{ref}', generatedRef)}
+              </p>
+
+              <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
+                <Link href="/" className="btn-primary" style={{ padding: '12px 30px' }}>
+                  {t('Return Home')}
+                </Link>
+                <button onClick={() => setPaymentPending(false)} className="btn-secondary" style={{ padding: '12px 30px' }}>
+                  {t('Dismiss')}
+                </button>
               </div>
             </div>
           </div>
@@ -899,10 +964,8 @@ export default function PersonalSubscribers() {
                 {t('Paid successfully in the OPay cashier tab?')}
               </p>
               <button
-                onClick={() => {
-                  setPaymentSuccess(true);
-                  setShowCheckout(false);
-                }}
+                onClick={handleConfirmOpayPayment}
+                disabled={processingGateway !== null}
                 style={{
                   background: 'none',
                   border: '1px solid var(--border-color)',
@@ -923,25 +986,6 @@ export default function PersonalSubscribers() {
           </div>
         </div>
       )}
-
-      {/* HIDDEN HTML FORM FOR OPAY POST SUBMIT */}
-      <form
-        ref={opayFormRef}
-        action={OPAY_POST_URL}
-        method="POST"
-        target="_blank"
-        style={{ display: 'none' }}
-      >
-        <input type="hidden" name="email" value={formData.email} />
-        <input type="hidden" name="phone" value={formData.mobile} />
-        <input type="hidden" name="fname" value={formData.fname} />
-        <input type="hidden" name="lname" value={formData.sname} />
-        <input type="hidden" name="amount" value={REGISTRATION_FEE} />
-        <input type="hidden" name="source" value="Personal Subscriber" />
-        <input type="hidden" name="reference" value={generatedRef} />
-        <input type="hidden" name="opay" value="opay" />
-        <input type="hidden" name="redirect_origin" value={typeof window !== 'undefined' ? window.location.origin : ''} />
-      </form>
 
       {/* Local custom responsive styles */}
       <style>{`

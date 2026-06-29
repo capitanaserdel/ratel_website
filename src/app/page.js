@@ -575,9 +575,13 @@ export default function Home() {
           {activeTab === 'mission' && (
             <div className={styles.tabContent}>
               <div className={`${styles.tabText} revealLeft`}>
+                <h3>{t('Our Vision')}</h3>
+                <p>
+                  {t("To become Africa's leading indigenous digital connectivity provider, empowering communities through world-class telecommunications services.")}
+                </p>
                 <h3>{t('Our Mission')}</h3>
                 <p>
-                  {t('Ratel Plus is 100% Nigerian owned. Our mission is to make telecommunication broadband infrastructure, high-quality internet, and managed IT services accessible to as many people and companies as possible at the lowest cost possible.')}
+                  {t('To provide reliable, affordable, and innovative voice and data communication solutions that connect people, businesses, and communities across Nigeria.')}
                 </p>
                 <ul className={styles.tabFeaturesList}>
                   <li className={styles.tabFeaturesItem}>
@@ -657,97 +661,73 @@ export default function Home() {
         <div className="container">
           <div className={`${styles.sectionHeader} reveal`}>
             <span className={styles.sectionSubtitle}>{t('What We Offer')}</span>
-            <h2 className={styles.sectionTitle}>{t('State-of-the-Art Telecom Services')}</h2>
-            <p>{t('Delivering crystal-clear VoIP calling, superfast Fibre to the Home, and high-speed LTE data services.')}</p>
+            <h2 className={styles.sectionTitle}>{t('Our Services')}</h2>
+            <p>{t('Reliable, affordable, and innovative voice and data communication solutions connecting people, businesses, and communities across Nigeria.')}</p>
           </div>
 
-          <div className={`${styles.servicesGrid} revealScale`}>
-            {/* Voice Services */}
-            <div className={`glass-panel ${styles.serviceCard}`}>
-              <div className={styles.serviceCardHeaderRow}>
-                <div className={styles.serviceIcon}>
-                  <i className="bi bi-telephone-outbound-fill"></i>
-                </div>
-                <span className={styles.serviceCardBadge}>{t('Cloud PBX & SIP')}</span>
+          <div className={`${styles.simpleServicesGrid} revealScale`}>
+            <div className={`glass-panel ${styles.simpleServiceCard}`}>
+              <div className={styles.serviceIcon}>
+                <i className="bi bi-wifi"></i>
               </div>
-              <h4>{t('Voice Services')}</h4>
-              <p className={styles.serviceDesc}>{t('Converged Voice telephony using SIP softphones and custom VoIP routing to offer cheap call rates and advanced cloud PBX configurations.')}</p>
-              <ul className={styles.serviceFeatures}>
-                <li className={styles.serviceFeatureItem}>
-                  <i className="bi bi-patch-check-fill"></i>
-                  <span>{t('Cheap local & international calls')}</span>
-                </li>
-                <li className={styles.serviceFeatureItem}>
-                  <i className="bi bi-patch-check-fill"></i>
-                  <span>{t('SIP softphone integration')}</span>
-                </li>
-                <li className={styles.serviceFeatureItem}>
-                  <i className="bi bi-patch-check-fill"></i>
-                  <span>{t('HD calling over mobile/data')}</span>
-                </li>
-              </ul>
-              <Link href="/services/voice" className={styles.serviceLink}>
-                {t('Learn More')} <i className="bi bi-arrow-right"></i>
-              </Link>
+              <h4>{t('Broadband Internet Services')}</h4>
+              <p className={styles.serviceDesc}>{t('Provision of high-speed and reliable internet connectivity for residential, commercial, and institutional customers.')}</p>
             </div>
 
-            {/* Fibre to the Home (Featured) */}
-            <div className={`glass-panel ${styles.serviceCard} ${styles.serviceCardFeatured}`}>
-              <div className={styles.featuredRibbon}>{t('Most Popular')}</div>
-              <div className={styles.serviceCardHeaderRow}>
-                <div className={styles.serviceIcon}>
-                  <i className="bi bi-hdd-network-fill"></i>
-                </div>
-                <span className={styles.serviceCardBadge}>{t('Ultra-Fast Core')}</span>
-              </div>
-              <h4>{t('Fibre to the Home (FTTH)')}</h4>
-              <p className={styles.serviceDesc}>{t('High-speed and reliable fiber optic broadband connection directly to your home or office for seamless streaming, gaming, and remote work.')}</p>
-              <ul className={styles.serviceFeatures}>
-                <li className={styles.serviceFeatureItem}>
-                  <i className="bi bi-patch-check-fill"></i>
-                  <span>{t('Gigabit-capable optical line')}</span>
-                </li>
-                <li className={styles.serviceFeatureItem}>
-                  <i className="bi bi-patch-check-fill"></i>
-                  <span>{t('Buffer-free 4K/8K media stream')}</span>
-                </li>
-                <li className={styles.serviceFeatureItem}>
-                  <i className="bi bi-patch-check-fill"></i>
-                  <span>{t('Dedicated business & residential SLA')}</span>
-                </li>
-              </ul>
-              <Link href="/aboutus" className={styles.serviceLink}>
-                {t('Learn More')} <i className="bi bi-arrow-right"></i>
-              </Link>
-            </div>
-
-            {/* LTE Services */}
-            <div className={`glass-panel ${styles.serviceCard}`}>
-              <div className={styles.serviceCardHeaderRow}>
-                <div className={styles.serviceIcon}>
-                  <i className="bi bi-phone-vibrate-fill"></i>
-                </div>
-                <span className={styles.serviceCardBadge}>{t('4G LTE Broadband')}</span>
+            <div className={`glass-panel ${styles.simpleServiceCard}`}>
+              <div className={styles.serviceIcon}>
+                <i className="bi bi-phone-vibrate-fill"></i>
               </div>
               <h4>{t('LTE Services')}</h4>
-              <p className={styles.serviceDesc}>{t('Experience high-speed, low-latency, and highly reliable mobile connectivity with our licensed 4G LTE data solutions.')}</p>
-              <ul className={styles.serviceFeatures}>
-                <li className={styles.serviceFeatureItem}>
-                  <i className="bi bi-patch-check-fill"></i>
-                  <span>{t('High-speed wireless router hubs')}</span>
-                </li>
-                <li className={styles.serviceFeatureItem}>
-                  <i className="bi bi-patch-check-fill"></i>
-                  <span>{t('Symmetrical data transmissions')}</span>
-                </li>
-                <li className={styles.serviceFeatureItem}>
-                  <i className="bi bi-patch-check-fill"></i>
-                  <span>{t('eSIM & digital account topup')}</span>
-                </li>
-              </ul>
-              <Link href="/reg-options" className={styles.serviceLink}>
-                {t('Learn More')} <i className="bi bi-arrow-right"></i>
-              </Link>
+              <p className={styles.serviceDesc}>{t('Delivery of high-speed wireless broadband solutions through advanced LTE technology, providing reliable internet access for homes, businesses, and remote locations.')}</p>
+            </div>
+
+            <div className={`glass-panel ${styles.simpleServiceCard}`}>
+              <div className={styles.serviceIcon}>
+                <i className="bi bi-telephone-outbound-fill"></i>
+              </div>
+              <h4>{t('Voice over Internet Protocol (VoIP) Services')}</h4>
+              <p className={styles.serviceDesc}>{t('Provision of cost-effective and scalable voice communication solutions, enabling high-quality local and international calls over IP networks for businesses and individuals.')}</p>
+            </div>
+
+            <div className={`glass-panel ${styles.simpleServiceCard}`}>
+              <div className={styles.serviceIcon}>
+                <i className="bi bi-hdd-network-fill"></i>
+              </div>
+              <h4>{t('Fiber-to-the-Home (FTTH) Solutions')}</h4>
+              <p className={styles.serviceDesc}>{t('Deployment of fiber optic infrastructure that delivers ultra-fast, secure, and stable internet services directly to homes and businesses.')}</p>
+            </div>
+
+            <div className={`glass-panel ${styles.simpleServiceCard}`}>
+              <div className={styles.serviceIcon}>
+                <i className="bi bi-building-fill"></i>
+              </div>
+              <h4>{t('Enterprise Connectivity Solutions')}</h4>
+              <p className={styles.serviceDesc}>{t('Customized connectivity and communication solutions tailored to meet the networking requirements of corporate organizations, SMEs, and government institutions.')}</p>
+            </div>
+
+            <div className={`glass-panel ${styles.simpleServiceCard}`}>
+              <div className={styles.serviceIcon}>
+                <i className="bi bi-diagram-3-fill"></i>
+              </div>
+              <h4>{t('Network Infrastructure Deployment')}</h4>
+              <p className={styles.serviceDesc}>{t('Design, installation, operation, and maintenance of telecommunications infrastructure, including fiber optic networks and related systems.')}</p>
+            </div>
+
+            <div className={`glass-panel ${styles.simpleServiceCard}`}>
+              <div className={styles.serviceIcon}>
+                <i className="bi bi-cpu-fill"></i>
+              </div>
+              <h4>{t('ICT Solutions')}</h4>
+              <p className={styles.serviceDesc}>{t('Provision of innovative ICT services and digital solutions that enhance communication, productivity, and operational efficiency.')}</p>
+            </div>
+
+            <div className={`glass-panel ${styles.simpleServiceCard}`}>
+              <div className={styles.serviceIcon}>
+                <i className="bi bi-gear-wide-connected"></i>
+              </div>
+              <h4>{t('Managed Network Services')}</h4>
+              <p className={styles.serviceDesc}>{t('Comprehensive network management and support services to ensure optimal performance, security, and reliability.')}</p>
             </div>
           </div>
         </div>

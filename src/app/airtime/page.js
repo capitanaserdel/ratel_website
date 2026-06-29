@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
 
 const CURRENCY = 'NGN';
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ratelplus.net';
-const OPAY_POST_URL = `${backendUrl}/payer.php`;
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.ratelplus.net.ng';
 
 // Approved prefix list for validation
 const APPROVED_PREFIXES = [
@@ -37,18 +36,16 @@ export default function BuyAirtime() {
   const [paymentError, setPaymentError] = useState('');
   const [processingGateway, setProcessingGateway] = useState(null); // 'paystack' | 'opay' | null
 
-  // Ref for OPay hidden form submit
-  const opayFormRef = useRef(null);
-
-  // Polls a status-check URL until it reports the airtime as credited, or gives up.
-  // Used because crediting happens on the legacy backend and isn't guaranteed to be
-  // confirmed the instant the payment popup closes.
-  const pollCredit = async (url, { attempts = 5, delayMs = 4000 } = {}) => {
+  // Polls vos-portal's /api/payments/verify/:reference until it reports the airtime as
+  // credited, or gives up. The verify endpoint is self-healing (it actively re-checks
+  // with the provider if still pending), so this is mostly covering the case where the
+  // provider itself hasn't confirmed the charge yet.
+  const pollCredit = async (reference, { attempts = 5, delayMs = 4000 } = {}) => {
     for (let i = 0; i < attempts; i++) {
       try {
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data && data.credited) return true;
+        const res = await fetch(`${apiUrl}/api/payments/verify/${reference}`);
+        const json = await res.json();
+        if (json?.data?.rechargeApplied) return true;
       } catch (err) {
         console.error('Credit check failed:', err);
       }
@@ -74,7 +71,7 @@ export default function BuyAirtime() {
       if (queryStatus === 'success') {
         if (queryReference) {
           setProcessingGateway('verifying');
-          pollCredit(`${backendUrl}/check_status.php?reference=${queryReference}`, { attempts: 6, delayMs: 4000 })
+          pollCredit(queryReference, { attempts: 6, delayMs: 4000 })
             .then(credited => {
               setProcessingGateway(null);
               if (credited) {
@@ -244,57 +241,41 @@ export default function BuyAirtime() {
     const finalFname = rechargeType === 'self' && savedUser ? savedUser.fname : formData.fname;
     const finalLname = rechargeType === 'self' && savedUser ? savedUser.lname : formData.sname;
 
-    // 1. Initialize transaction in the PHP database opay_payment table
-    const initData = new URLSearchParams();
-    initData.append('reference', generatedRef);
-    initData.append('ratelnumber', finalPhone);
-    initData.append('source', 'Airtime');
-    initData.append('paystack', 'paystack');
-    initData.append('email', finalEmail);
-    initData.append('fname', finalFname);
-    initData.append('lname', finalLname);
-    initData.append('amount', formData.amount);
-    initData.append('redirect_origin', typeof window !== 'undefined' ? window.location.origin : '');
-
     try {
-      const initResponse = await fetch(`${backendUrl}/payer.php`, {
+      // 1. Ask vos-portal to resolve the Ratel number to a VOS3000 account and
+      // initialize a Paystack transaction server-side.
+      const initRes = await fetch(`${apiUrl}/api/payments/initialize`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: initData.toString(),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: 'PAYSTACK',
+          amountNGN: parseInt(formData.amount, 10),
+          ratelNumber: finalPhone,
+          customerEmail: finalEmail,
+          customerName: `${finalFname} ${finalLname}`.trim(),
+        }),
       });
-
-      if (!initResponse.ok) {
-        throw new Error('Failed to initialize database transaction.');
+      const initJson = await initRes.json();
+      if (!initJson.success) {
+        if (initRes.status === 404) {
+          setErrors(prev => ({ ...prev, ratelnumber: initJson.error }));
+          setShowCheckout(false);
+        }
+        throw new Error(initJson.error || 'Failed to initialize payment.');
       }
 
-      // 2. Open inline Paystack Pop-up
+      const { reference, accessCode } = initJson.data;
+      setGeneratedRef(reference);
+
+      // 2. Resume the server-initialized transaction in the inline popup (keeps the
+      // existing inline UX, but the transaction itself is now created and tracked
+      // by vos-portal, not the client).
       const { default: PaystackPop } = await import('@paystack/inline-js');
       const popup = new PaystackPop();
-      popup.newTransaction({
-        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_live_f794eddafa6e2897901b7b801b901188a9526863',
-        email: finalEmail,
-        amount: parseInt(formData.amount, 10) * 100, // in kobo
-        currency: CURRENCY,
-        ref: generatedRef,
-        metadata: {
-          custom_fields: [
-            {
-              display_name: 'Descriptions',
-              variable_name: 'Airtime',
-              value: generatedRef
-            }
-          ]
-        },
-        onSuccess: async (transaction) => {
+      popup.resumeTransaction(accessCode, {
+        onSuccess: async () => {
           setProcessingGateway('verifying');
-          // 3. Trigger backend verification + crediting, retrying a few times since
-          // Paystack's own verify API can lag a moment behind the popup's success callback.
-          const credited = await pollCredit(
-            `${backendUrl}/ratelpay.php?reference=${generatedRef}&redirect_origin=${encodeURIComponent(window.location.origin)}&format=json`,
-            { attempts: 5, delayMs: 4000 }
-          );
+          const credited = await pollCredit(reference, { attempts: 5, delayMs: 4000 });
           setProcessingGateway(null);
           setShowCheckout(false);
           if (credited) {
@@ -314,19 +295,60 @@ export default function BuyAirtime() {
     }
   };
 
-  // ─── secure OPay Checkout (using hidden HTML form POST submit) ─────────────
-  const handlePayWithOpay = (e) => {
+  // ─── secure OPay Checkout (hosted checkout, opened in a new tab) ───────────
+  const handlePayWithOpay = async (e) => {
     e.preventDefault();
     setPaymentError('');
     setProcessingGateway('opay');
 
-    if (opayFormRef.current) {
-      opayFormRef.current.submit();
-    }
+    const finalPhone = rechargeType === 'self' && savedUser ? savedUser.ratelnumber : formData.ratelnumber;
+    const finalEmail = rechargeType === 'self' && savedUser ? savedUser.email : formData.email;
+    const finalFname = rechargeType === 'self' && savedUser ? savedUser.fname : formData.fname;
+    const finalLname = rechargeType === 'self' && savedUser ? savedUser.lname : formData.sname;
 
-    setTimeout(() => {
+    try {
+      const initRes = await fetch(`${apiUrl}/api/payments/initialize`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: 'OPAY',
+          amountNGN: parseInt(formData.amount, 10),
+          ratelNumber: finalPhone,
+          customerEmail: finalEmail,
+          customerName: `${finalFname} ${finalLname}`.trim(),
+        }),
+      });
+      const initJson = await initRes.json();
+      if (!initJson.success) {
+        if (initRes.status === 404) {
+          setErrors(prev => ({ ...prev, ratelnumber: initJson.error }));
+          setShowCheckout(false);
+        }
+        throw new Error(initJson.error || 'Failed to initialize payment.');
+      }
+
+      setGeneratedRef(initJson.data.reference);
+      window.open(initJson.data.checkoutUrl, '_blank');
+    } catch (err) {
+      setPaymentError('Failed to initialize payment: ' + err.message);
+    } finally {
       setProcessingGateway(null);
-    }, 2000);
+    }
+  };
+
+  // Manual confirm button for the OPay tab — actively re-checks rather than blindly
+  // trusting that the customer actually completed payment in the other tab.
+  const handleConfirmOpayPayment = async () => {
+    if (!generatedRef) return;
+    setProcessingGateway('verifying');
+    const credited = await pollCredit(generatedRef, { attempts: 3, delayMs: 3000 });
+    setProcessingGateway(null);
+    setShowCheckout(false);
+    if (credited) {
+      setPaymentSuccess(true);
+    } else {
+      setPaymentPending(true);
+    }
   };
 
   const finalPhone = rechargeType === 'self' && savedUser ? savedUser.ratelnumber : formData.ratelnumber;
@@ -849,10 +871,8 @@ export default function BuyAirtime() {
                 {t('Paid successfully in the OPay cashier tab?')}
               </p>
               <button
-                onClick={() => {
-                  setPaymentSuccess(true);
-                  setShowCheckout(false);
-                }}
+                onClick={handleConfirmOpayPayment}
+                disabled={processingGateway !== null}
                 style={{
                   background: 'none',
                   border: '1px solid var(--border-color)',
@@ -873,25 +893,6 @@ export default function BuyAirtime() {
           </div>
         </div>
       )}
-
-      {/* HIDDEN HTML FORM FOR OPAY POST SUBMIT TO ROOT PAYER.PHP */}
-      <form
-        ref={opayFormRef}
-        action={OPAY_POST_URL}
-        method="POST"
-        target="_blank"
-        style={{ display: 'none' }}
-      >
-        <input type="hidden" name="email" value={finalEmail} />
-        <input type="hidden" name="phone" value={finalPhone} />
-        <input type="hidden" name="fname" value={finalFname} />
-        <input type="hidden" name="lname" value={finalLname} />
-        <input type="hidden" name="amount" value={formData.amount} />
-        <input type="hidden" name="source" value="Airtime" />
-        <input type="hidden" name="reference" value={generatedRef} />
-        <input type="hidden" name="opay" value="opay" />
-        <input type="hidden" name="redirect_origin" value={typeof window !== 'undefined' ? window.location.origin : ''} />
-      </form>
 
       {/* Local responsive styling */}
       <style>{`
