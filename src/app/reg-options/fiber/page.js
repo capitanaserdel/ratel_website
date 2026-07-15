@@ -230,8 +230,8 @@ export default function FiberDetails() {
                 </ul>
 
                 {/* Redirect Button */}
-                <a 
-                  href="https://fibre.ratelplus.net.ng"
+                <a
+                  href="https://fibre.ratelplus.net.ng/register"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-primary"
