@@ -7,6 +7,17 @@ import { useLanguage } from '@/context/LanguageContext';
 export default function RegOptions() {
   const { t } = useLanguage();
 
+  const cardBase = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '20px',
+    textAlign: 'center',
+    cursor: 'pointer',
+    textDecoration: 'none',
+    color: 'inherit',
+    transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+  };
+
   return (
     <div>
       {/* Choice Category Header */}
@@ -19,81 +30,85 @@ export default function RegOptions() {
             <span style={{ color: 'var(--primary)', textTransform: 'uppercase', fontSize: '13px', fontWeight: '600', letterSpacing: '0.05em' }}>
               {t('NIN Compliance & Account Setup')}
             </span>
-            <h2 style={{ fontSize: '32px', fontWeight: '800', marginTop: '10px', marginBottom: '16px' }}>{t('Select Registration Option')}</h2>
+            <h2 style={{ fontSize: '32px', fontWeight: '800', marginTop: '10px', marginBottom: '16px' }}>
+              {t('Select Registration Option')}
+            </h2>
             <p style={{ color: 'var(--text-muted)' }}>
               {t('Choose your subscriber category to link your National Identification Number (NIN) or provision new enterprise VoIP lines.')}
             </p>
           </div>
 
           <div className="content-grid" style={{ maxWidth: '900px', margin: '0 auto' }}>
-            
-            {/* Personal Card */}
-            <div className="glass-panel form-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px', textAlign: 'center' }}>
-              <div 
-                style={{ 
-                  width: '70px', 
-                  height: '70px', 
-                  borderRadius: '16px', 
+
+            {/* Personal Card — fully clickable */}
+            <Link
+              href="/personal-subscribers"
+              id="reg-personal-card"
+              className="glass-panel form-card"
+              style={cardBase}
+            >
+              <div
+                style={{
+                  width: '70px',
+                  height: '70px',
+                  borderRadius: '16px',
                   background: 'rgba(37, 99, 235, 0.08)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: '32px',
                   color: 'var(--primary)',
-                  margin: '0 auto 10px'
+                  margin: '0 auto 10px',
                 }}
               >
                 <i className="bi bi-person-badge-fill"></i>
               </div>
-              <h3 style={{ fontSize: '22px', color: 'var(--text-main)' }}>{t('Personal Subscribers')}</h3>
+              <h3 style={{ fontSize: '22px', color: 'var(--text-main)' }}>
+                {t('Ratel Phone App')}
+              </h3>
               <p style={{ fontSize: '14px', lineHeight: '1.6', color: 'var(--text-muted)' }}>
                 {t('Link your personal mobile voice line, upload verification details, and ensure your SIM compliance with the NCC guidelines.')}
               </p>
-              <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
-                <Link href="/personal-subscribers" className="btn-primary" style={{ width: '100%' }}>
-                  {t('Register Personal SIM')}
-                </Link>
+              <div style={{ marginTop: 'auto', paddingTop: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: 'var(--primary)', fontWeight: '700', fontSize: '14px' }}>
+                {t('Ratel Phone App Register')}
+                <i className="bi bi-arrow-right-circle-fill" style={{ fontSize: '18px' }}></i>
               </div>
-            </div>
+            </Link>
 
-            {/* Fiber Card */}
-            <div 
-              className="glass-panel form-card" 
-              style={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                gap: '20px', 
-                textAlign: 'center',
-                position: 'relative',
-                overflow: 'hidden'
-              }}
+            {/* Fiber Card — fully clickable */}
+            <Link
+              href="/reg-options/fiber"
+              id="reg-fiber-card"
+              className="glass-panel form-card"
+              style={{ ...cardBase, position: 'relative', overflow: 'hidden' }}
             >
-              <div 
-                style={{ 
-                  width: '70px', 
-                  height: '70px', 
-                  borderRadius: '16px', 
+              <div
+                style={{
+                  width: '70px',
+                  height: '70px',
+                  borderRadius: '16px',
                   background: 'rgba(16, 185, 129, 0.1)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: '32px',
                   color: 'var(--accent-green)',
-                  margin: '0 auto 10px'
+                  margin: '0 auto 10px',
                 }}
               >
                 <i className="bi bi-router-fill"></i>
               </div>
-              <h3 style={{ fontSize: '22px', color: 'var(--text-main)' }}>{t('Fiber Subscribers')}</h3>
+              <h3 style={{ fontSize: '22px', color: 'var(--text-main)' }}>
+                {t('Fiber To The Home Registration')}
+              </h3>
               <p style={{ fontSize: '14px', lineHeight: '1.6', color: 'var(--text-muted)' }}>
                 {t('Request high-speed, reliable fiber optic broadband installation directly to your home or office, select plans, and check coverage.')}
               </p>
-              <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
-                <Link href="/reg-options/fiber" className="btn-primary" style={{ width: '100%', background: 'var(--accent-green)', borderColor: 'var(--accent-green)', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.2)' }}>
-                  {t('Explore Fiber Options')}
-                </Link>
+              <div style={{ marginTop: 'auto', paddingTop: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: 'var(--accent-green)', fontWeight: '700', fontSize: '14px' }}>
+                {t('Explore Fiber Options')}
+                <i className="bi bi-arrow-right-circle-fill" style={{ fontSize: '18px' }}></i>
               </div>
-            </div>
+            </Link>
 
           </div>
         </div>

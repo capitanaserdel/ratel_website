@@ -7,25 +7,25 @@ import styles from './page.module.css';
 
 const heroSlides = [
   {
-    title: "High-Definition VoIP Services",
-    subtitle: "Crystal Clear Voice Calls",
+    title: "Ratel Phone App",
+    subtitle: "HD VoIP Services",
     desc: "Experience high-definition voice calling over the internet at the lowest call rates using our SIP softphone app.",
     img: "phone_mockup.png",
-    badge: "VoIP Telephony"
+    badge: "HD VoIP Services"
   },
   {
-    title: "Fibre to the Home (FTTH)",
-    subtitle: "Superfast Broadband Connectivity",
+    title: "Fibre To The Home (FTTH)",
+    subtitle: "Superfast Broadband & Data",
     desc: "High-speed and reliable fiber optic connection directly to your home or office for seamless streaming, gaming, and remote work.",
     img: "datacenter_fiber.png",
-    badge: "Broadband Fiber"
+    badge: "Broadband Fiber & Data"
   },
   {
-    title: "High-Speed 4G LTE Services",
-    subtitle: "Reliable Mobile Broadband",
-    desc: "Stay connected on the go with our licensed, high-speed LTE data services designed for speed and reliability.",
+    title: "Ratel SIM Card",
+    subtitle: "Ratel SIM Card Service (LTE)",
+    desc: "Stay connected on the go with our licensed Ratel SIM card — high-speed 4G LTE data services designed for speed and reliability.",
     img: "hero_banner.jpg",
-    badge: "4G LTE Network"
+    badge: "Ratel SIM — 4G LTE"
   }
 ];
 
@@ -289,11 +289,11 @@ export default function Home() {
 
             {/* CTA Buttons */}
             <div className={styles.heroBtns}>
-              <Link href="/reg-options" id="hero-register-btn" className={styles.heroRegisterBtn}>
+              <Link href="/reg-options" id="hero-register-btn" className={`${styles.heroRegisterBtn} ${styles.heroBtnPulseBlue}`}>
                 <i className="bi bi-person-plus-fill"></i>
                 {t('Register Now Btn')}
               </Link>
-              <Link href="/airtime" id="hero-airtime-btn" className={styles.heroAirtimeBtn}>
+              <Link href="/airtime" id="hero-airtime-btn" className={`${styles.heroAirtimeBtn} ${styles.heroBtnPulseGreen}`}>
                 <i className="bi bi-wallet2"></i>
                 {t('Buy Airtime Btn')}
               </Link>
