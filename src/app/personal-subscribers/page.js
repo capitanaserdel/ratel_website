@@ -34,6 +34,9 @@ export default function PersonalSubscribers() {
   const [generatedRef, setGeneratedRef] = useState('');
   const [registrationId, setRegistrationId] = useState('');
 
+  // Privacy policy consent
+  const [privacyAgreed, setPrivacyAgreed] = useState(false);
+
   // Explicit upload slots states
   const [idCardFile, setIdCardFile] = useState(null);
   const [portraitFile, setPortraitFile] = useState(null);
@@ -99,7 +102,7 @@ export default function PersonalSubscribers() {
     }
   }, []);
 
-  const handleVerifyNin = () => {
+  const handleVerifyNin = async () => {
     setNinVerificationError('');
     if (formData.nin.length !== 11) {
       setNinVerificationError('NIN must be exactly 11 digits');
@@ -108,18 +111,42 @@ export default function PersonalSubscribers() {
 
     setIsVerifyingNin(true);
 
-    setTimeout(() => {
-      setIsVerifyingNin(false);
+    try {
+      const response = await fetch('/api/verify-nin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ nin: formData.nin }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Verification failed. Please check NIN.');
+      }
+
+      const resData = await response.json();
+      if (!resData.success) {
+        throw new Error(resData.message || 'Verification failed.');
+      }
+
+      const details = resData.data || {};
+
       setNinVerified(true);
       setFormData(prev => ({
         ...prev,
-        fname: 'Muhammad',
-        sname: 'Abubakar',
-        email: 'm.abubakar@gmail.com',
-        mobile: '08031234567',
-        addr: 'Plot 120, Aminu Kano Way, Kano, Nigeria'
+        fname: details.fname || prev.fname,
+        sname: details.sname || prev.sname,
+        email: details.email || prev.email,
+        mobile: details.mobile || prev.mobile,
+        addr: details.addr || prev.addr,
       }));
-    }, 1500);
+    } catch (err) {
+      console.error('NIN Verification Error:', err);
+      setNinVerificationError(err.message || 'Verification failed. Please try again.');
+    } finally {
+      setIsVerifyingNin(false);
+    }
   };
 
   // ─── Input Handling ───────────────────────────────────────────────────────
@@ -451,7 +478,7 @@ export default function PersonalSubscribers() {
   }
 
   return (
-    <div style={{ position: 'relative', overflow: 'hidden' }}>
+    <div style={{ position: 'relative', overflow: 'hidden', paddingTop: '112px' }}>
       {/* Background glow effects */}
       <div style={{
         position: 'absolute',
@@ -465,9 +492,109 @@ export default function PersonalSubscribers() {
         zIndex: 0
       }} />
 
+      {/* ── Privacy Policy Consent Banner ── */}
+      <div style={{
+        position: 'relative',
+        zIndex: 10,
+        background: privacyAgreed
+          ? 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(16,185,129,0.04) 100%)'
+          : 'linear-gradient(135deg, rgba(24,73,201,0.10) 0%, rgba(24,73,201,0.05) 100%)',
+        borderBottom: privacyAgreed
+          ? '1px solid rgba(16,185,129,0.25)'
+          : '1px solid rgba(24,73,201,0.25)',
+        padding: '20px 0',
+        transition: 'all 0.4s ease',
+      }}>
+        <div className="container">
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '18px',
+            flexWrap: 'wrap',
+          }}>
+            {/* Icon */}
+            <div style={{
+              flexShrink: 0,
+              width: '46px',
+              height: '46px',
+              borderRadius: '12px',
+              background: privacyAgreed ? 'rgba(16,185,129,0.15)' : 'rgba(24,73,201,0.12)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '22px',
+              color: privacyAgreed ? '#10b981' : 'var(--primary)',
+              transition: 'all 0.3s ease',
+            }}>
+              <i className={privacyAgreed ? 'bi bi-shield-fill-check' : 'bi bi-shield-lock-fill'} />
+            </div>
 
+            {/* Text */}
+            <div style={{ flex: 1, minWidth: '220px' }}>
+              <p style={{ fontSize: '13.5px', color: 'var(--text-main)', lineHeight: '1.6', margin: 0 }}>
+                {t('By continuing, you agree to our')}{' '}
+                <Link
+                  href="/privacy-policy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: 'var(--primary)',
+                    fontWeight: '700',
+                    textDecoration: 'underline',
+                    textUnderlineOffset: '3px',
+                  }}
+                >
+                  {t('Privacy Policy')}
+                </Link>{' '}
+                {t('and consent to the collection and processing of your personal data (NIN, name, address, photos) in accordance with NCC subscriber registration requirements.')}
+              </p>
+            </div>
 
-      <section className="section-padding" style={{ position: 'relative', zIndex: 1 }}>
+            {/* Checkbox */}
+            <label
+              htmlFor="privacy-agree-checkbox"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                cursor: 'pointer',
+                flexShrink: 0,
+                background: privacyAgreed ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.04)',
+                border: privacyAgreed ? '1.5px solid rgba(16,185,129,0.5)' : '1.5px solid rgba(24,73,201,0.3)',
+                borderRadius: '10px',
+                padding: '10px 18px',
+                transition: 'all 0.3s ease',
+                userSelect: 'none',
+              }}
+            >
+              <input
+                id="privacy-agree-checkbox"
+                type="checkbox"
+                checked={privacyAgreed}
+                onChange={e => setPrivacyAgreed(e.target.checked)}
+                style={{
+                  width: '18px',
+                  height: '18px',
+                  accentColor: privacyAgreed ? '#10b981' : 'var(--primary)',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{
+                fontSize: '13px',
+                fontWeight: '700',
+                color: privacyAgreed ? '#10b981' : 'var(--text-main)',
+                whiteSpace: 'nowrap',
+                transition: 'color 0.3s ease',
+              }}>
+                {privacyAgreed ? t('Agreed ✓') : t('I Agree to Continue')}
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <section className="section-padding" style={{ position: 'relative', zIndex: 1, opacity: privacyAgreed ? 1 : 0.35, pointerEvents: privacyAgreed ? 'auto' : 'none', filter: privacyAgreed ? 'none' : 'blur(3px)', transition: 'opacity 0.4s ease, filter 0.4s ease' }}>
         <div className="container">
           {/* Main Grid: Equal Height Desktop Layout */}
           <div className="subscribers-layout">
