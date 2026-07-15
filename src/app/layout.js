@@ -17,6 +17,10 @@ export const metadata = {
   description: "Ratel Plus is a facilities-based telecommunications service provider based in Nigeria. We offer converged VoIP services, bulk IP transit, backhaul network infrastructure, and professional training.",
   keywords: "Ratel Plus, Telecom Nigeria, VoIP Kano, BroadBand Nigeria, IP Wholesale, Metro Fiber, RatelSIM, Ratel Phone, Dala Container Terminal",
   robots: "index, follow",
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default function RootLayout({ children }) {
