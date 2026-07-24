@@ -34,6 +34,9 @@ export default function PersonalSubscribers() {
   const [generatedRef, setGeneratedRef] = useState('');
   const [registrationId, setRegistrationId] = useState('');
 
+  const [proceedLoading, setProceedLoading] = useState(false);
+  const [paystackLoading, setPaystackLoading] = useState(false);
+
   // Privacy policy consent
   const [privacyAgreed, setPrivacyAgreed] = useState(false);
 
@@ -282,6 +285,7 @@ export default function PersonalSubscribers() {
 
     setErrors({});
 
+    setProceedLoading(true);
     try {
       const res = await fetch(`${apiUrl}/api/registrations`, {
         method: 'POST',
@@ -301,9 +305,11 @@ export default function PersonalSubscribers() {
       }
 
       setRegistrationId(json.data.id);
+      setProceedLoading(false);
       setShowCheckout(true);
     } catch (err) {
       console.error(err);
+      setProceedLoading(false);
       alert(err.message || 'Failed to submit registration. Please verify connection and try again.');
     }
   };
@@ -330,10 +336,12 @@ export default function PersonalSubscribers() {
   // ─── secure Paystack Checkout ──────────────────────────────────────────────
   const handlePayWithPaystack = async () => {
     setPaymentError('');
+    setPaystackLoading(true);
     setProcessingGateway('paystack');
 
     try {
       const { reference, accessCode } = await initializeRegistrationPayment('PAYSTACK');
+      setPaystackLoading(false);
 
       const { default: PaystackPop } = await import('@paystack/inline-js');
       const popup = new PaystackPop();
@@ -351,6 +359,7 @@ export default function PersonalSubscribers() {
         }
       });
     } catch (err) {
+      setPaystackLoading(false);
       setProcessingGateway(null);
       setPaymentError(err.message || 'Failed to load Paystack pop-up.');
     }
@@ -944,8 +953,12 @@ export default function PersonalSubscribers() {
                 </div>
 
                 <div style={{ textAlign: 'center' }}>
-                  <button type="submit" disabled={!ninVerified} className="btn-primary" style={{ padding: '14px 45px', width: '100%', borderRadius: 'var(--radius-sm)', opacity: !ninVerified ? 0.6 : 1, cursor: !ninVerified ? 'not-allowed' : 'pointer' }}>
-                    {t('Proceed to Secure Payment (₦{fee})').replace('{fee}', REGISTRATION_FEE.toLocaleString())} <i className="bi bi-arrow-right-short" style={{ fontSize: '18px' }} />
+                  <button type="submit" disabled={!ninVerified || proceedLoading} className="btn-primary" style={{ padding: '14px 45px', width: '100%', borderRadius: 'var(--radius-sm)', opacity: (!ninVerified || proceedLoading) ? 0.6 : 1, cursor: (!ninVerified || proceedLoading) ? 'not-allowed' : 'pointer' }}>
+                    {proceedLoading ? (
+                      <><i className="bi bi-arrow-repeat" style={{ animation: 'spin 1s linear infinite', display: 'inline-block', marginRight: '8px' }} />{t('Processing...')}</>
+                    ) : (
+                      <>{t('Proceed to Secure Payment (₦{fee})').replace('{fee}', REGISTRATION_FEE.toLocaleString())} <i className="bi bi-arrow-right-short" style={{ fontSize: '18px' }} /></>
+                    )}
                   </button>
                 </div>
               </form>
@@ -1039,7 +1052,7 @@ export default function PersonalSubscribers() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <button
                 onClick={handlePayWithPaystack}
-                disabled={processingGateway !== null}
+                disabled={processingGateway !== null || paystackLoading}
                 style={{
                   padding: '14px',
                   border: 'none',
@@ -1048,45 +1061,53 @@ export default function PersonalSubscribers() {
                   color: '#fff',
                   fontWeight: '700',
                   fontSize: '14.5px',
-                  cursor: 'pointer',
+                  cursor: (processingGateway !== null || paystackLoading) ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
-                  transition: 'background 0.2s'
+                  transition: 'background 0.2s',
+                  opacity: (processingGateway !== null || paystackLoading) ? 0.7 : 1,
                 }}
-                onMouseEnter={e => e.currentTarget.style.background = '#ea6b0c'}
+                onMouseEnter={e => { if (!paystackLoading && processingGateway === null) e.currentTarget.style.background = '#ea6b0c'; }}
                 onMouseLeave={e => e.currentTarget.style.background = '#f97316'}
               >
-                <i className="bi bi-credit-card-fill" /> {t('Pay with Paystack')}
+                {paystackLoading ? (
+                  <><i className="bi bi-arrow-repeat" style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }} /> {t('Initializing payment...')}</>
+                ) : (
+                  <><i className="bi bi-credit-card-fill" /> {t('Pay with Paystack')}</>
+                )}
               </button>
 
-              <button
-                onClick={handlePayWithOpay}
-                disabled={processingGateway !== null}
-                style={{
-                  padding: '14px',
-                  border: 'none',
-                  borderRadius: 'var(--radius-sm)',
-                  background: '#00d09c',
-                  color: '#fff',
-                  fontWeight: '700',
-                  fontSize: '14.5px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  transition: 'background 0.2s'
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = '#00b886'}
-                onMouseLeave={e => e.currentTarget.style.background = '#00d09c'}
-              >
-                <i className="bi bi-wallet2" /> {t('Pay with OPay')}
-              </button>
+              <div style={{ position: 'relative' }}>
+                <button
+                  onClick={handlePayWithOpay}
+                  disabled={true}
+                  style={{
+                    padding: '14px',
+                    border: 'none',
+                    borderRadius: 'var(--radius-sm)',
+                    background: '#9ca3af',
+                    color: '#fff',
+                    fontWeight: '700',
+                    fontSize: '14.5px',
+                    cursor: 'not-allowed',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    width: '100%',
+                    opacity: 0.6,
+                  }}
+                >
+                  <i className="bi bi-wallet2" /> {t('Pay with OPay')}
+                </button>
+                <p style={{ textAlign: 'center', fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px', marginBottom: 0 }}>{t('Coming soon')}</p>
+              </div>
             </div>
 
-            <div style={{ marginTop: '24px', borderTop: '1px solid var(--border-color)', paddingTop: '16px', textAlign: 'center' }}>
+            {/* OPay confirm section — hidden while OPay is disabled */}
+            <div style={{ display: 'none' }}>
               <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px' }}>
                 {t('Paid successfully in the OPay cashier tab?')}
               </p>
