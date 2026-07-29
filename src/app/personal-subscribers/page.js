@@ -36,6 +36,8 @@ export default function PersonalSubscribers() {
 
   const [proceedLoading, setProceedLoading] = useState(false);
   const [paystackLoading, setPaystackLoading] = useState(false);
+  const [opayLoading, setOpayLoading] = useState(false);
+  const [showOpayConfirm, setShowOpayConfirm] = useState(false);
 
   // Privacy policy consent
   const [privacyAgreed, setPrivacyAgreed] = useState(false);
@@ -369,14 +371,17 @@ export default function PersonalSubscribers() {
   const handlePayWithOpay = async (e) => {
     e.preventDefault();
     setPaymentError('');
+    setOpayLoading(true);
     setProcessingGateway('opay');
 
     try {
       const { checkoutUrl } = await initializeRegistrationPayment('OPAY');
       window.open(checkoutUrl, '_blank');
+      setShowOpayConfirm(true);
     } catch (err) {
-      setPaymentError(err.message || 'Failed to initialize payment.');
+      setPaymentError(err.message || 'Failed to initialize OPay payment.');
     } finally {
+      setOpayLoading(false);
       setProcessingGateway(null);
     }
   };
@@ -1079,58 +1084,67 @@ export default function PersonalSubscribers() {
                 )}
               </button>
 
-              <div style={{ position: 'relative' }}>
-                <button
-                  onClick={handlePayWithOpay}
-                  disabled={true}
-                  style={{
-                    padding: '14px',
-                    border: 'none',
-                    borderRadius: 'var(--radius-sm)',
-                    background: '#9ca3af',
-                    color: '#fff',
-                    fontWeight: '700',
-                    fontSize: '14.5px',
-                    cursor: 'not-allowed',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    width: '100%',
-                    opacity: 0.6,
-                  }}
-                >
-                  <i className="bi bi-wallet2" /> {t('Pay with OPay')}
-                </button>
-                <p style={{ textAlign: 'center', fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px', marginBottom: 0 }}>{t('Coming soon')}</p>
-              </div>
-            </div>
-
-            {/* OPay confirm section — hidden while OPay is disabled */}
-            <div style={{ display: 'none' }}>
-              <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px' }}>
-                {t('Paid successfully in the OPay cashier tab?')}
-              </p>
               <button
-                onClick={handleConfirmOpayPayment}
-                disabled={processingGateway !== null}
+                onClick={handlePayWithOpay}
+                disabled={processingGateway !== null || opayLoading}
                 style={{
-                  background: 'none',
-                  border: '1px solid var(--border-color)',
-                  color: 'var(--text-main)',
-                  padding: '8px 24px',
+                  padding: '14px',
+                  border: 'none',
                   borderRadius: 'var(--radius-sm)',
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'var(--transition)'
+                  background: '#16a34a',
+                  color: '#fff',
+                  fontWeight: '700',
+                  fontSize: '14.5px',
+                  cursor: (processingGateway !== null || opayLoading) ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  width: '100%',
+                  opacity: (processingGateway !== null || opayLoading) ? 0.7 : 1,
+                  transition: 'background 0.2s',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-glow)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = 'var(--border-color)'; }}
+                onMouseEnter={e => { if (!opayLoading && processingGateway === null) e.currentTarget.style.background = '#15803d'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#16a34a'; }}
               >
-                {t('✓ I have completed the OPay payment')}
+                {opayLoading ? (
+                  <><i className="bi bi-arrow-repeat" style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }} /> {t('Redirecting...')}</>
+                ) : (
+                  <><i className="bi bi-wallet2" /> {t('Pay with OPay')}</>
+                )}
               </button>
             </div>
+
+            {/* OPay confirm section — shown after OPay checkout tab is opened */}
+            {showOpayConfirm && (
+              <div>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                  {t('Paid successfully in the OPay cashier tab?')}
+                </p>
+                <button
+                  onClick={handleConfirmOpayPayment}
+                  disabled={processingGateway !== null}
+                  style={{
+                    background: 'none',
+                    border: '1px solid var(--border-color)',
+                    color: 'var(--text-main)',
+                    padding: '8px 24px',
+                    borderRadius: 'var(--radius-sm)',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    cursor: processingGateway !== null ? 'not-allowed' : 'pointer',
+                    transition: 'var(--transition)',
+                  }}
+                  onMouseEnter={e => { if (processingGateway === null) { e.currentTarget.style.background = 'var(--primary-glow)'; e.currentTarget.style.borderColor = 'var(--primary)'; } }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = 'var(--border-color)'; }}
+                >
+                  {processingGateway === 'verifying'
+                    ? <><i className="bi bi-arrow-repeat" style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }} /> {t('Verifying...')}</>
+                    : t('✓ I have completed the OPay payment')
+                  }
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
