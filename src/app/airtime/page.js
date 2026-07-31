@@ -70,10 +70,12 @@ export default function BuyAirtime() {
       // Confirm against the backend before showing a success message.
       if (queryStatus === 'success') {
         if (queryReference) {
+          setGeneratedRef(queryReference);
           setProcessingGateway('verifying');
           pollCredit(queryReference, { attempts: 6, delayMs: 4000 })
             .then(credited => {
               setProcessingGateway(null);
+              window.history.replaceState({}, '', window.location.pathname);
               if (credited) {
                 setPaymentSuccess(true);
               } else {
