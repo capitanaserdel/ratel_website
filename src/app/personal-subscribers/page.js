@@ -93,9 +93,11 @@ export default function PersonalSubscribers() {
       const queryReference = params.get('reference');
       if (queryStatus === 'success' || queryReference) {
         if (queryReference) {
+          setGeneratedRef(queryReference);
           setProcessingGateway('verifying');
           pollPaymentConfirmed(queryReference, { attempts: 6, delayMs: 4000 }).then(confirmed => {
             setProcessingGateway(null);
+            window.history.replaceState({}, '', window.location.pathname);
             confirmed ? setPaymentSuccess(true) : setPaymentPending(true);
           });
         } else {
