@@ -42,3 +42,4 @@ next-env.d.ts
 
 # API Keys config
 /ratel web/conn/paystack_key.php
+.env.ssh
