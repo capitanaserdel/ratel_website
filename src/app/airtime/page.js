@@ -28,13 +28,15 @@ export default function BuyAirtime() {
   const [savedUser, setSavedUser] = useState(null);
   const [saveDetailsOnPay, setSaveDetailsOnPay] = useState(true);
   const [generatedRef, setGeneratedRef] = useState('');
+  const [paidAmount, setPaidAmount] = useState(0);
 
   // Overlay & Payment checkout states
   const [showCheckout, setShowCheckout] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [paymentPending, setPaymentPending] = useState(false);
   const [paymentError, setPaymentError] = useState('');
-  const [processingGateway, setProcessingGateway] = useState(null); // 'paystack' | 'opay' | null
+  const [processingGateway, setProcessingGateway] = useState(null); // 'paystack' | 'opay' | 'verifying' | null
+  const [opayTabUrl, setOpayTabUrl] = useState(null); // set after OPay tab opens; null = no tab open
 
   // Polls vos-portal's /api/payments/verify/:reference until it reports the airtime as
   // credited, or gives up. The verify endpoint is self-healing (it actively re-checks
@@ -45,7 +47,9 @@ export default function BuyAirtime() {
       try {
         const res = await fetch(`${apiUrl}/api/payments/verify/${reference}`);
         const json = await res.json();
-        if (json?.data?.rechargeApplied) return true;
+        if (json?.data?.rechargeApplied) {
+          return { credited: true, amountNGN: json.data.amountNGN || 0 };
+        }
       } catch (err) {
         console.error('Credit check failed:', err);
       }
@@ -53,7 +57,7 @@ export default function BuyAirtime() {
         await new Promise(resolve => setTimeout(resolve, delayMs));
       }
     }
-    return false;
+    return { credited: false, amountNGN: null };
   };
 
   useEffect(() => {
@@ -73,8 +77,9 @@ export default function BuyAirtime() {
           setGeneratedRef(queryReference);
           setProcessingGateway('verifying');
           pollCredit(queryReference, { attempts: 6, delayMs: 4000 })
-            .then(credited => {
+            .then(({ credited, amountNGN }) => {
               setProcessingGateway(null);
+              if (amountNGN) setPaidAmount(amountNGN);
               window.history.replaceState({}, '', window.location.pathname);
               if (credited) {
                 setPaymentSuccess(true);
@@ -236,6 +241,7 @@ export default function BuyAirtime() {
   const handlePayWithPaystack = async () => {
     setPaymentError('');
     setProcessingGateway('paystack');
+    setPaidAmount(parseInt(formData.amount, 10) || 0);
 
     // Determine final billing details
     const finalPhone = rechargeType === 'self' && savedUser ? savedUser.ratelnumber : formData.ratelnumber;
@@ -277,7 +283,8 @@ export default function BuyAirtime() {
       popup.resumeTransaction(accessCode, {
         onSuccess: async () => {
           setProcessingGateway('verifying');
-          const credited = await pollCredit(reference, { attempts: 5, delayMs: 4000 });
+          const { credited, amountNGN } = await pollCredit(reference, { attempts: 5, delayMs: 4000 });
+          if (amountNGN) setPaidAmount(amountNGN);
           setProcessingGateway(null);
           setShowCheckout(false);
           if (credited) {
@@ -302,6 +309,7 @@ export default function BuyAirtime() {
     e.preventDefault();
     setPaymentError('');
     setProcessingGateway('opay');
+    setPaidAmount(parseInt(formData.amount, 10) || 0);
 
     const finalPhone = rechargeType === 'self' && savedUser ? savedUser.ratelnumber : formData.ratelnumber;
     const finalEmail = rechargeType === 'self' && savedUser ? savedUser.email : formData.email;
@@ -332,20 +340,24 @@ export default function BuyAirtime() {
       const { reference, checkoutUrl } = initJson.data;
       setGeneratedRef(reference);
       window.open(checkoutUrl, '_blank');
+      // Unblock the UI immediately so the user can see the "OPay tab" banner
+      // and use the confirm button if the popup was blocked.
+      setProcessingGateway(null);
+      setOpayTabUrl(checkoutUrl);
 
-      // Poll in the background on this tab too — OPay's webhook confirms server-side,
-      // but if the user returns to this tab instead of the redirect tab, we still want
-      // to show the result without requiring a page refresh.
-      pollCredit(reference, { attempts: 12, delayMs: 5000 }).then(credited => {
-        setProcessingGateway(null);
+      // Poll silently in the background — auto-resolves when OPay's webhook
+      // or the user's return confirms the payment.
+      pollCredit(reference, { attempts: 12, delayMs: 5000 }).then(({ credited, amountNGN }) => {
+        setOpayTabUrl(null);
         setShowCheckout(false);
+        if (amountNGN) setPaidAmount(amountNGN);
         if (credited) {
           setPaymentSuccess(true);
         } else {
           setPaymentPending(true);
         }
       }).catch(() => {
-        setProcessingGateway(null);
+        setOpayTabUrl(null);
         setPaymentPending(true);
       });
     } catch (err) {
@@ -359,8 +371,10 @@ export default function BuyAirtime() {
   const handleConfirmOpayPayment = async () => {
     if (!generatedRef) return;
     setProcessingGateway('verifying');
-    const credited = await pollCredit(generatedRef, { attempts: 3, delayMs: 3000 });
+    const { credited, amountNGN } = await pollCredit(generatedRef, { attempts: 3, delayMs: 3000 });
+    if (amountNGN) setPaidAmount(amountNGN);
     setProcessingGateway(null);
+    setOpayTabUrl(null);
     setShowCheckout(false);
     if (credited) {
       setPaymentSuccess(true);
@@ -405,7 +419,7 @@ export default function BuyAirtime() {
               </h2>
 
               <p style={{ fontSize: '15px', color: 'var(--text-muted)', lineHeight: '1.8', marginBottom: '30px' }}>
-                {t('Thank you. Your payment of ₦{amount} for Ratel line {phone} has been successfully processed. The airtime credits will be loaded on your account in under 5 minutes.').replace('{amount}', parseInt(formData.amount, 10).toLocaleString()).replace('{phone}', finalPhone)}
+                {t('Thank you. Your payment of ₦{amount} for Ratel line {phone} has been successfully processed. The airtime credits will be loaded on your account in under 5 minutes.').replace('{amount}', (paidAmount || parseInt(formData.amount, 10) || 0).toLocaleString()).replace('{phone}', finalPhone || generatedRef)}
               </p>
 
               <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
@@ -809,6 +823,21 @@ export default function BuyAirtime() {
               <div style={{ background: 'var(--primary-glow)', border: '1px solid var(--primary)', color: 'var(--primary)', padding: '12px', borderRadius: 'var(--radius-sm)', fontSize: '13px', marginBottom: '20px', textAlign: 'center' }}>
                 <i className="bi bi-arrow-repeat spin" style={{ marginRight: '6px', animation: 'spin 1s linear infinite', display: 'inline-block' }} />
                 {t('Verifying your payment, please wait...')}
+              </div>
+            )}
+
+            {opayTabUrl && (
+              <div style={{ background: 'rgba(0, 208, 156, 0.08)', border: '1px solid #00d09c', color: 'var(--text-main)', padding: '14px 16px', borderRadius: 'var(--radius-sm)', fontSize: '13px', marginBottom: '20px' }}>
+                <p style={{ fontWeight: '700', marginBottom: '6px' }}>
+                  <i className="bi bi-box-arrow-up-right" style={{ marginRight: '6px', color: '#00d09c' }} />
+                  {t('OPay checkout opened in a new tab')}
+                </p>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '8px' }}>
+                  {t('Complete your payment in the OPay tab. This page will update automatically once confirmed.')}
+                </p>
+                <a href={opayTabUrl} target="_blank" rel="noreferrer" style={{ color: '#00d09c', fontWeight: '700', fontSize: '12.5px', textDecoration: 'underline' }}>
+                  {t('Tab not opening? Click here to open OPay →')}
+                </a>
               </div>
             )}
 
