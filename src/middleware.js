@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 
 const BLOCKED = {
   '/personal-subscribers': '/coming-soon?service=register',
-  '/airtime':              '/coming-soon?service=airtime',
 };
 
 export function middleware(request) {
@@ -16,5 +15,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ['/personal-subscribers', '/airtime'],
+  matcher: ['/personal-subscribers'],
 };
