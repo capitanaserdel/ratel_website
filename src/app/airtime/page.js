@@ -103,7 +103,7 @@ export default function BuyAirtime() {
         const cleanPhone = queryPhone || '';
         const cleanAmount = queryAmount || '';
         const isValid = cleanPhone.length === 11 && APPROVED_PREFIXES.some(pref => cleanPhone.startsWith(pref));
-        const isAmtValid = parseInt(cleanAmount, 10) >= 100;
+        const isAmtValid = parseInt(cleanAmount, 10) > 0;
 
         setFormData({
           fname: user ? user.fname : '',
@@ -183,8 +183,8 @@ export default function BuyAirtime() {
 
     if (name === 'amount') {
       const amtVal = parseInt(value, 10);
-      if (amtVal < 100) {
-        setErrors(prev => ({ ...prev, amount: 'Minimum airtime amount is ₦100' }));
+      if (amtVal <= 0) {
+        setErrors(prev => ({ ...prev, amount: 'Please enter a valid amount' }));
       } else {
         setErrors(prev => { const c = { ...prev }; delete c.amount; return c; });
       }
@@ -197,8 +197,8 @@ export default function BuyAirtime() {
     const activeErrors = {};
 
     const amt = parseInt(formData.amount, 10);
-    if (!formData.amount || isNaN(amt) || amt < 100) {
-      activeErrors.amount = 'Minimum airtime amount is ₦100';
+    if (!formData.amount || isNaN(amt) || amt <= 0) {
+      activeErrors.amount = 'Please enter a valid amount';
     }
 
     if (rechargeType === 'others') {
@@ -688,7 +688,7 @@ export default function BuyAirtime() {
                     name="amount" 
                     value={formData.amount}
                     onChange={handleInputChange}
-                    placeholder={t("Enter recharge amount (Min ₦100)")} 
+                    placeholder={t("Enter recharge amount")} 
                     className="form-input" 
                     style={{ fontSize: '17px', padding: '14px 18px', fontWeight: 'bold' }}
                     required 
