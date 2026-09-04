@@ -329,12 +329,28 @@ export default function BuyAirtime() {
         throw new Error(initJson.error || 'Failed to initialize payment.');
       }
 
-      setGeneratedRef(initJson.data.reference);
-      window.open(initJson.data.checkoutUrl, '_blank');
+      const { reference, checkoutUrl } = initJson.data;
+      setGeneratedRef(reference);
+      window.open(checkoutUrl, '_blank');
+
+      // Poll in the background on this tab too — OPay's webhook confirms server-side,
+      // but if the user returns to this tab instead of the redirect tab, we still want
+      // to show the result without requiring a page refresh.
+      pollCredit(reference, { attempts: 12, delayMs: 5000 }).then(credited => {
+        setProcessingGateway(null);
+        setShowCheckout(false);
+        if (credited) {
+          setPaymentSuccess(true);
+        } else {
+          setPaymentPending(true);
+        }
+      }).catch(() => {
+        setProcessingGateway(null);
+        setPaymentPending(true);
+      });
     } catch (err) {
-      setPaymentError('Failed to initialize payment: ' + err.message);
-    } finally {
       setProcessingGateway(null);
+      setPaymentError('Failed to initialize payment: ' + err.message);
     }
   };
 
