@@ -57,11 +57,6 @@ export default function PersonalSubscribers() {
   const [paymentError, setPaymentError] = useState('');
   const [processingGateway, setProcessingGateway] = useState(null);
 
-  // NIN verification states
-  const [ninVerified, setNinVerified] = useState(false);
-  const [isVerifyingNin, setIsVerifyingNin] = useState(false);
-  const [ninVerificationError, setNinVerificationError] = useState('');
-
   // File input references
   const idInputRef = useRef(null);
   const portraitInputRef = useRef(null);
@@ -109,53 +104,6 @@ export default function PersonalSubscribers() {
     }
   }, []);
 
-  const handleVerifyNin = async () => {
-    setNinVerificationError('');
-    if (formData.nin.length !== 11) {
-      setNinVerificationError('NIN must be exactly 11 digits');
-      return;
-    }
-
-    setIsVerifyingNin(true);
-
-    try {
-      const response = await fetch('/api/verify-nin', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ nin: formData.nin }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Verification failed. Please check NIN.');
-      }
-
-      const resData = await response.json();
-      if (!resData.success) {
-        throw new Error(resData.message || 'Verification failed.');
-      }
-
-      const details = resData.data || {};
-
-      setNinVerified(true);
-      setFormData(prev => ({
-        ...prev,
-        fname: details.fname || prev.fname,
-        sname: details.sname || prev.sname,
-        email: details.email || prev.email,
-        mobile: details.mobile || prev.mobile,
-        addr: details.addr || prev.addr,
-      }));
-    } catch (err) {
-      console.error('NIN Verification Error:', err);
-      setNinVerificationError(err.message || 'Verification failed. Please try again.');
-    } finally {
-      setIsVerifyingNin(false);
-    }
-  };
-
   // ─── Input Handling ───────────────────────────────────────────────────────
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -176,17 +124,7 @@ export default function PersonalSubscribers() {
         }
       }
       if (name === 'nin') {
-        setNinVerified(false);
-        setNinVerificationError('');
-        setFormData(prev => ({
-          ...prev,
-          nin: cleanValue,
-          fname: '',
-          sname: '',
-          email: '',
-          mobile: '',
-          addr: ''
-        }));
+        setFormData(prev => ({ ...prev, nin: cleanValue }));
         if (cleanValue.length > 0 && cleanValue.length !== 11) {
           setErrors(prev => ({ ...prev, nin: 'NIN must be exactly 11 digits' }));
         } else {
@@ -689,126 +627,56 @@ export default function PersonalSubscribers() {
                   {t('Subscriber Registration Form')}
                 </h3>
 
-                {/* 1. NIN Field & Integrated Verification Button */}
+                {/* 1. NIN Field (collected for customer care to verify manually) */}
                 <div style={{ marginBottom: '20px' }}>
                   <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>
-                    {t('National Identification Number (NIN) *')}
+                    {t('National Identification Number (NIN)')}
                   </label>
-                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                    <input 
-                      type="text" 
-                      name="nin" 
-                      placeholder={t("Enter 11-digit NIN")} 
-                      maxLength={11} 
-                      value={formData.nin} 
-                      onChange={handleInputChange} 
-                      className="form-input" 
-                      style={{ 
-                        width: '100%', 
-                        paddingRight: '110px',
-                      }}
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={handleVerifyNin}
-                      disabled={isVerifyingNin || formData.nin.length !== 11}
-                      className="btn-primary"
-                      style={{ 
-                        position: 'absolute',
-                        right: '6px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        padding: '6px 14px', 
-                        fontSize: '11.5px',
-                        fontWeight: '700',
-                        whiteSpace: 'nowrap', 
-                        boxShadow: 'none', 
-                        borderRadius: 'var(--radius-sm)',
-                        background: ninVerified ? '#10b981' : 'var(--primary)',
-                        borderColor: ninVerified ? '#10b981' : 'var(--primary)',
-                        opacity: (formData.nin.length === 11 && !isVerifyingNin) ? 1 : 0.6,
-                        cursor: (formData.nin.length === 11 && !isVerifyingNin) ? 'pointer' : 'not-allowed',
-                        zIndex: 2,
-                        minWidth: '85px',
-                        height: 'calc(100% - 12px)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      {isVerifyingNin ? (
-                        <>
-                          <i className="bi bi-arrow-repeat spin" style={{ animation: 'spin 1s linear infinite', display: 'inline-block', marginRight: '4px' }} /> {t('Verify')}
-                        </>
-                      ) : ninVerified ? (
-                        <>
-                          <i className="bi bi-check-circle-fill" style={{ marginRight: '4px' }} /> {t('Verified')}
-                        </>
-                      ) : t('Verify')}
-                    </button>
-                  </div>
+                  <input
+                    type="text"
+                    name="nin"
+                    placeholder={t("Enter 11-digit NIN")}
+                    maxLength={11}
+                    value={formData.nin}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    style={{ width: '100%' }}
+                  />
                   {errors.nin && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.nin)}</span>}
-                  {ninVerificationError && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(ninVerificationError)}</span>}
-                  {ninVerified && (
-                    <span style={{ fontSize: '11.5px', color: '#10b981', marginTop: '6px', display: 'block', fontWeight: '600' }}>
-                      <i className="bi bi-shield-fill-check" /> {t('NIN verified successfully.')}
-                    </span>
-                  )}
                 </div>
 
-                {/* 2. Locked Warning Banner (Visible when not verified) */}
-                {!ninVerified && (
-                  <div style={{
-                    background: 'rgba(24, 73, 201, 0.04)',
-                    border: '1px dashed rgba(24, 73, 201, 0.25)',
-                    borderRadius: 'var(--radius-sm)',
-                    padding: '14px 16px',
-                    marginBottom: '20px',
-                    display: 'flex',
-                    gap: '12px',
-                    alignItems: 'center'
-                  }}>
-                    <i className="bi bi-lock-fill" style={{ fontSize: '18px', color: 'var(--primary)' }} />
-                    <span style={{ fontSize: '12.5px', color: 'var(--text-muted)', lineHeight: '1.5', textAlign: 'left' }}>
-                      {t('Please enter and verify your 11-digit NIN first to unlock the email, phone, and address fields.')}
-                    </span>
-                  </div>
-                )}
-
-                {/* 3. First Name & Surname (Pre-filled and Locked post-verification) */}
+                {/* 2. First Name & Surname */}
                 <div className="content-grid" style={{ marginBottom: '20px' }}>
                   <div>
-                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('First Name *')}</label>
-                    <input type="text" name="fname" value={formData.fname} onChange={handleInputChange} className="form-input" required disabled style={{ opacity: ninVerified ? 0.9 : 0.6, cursor: 'not-allowed' }} />
+                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('First Name *')}</label>
+                    <input type="text" name="fname" value={formData.fname} onChange={handleInputChange} className="form-input" required />
                     {errors.fname && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.fname)}</span>}
                   </div>
                   <div>
-                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Surname *')}</label>
-                    <input type="text" name="sname" value={formData.sname} onChange={handleInputChange} className="form-input" required disabled style={{ opacity: ninVerified ? 0.9 : 0.6, cursor: 'not-allowed' }} />
+                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('Surname *')}</label>
+                    <input type="text" name="sname" value={formData.sname} onChange={handleInputChange} className="form-input" required />
                     {errors.sname && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.sname)}</span>}
                   </div>
                 </div>
 
-                {/* 4. Email Address (Editable post-verification) */}
+                {/* 3. Email Address */}
                 <div style={{ marginBottom: '20px' }}>
-                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Email Address *')}</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="form-input" required disabled={!ninVerified} style={{ opacity: ninVerified ? 1 : 0.6, cursor: ninVerified ? 'text' : 'not-allowed' }} />
+                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('Email Address *')}</label>
+                  <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="form-input" required />
                   {errors.email && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.email)}</span>}
                 </div>
 
-                {/* 5. Mobile Number (Editable post-verification) */}
+                {/* 4. Mobile Number */}
                 <div style={{ marginBottom: '20px' }}>
-                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Mobile Number *')}</label>
-                  <input type="text" name="mobile" placeholder="e.g. 08031234567" maxLength={11} value={formData.mobile} onChange={handleInputChange} className="form-input" required disabled={!ninVerified} style={{ opacity: ninVerified ? 1 : 0.6, cursor: ninVerified ? 'text' : 'not-allowed' }} />
+                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('Mobile Number *')}</label>
+                  <input type="text" name="mobile" placeholder="e.g. 08031234567" maxLength={11} value={formData.mobile} onChange={handleInputChange} className="form-input" required />
                   {errors.mobile && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.mobile)}</span>}
                 </div>
 
-                {/* 6. Residential Address (Editable post-verification) */}
+                {/* 5. Residential Address */}
                 <div style={{ marginBottom: '25px' }}>
-                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Residential Address *')}</label>
-                  <textarea name="addr" rows={3} value={formData.addr} onChange={handleInputChange} className="form-input" required disabled={!ninVerified} style={{ resize: 'vertical', opacity: ninVerified ? 1 : 0.6, cursor: ninVerified ? 'text' : 'not-allowed' }} />
+                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('Residential Address *')}</label>
+                  <textarea name="addr" rows={3} value={formData.addr} onChange={handleInputChange} className="form-input" required style={{ resize: 'vertical' }} />
                   {errors.addr && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.addr)}</span>}
                 </div>
 
@@ -960,7 +828,7 @@ export default function PersonalSubscribers() {
                 </div>
 
                 <div style={{ textAlign: 'center' }}>
-                  <button type="submit" disabled={!ninVerified || proceedLoading} className="btn-primary" style={{ padding: '14px 45px', width: '100%', borderRadius: 'var(--radius-sm)', opacity: (!ninVerified || proceedLoading) ? 0.6 : 1, cursor: (!ninVerified || proceedLoading) ? 'not-allowed' : 'pointer' }}>
+                  <button type="submit" disabled={proceedLoading} className="btn-primary" style={{ padding: '14px 45px', width: '100%', borderRadius: 'var(--radius-sm)', opacity: proceedLoading ? 0.6 : 1, cursor: proceedLoading ? 'not-allowed' : 'pointer' }}>
                     {proceedLoading ? (
                       <><i className="bi bi-arrow-repeat" style={{ animation: 'spin 1s linear infinite', display: 'inline-block', marginRight: '8px' }} />{t('Processing...')}</>
                     ) : (
