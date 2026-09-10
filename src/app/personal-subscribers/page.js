@@ -228,7 +228,10 @@ export default function PersonalSubscribers() {
 
     setErrors({});
 
+    // Show the modal immediately so the user isn't waiting on a blank screen.
+    // Payment buttons stay disabled (proceedLoading=true) until the API responds.
     setProceedLoading(true);
+    setShowCheckout(true);
     try {
       const res = await fetch(`${apiUrl}/api/registrations`, {
         method: 'POST',
@@ -249,10 +252,10 @@ export default function PersonalSubscribers() {
 
       setRegistrationId(json.data.id);
       setProceedLoading(false);
-      setShowCheckout(true);
     } catch (err) {
       console.error(err);
       setProceedLoading(false);
+      setShowCheckout(false);
       alert(err.message || 'Failed to submit registration. Please verify connection and try again.');
     }
   };
@@ -906,6 +909,13 @@ export default function PersonalSubscribers() {
               {t('Billing Summary')}
             </h3>
 
+            {proceedLoading && (
+              <div style={{ background: 'rgba(24, 73, 201, 0.06)', border: '1px solid rgba(24, 73, 201, 0.2)', borderRadius: 'var(--radius-sm)', padding: '10px 14px', marginBottom: '16px', fontSize: '12.5px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <i className="bi bi-arrow-repeat" style={{ animation: 'spin 1s linear infinite', display: 'inline-block', color: 'var(--primary)' }} />
+                {t('Preparing your registration… payment options will unlock in a moment.')}
+              </div>
+            )}
+
             {paymentError && (
               <div style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid #ef4444', color: '#ef4444', padding: '12px', borderRadius: 'var(--radius-sm)', fontSize: '13px', marginBottom: '20px', textAlign: 'center' }}>
                 <i className="bi bi-exclamation-triangle-fill" style={{ marginRight: '6px' }} />
@@ -938,7 +948,7 @@ export default function PersonalSubscribers() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <button
                 onClick={handlePayWithPaystack}
-                disabled={processingGateway !== null || paystackLoading}
+                disabled={proceedLoading || processingGateway !== null || paystackLoading}
                 style={{
                   padding: '14px',
                   border: 'none',
@@ -947,15 +957,15 @@ export default function PersonalSubscribers() {
                   color: '#fff',
                   fontWeight: '700',
                   fontSize: '14.5px',
-                  cursor: (processingGateway !== null || paystackLoading) ? 'not-allowed' : 'pointer',
+                  cursor: (proceedLoading || processingGateway !== null || paystackLoading) ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
                   transition: 'background 0.2s',
-                  opacity: (processingGateway !== null || paystackLoading) ? 0.7 : 1,
+                  opacity: (proceedLoading || processingGateway !== null || paystackLoading) ? 0.7 : 1,
                 }}
-                onMouseEnter={e => { if (!paystackLoading && processingGateway === null) e.currentTarget.style.background = '#ea6b0c'; }}
+                onMouseEnter={e => { if (!proceedLoading && !paystackLoading && processingGateway === null) e.currentTarget.style.background = '#ea6b0c'; }}
                 onMouseLeave={e => e.currentTarget.style.background = '#f97316'}
               >
                 {paystackLoading ? (
@@ -967,7 +977,7 @@ export default function PersonalSubscribers() {
 
               <button
                 onClick={handlePayWithOpay}
-                disabled={processingGateway !== null || opayLoading}
+                disabled={proceedLoading || processingGateway !== null || opayLoading}
                 style={{
                   padding: '14px',
                   border: 'none',
@@ -976,16 +986,16 @@ export default function PersonalSubscribers() {
                   color: '#fff',
                   fontWeight: '700',
                   fontSize: '14.5px',
-                  cursor: (processingGateway !== null || opayLoading) ? 'not-allowed' : 'pointer',
+                  cursor: (proceedLoading || processingGateway !== null || opayLoading) ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
                   width: '100%',
-                  opacity: (processingGateway !== null || opayLoading) ? 0.7 : 1,
+                  opacity: (proceedLoading || processingGateway !== null || opayLoading) ? 0.7 : 1,
                   transition: 'background 0.2s',
                 }}
-                onMouseEnter={e => { if (!opayLoading && processingGateway === null) e.currentTarget.style.background = '#15803d'; }}
+                onMouseEnter={e => { if (!proceedLoading && !opayLoading && processingGateway === null) e.currentTarget.style.background = '#15803d'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#16a34a'; }}
               >
                 {opayLoading ? (
