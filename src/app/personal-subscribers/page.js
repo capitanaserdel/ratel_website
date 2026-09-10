@@ -38,6 +38,7 @@ export default function PersonalSubscribers() {
   const [paystackLoading, setPaystackLoading] = useState(false);
   const [opayLoading, setOpayLoading] = useState(false);
   const [showOpayConfirm, setShowOpayConfirm] = useState(false);
+  const [opayTabUrl, setOpayTabUrl] = useState(null);
 
   // Privacy policy consent
   const [privacyAgreed, setPrivacyAgreed] = useState(false);
@@ -314,11 +315,21 @@ export default function PersonalSubscribers() {
     setOpayLoading(true);
     setProcessingGateway('opay');
 
+    // Open a blank tab NOW (within the user gesture) so browsers don't block it.
+    // After the API responds we navigate it to the real checkout URL.
+    const checkoutTab = window.open('', '_blank');
+
     try {
       const { checkoutUrl } = await initializeRegistrationPayment('OPAY');
-      window.open(checkoutUrl, '_blank');
+      if (checkoutTab) {
+        checkoutTab.location.href = checkoutUrl;
+      } else {
+        window.open(checkoutUrl, '_blank');
+      }
+      setOpayTabUrl(checkoutUrl);
       setShowOpayConfirm(true);
     } catch (err) {
+      if (checkoutTab) checkoutTab.close();
       setPaymentError(err.message || 'Failed to initialize OPay payment.');
     } finally {
       setOpayLoading(false);
@@ -867,7 +878,7 @@ export default function PersonalSubscribers() {
             position: 'relative'
           }}>
             <button
-              onClick={() => setShowCheckout(false)}
+              onClick={() => { setShowCheckout(false); setOpayTabUrl(null); setShowOpayConfirm(false); }}
               style={{
                 position: 'absolute',
                 top: '20px',
@@ -984,6 +995,29 @@ export default function PersonalSubscribers() {
                 )}
               </button>
             </div>
+
+            {/* OPay fallback banner — if the tab was blocked, user can still open it */}
+            {opayTabUrl && (
+              <div style={{
+                background: 'rgba(22, 163, 74, 0.08)',
+                border: '1px solid rgba(22, 163, 74, 0.3)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '10px 14px',
+                marginTop: '14px',
+                fontSize: '12.5px',
+                color: 'var(--text-muted)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                flexWrap: 'wrap',
+              }}>
+                <i className="bi bi-box-arrow-up-right" style={{ color: '#16a34a', flexShrink: 0 }} />
+                <span>{t('OPay tab not opening?')}</span>
+                <a href={opayTabUrl} target="_blank" rel="noreferrer" style={{ color: '#16a34a', fontWeight: '700', fontSize: '12.5px', textDecoration: 'underline' }}>
+                  {t('Click here to open checkout')}
+                </a>
+              </div>
+            )}
 
             {/* OPay confirm section — shown after OPay checkout tab is opened */}
             {showOpayConfirm && (
