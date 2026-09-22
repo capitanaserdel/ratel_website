@@ -216,7 +216,9 @@ export const dictionary = {
     'Chief Accountant': 'Chief Accountant',
     'General Manager': 'General Manager',
     'Customer Care Manager': 'Customer Care Manager',
+    'HoD Customer Care': 'HoD Customer Care',
     'Network & Infrastructure Specialist': 'Network & Infrastructure Specialist',
+    'CTO': 'CTO',
     'HoD LTE Services': 'HoD LTE Services',
     'HoD VoIP Services': 'HoD VoIP Services',
     'HoD Software Development': 'HoD Software Development',
@@ -644,6 +646,8 @@ export const dictionary = {
     'HoD LTE Services': 'Shugaban Ayyukan LTE',
     'HoD VoIP Services': 'Shugaban Ayyukan VoIP',
     'HoD Software Development': 'Shugaban Sashen Ci Gaban Software',
+    'HoD Customer Care': 'Shugabar Ayyukan Kula da Abokan Ciniki',
+    'CTO': 'CTO',
 
     // FAQs
     'Got Questions?': 'Kuna da Tambayoyi?',
