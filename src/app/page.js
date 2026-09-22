@@ -881,11 +881,11 @@ export default function Home() {
               </div>
             </div>
 
-            {/* LTE Marketing Manager */}
+            {/* Customer Care Manager */}
             <div className={`glass-panel ${styles.memberCard}`}>
               <div className={styles.memberImgArea}>
                 <div className={styles.memberGlow} />
-                <img src="/team/blessing.jpeg" alt="John Blessing Odah" className={styles.memberImage} />
+                <img src="/team/amina.jpeg" alt="Amina" className={styles.memberImage} />
                 <div className={styles.memberOverlay}>
                   <div className={styles.memberSocials}>
                     <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className={styles.socialIcon}><i className="bi bi-linkedin"></i></a>
@@ -894,8 +894,8 @@ export default function Home() {
                 </div>
               </div>
               <div className={styles.memberInfo}>
-                <h4>John Blessing Odah</h4>
-                <span>{t('LTE Marketing Manager')}</span>
+                <h4>Amina</h4>
+                <span>{t('Customer Care Manager')}</span>
               </div>
             </div>
 
@@ -932,6 +932,24 @@ export default function Home() {
               <div className={styles.memberInfo}>
                 <h4>Khadijat Aminu</h4>
                 <span>{t('HoD VoIP Services')}</span>
+              </div>
+            </div>
+
+            {/* Network & Infrastructure Specialist */}
+            <div className={`glass-panel ${styles.memberCard}`}>
+              <div className={styles.memberImgArea}>
+                <div className={styles.memberGlow} />
+                <img src="/team/najib.jpeg" alt="Muhammad Najib" className={styles.memberImage} />
+                <div className={styles.memberOverlay}>
+                  <div className={styles.memberSocials}>
+                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className={styles.socialIcon}><i className="bi bi-linkedin"></i></a>
+                    <a href="mailto:customercare@ratelplus.net.ng" className={styles.socialIcon}><i className="bi bi-envelope-fill"></i></a>
+                  </div>
+                </div>
+              </div>
+              <div className={styles.memberInfo}>
+                <h4>Muhammad Najib</h4>
+                <span>{t('Network & Infrastructure Specialist')}</span>
               </div>
             </div>
           </div>
