@@ -9,50 +9,53 @@ export default function FiberDetails() {
 
   const plans = [
     {
-      name: "Home Starter",
-      price: "15,000",
-      speed: "25 Mbps",
+      name: "30 Mbps Package",
+      price: "20,000",
+      speed: "30 Mbps",
       period: "Month",
+      devices: "Up to 5 active devices",
       popular: false,
       color: "var(--text-muted)",
-      desc: "Perfect for light browsing, emails, social media, and standard HD streaming.",
+      desc: "Ideal for light home browsing, streaming, and remote work on up to 5 devices.",
       features: [
-        "Symmetric Upload/Download",
-        "Truly Unlimited Data (No Cap)",
-        "Standard Installation",
-        "24/7 Customer Support"
+        "Up to 5 active devices",
+        "Truly Unlimited Data",
+        "1st Month Subscription FREE (30Mbps)",
+        "FTTH / Fibre Internet Technology"
       ]
     },
     {
-      name: "Home Premium",
-      price: "25,000",
+      name: "50 Mbps Package",
+      price: "30,000",
       speed: "50 Mbps",
       period: "Month",
+      devices: "Up to 10 active devices",
       popular: true,
       color: "var(--accent-green)",
-      desc: "Best for families, remote work, smart homes, and buffer-free 4K streaming.",
+      desc: "Best for families, smart homes, and multi-device HD & 4K streaming.",
       features: [
-        "Symmetric Upload/Download",
-        "Truly Unlimited Data (No Cap)",
-        "Priority Installation Support",
-        "24/7 Priority Helpline Support",
-        "Multi-Device HD Streaming"
+        "Up to 10 active devices",
+        "Truly Unlimited Data",
+        "Symmetric Fiber Upload/Download",
+        "Multi-Device HD & 4K Streaming",
+        "Priority Helpline & Installation"
       ]
     },
     {
-      name: "Office Premium",
-      price: "45,000",
+      name: "100 Mbps Package",
+      price: "50,000",
       speed: "100 Mbps",
       period: "Month",
+      devices: "20+ active devices",
       popular: false,
       color: "var(--primary)",
-      desc: "Optimized for small offices, co-working spaces, and heavy cloud operations.",
+      desc: "Optimized for heavy office operations, multi-user power tasks, and 20+ connected devices.",
       features: [
-        "Symmetric Upload/Download",
-        "Truly Unlimited Data (No Cap)",
-        "Dedicated Fiber Drop Cable",
-        "24/7 Priority Support SLA",
-        "Static IP Option Available"
+        "20+ active devices",
+        "Truly Unlimited Data",
+        "Ultra-Fast 100 Mbps Bandwidth",
+        "Dedicated Fiber Drop Line",
+        "24/7 Operations Support SLA"
       ]
     },
     {
@@ -60,6 +63,7 @@ export default function FiberDetails() {
       price: "Custom",
       speed: "1 Gbps+",
       period: "SLA Contract",
+      devices: "Enterprise Nodes",
       popular: false,
       color: "#f59e0b",
       desc: "Dedicated 1:1 optical transit channels for large corporations and data centers.",
@@ -68,7 +72,7 @@ export default function FiberDetails() {
         "99.99% Guaranteed Uptime SLA",
         "Dedicated Account Manager",
         "Free Routed Block of /29 IP",
-        "Proactive Jitter Monitoring"
+        "Proactive Jitter & Latency Monitoring"
       ]
     }
   ];
@@ -114,7 +118,7 @@ export default function FiberDetails() {
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           
           {/* Header intro */}
-          <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto 60px' }}>
+          <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto 40px' }}>
             <span style={{
               background: 'rgba(16, 185, 129, 0.08)',
               color: 'var(--accent-green)',
@@ -133,8 +137,131 @@ export default function FiberDetails() {
               {t('Choose Your High-Speed Fiber Plan')}
             </h2>
             <p style={{ color: 'var(--text-muted)', fontSize: '16px', lineHeight: '1.8' }}>
-              {t('Experience truly unlimited, symmetric broadband connections with zero data caps or throttled speeds. Choose a package below and proceed to our secure Fiber portal to activate your installation.')}
+              {t('Experience fast, reliable, and affordable FTTH broadband with unlimited data and zero throttling. Select a package below to activate your installation.')}
             </p>
+          </div>
+
+          {/* Customer Offer Highlight Banner Card */}
+          <div className="glass-panel" style={{
+            maxWidth: '1000px',
+            margin: '0 auto 50px',
+            padding: '30px 36px',
+            borderRadius: 'var(--radius-lg)',
+            border: '2px dashed rgba(24, 73, 201, 0.3)',
+            background: 'linear-gradient(135deg, rgba(24, 73, 201, 0.04) 0%, rgba(16, 185, 129, 0.05) 100%)',
+            boxShadow: 'var(--shadow-md)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+              <div style={{
+                background: 'var(--primary)',
+                color: 'white',
+                padding: '8px 14px',
+                borderRadius: '20px',
+                fontSize: '12px',
+                fontWeight: '800',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                <i className="bi bi-megaphone-fill"></i>
+                {t('Special Customer Offer')}
+              </div>
+              <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: '600' }}>
+                FTTH Internet Service & Billing Plan
+              </span>
+            </div>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '20px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  background: 'rgba(24, 73, 201, 0.1)',
+                  color: 'var(--primary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                  flexShrink: 0
+                }}>
+                  <i className="bi bi-tools"></i>
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>Installation Fee</div>
+                  <div style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-main)' }}>₦75,000 <span style={{ fontSize: '11px', fontWeight: '500', color: 'var(--text-muted)' }}>(one-time)</span></div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  background: 'rgba(16, 185, 129, 0.12)',
+                  color: 'var(--accent-green)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                  flexShrink: 0
+                }}>
+                  <i className="bi bi-gift-fill"></i>
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>1st Month Subscription</div>
+                  <div style={{ fontSize: '20px', fontWeight: '800', color: 'var(--accent-green)' }}>FREE <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-muted)' }}>(30Mbps • 5 Devices)</span></div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  background: 'rgba(245, 158, 11, 0.1)',
+                  color: '#f59e0b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                  flexShrink: 0
+                }}>
+                  <i className="bi bi-calendar-check-fill"></i>
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>Billing Cycle</div>
+                  <div style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-main)' }}>Monthly after 1st free month</div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  background: 'rgba(139, 92, 246, 0.1)',
+                  color: '#8b5cf6',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                  flexShrink: 0
+                }}>
+                  <i className="bi bi-router-fill"></i>
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>Service Type</div>
+                  <div style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-main)' }}>FTTH / Fibre Internet</div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Pricing Grid */}
@@ -186,8 +313,8 @@ export default function FiberDetails() {
                 )}
 
                 {/* Card Header */}
-                <div style={{ marginBottom: '25px' }}>
-                  <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-main)', margin: 0 }}>{t(plan.name)}</h3>
+                <div style={{ marginBottom: '20px' }}>
+                  <h3 style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>{t(plan.name)}</h3>
                   <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', marginTop: '8px', minHeight: '38px', lineHeight: '1.5' }}>{t(plan.desc)}</p>
                 </div>
 
@@ -197,17 +324,21 @@ export default function FiberDetails() {
                   padding: '16px 20px',
                   borderRadius: 'var(--radius-sm)',
                   textAlign: 'center',
-                  marginBottom: '25px',
+                  marginBottom: '20px',
                   border: plan.popular ? '1px solid rgba(16, 185, 129, 0.15)' : '1px solid var(--border-color)'
                 }}>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>{t('Internet Speed')}</span>
-                  <div style={{ fontSize: '26px', fontWeight: '800', color: plan.popular ? 'var(--accent-green)' : 'var(--text-main)', marginTop: '4px' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>{t('Internet Speed')}</span>
+                  <div style={{ fontSize: '28px', fontWeight: '800', color: plan.popular ? 'var(--accent-green)' : 'var(--primary)', marginTop: '2px' }}>
                     {plan.speed}
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', marginTop: '4px' }}>
+                    <i className="bi bi-laptop" style={{ marginRight: '6px', color: 'var(--primary)' }} />
+                    {plan.devices}
                   </div>
                 </div>
 
                 {/* Price Display */}
-                <div style={{ marginBottom: '30px', display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                <div style={{ marginBottom: '25px', display: 'flex', alignItems: 'baseline', gap: '4px' }}>
                   {plan.price !== "Custom" && (
                     <span style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-main)' }}>₦</span>
                   )}
@@ -220,7 +351,7 @@ export default function FiberDetails() {
                 </div>
 
                 {/* Plan Features */}
-                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 40px', display: 'flex', flexDirection: 'column', gap: '14px', flexGrow: 1 }}>
+                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 35px', display: 'flex', flexDirection: 'column', gap: '12px', flexGrow: 1 }}>
                   {plan.features.map((feat, fIdx) => (
                     <li key={fIdx} style={{ display: 'flex', gap: '10px', fontSize: '13.5px', color: 'var(--text-muted)', alignItems: 'center' }}>
                       <i className="bi bi-check-circle-fill" style={{ color: 'var(--accent-green)', fontSize: '14px', flexShrink: 0 }} />
@@ -253,8 +384,49 @@ export default function FiberDetails() {
             ))}
           </div>
 
+          {/* Key Value Highlights Grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '20px',
+            maxWidth: '1000px',
+            margin: '0 auto 50px'
+          }}>
+            <div className="glass-panel" style={{ padding: '24px 20px', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+              <div style={{ fontSize: '28px', color: 'var(--primary)', marginBottom: '10px' }}>
+                <i className="bi bi-speedometer2"></i>
+              </div>
+              <h4 style={{ fontSize: '16px', fontWeight: '800', marginBottom: '6px' }}>Fast</h4>
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>Browse, Stream, Work, Play</p>
+            </div>
+
+            <div className="glass-panel" style={{ padding: '24px 20px', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+              <div style={{ fontSize: '28px', color: 'var(--accent-green)', marginBottom: '10px' }}>
+                <i className="bi bi-shield-check"></i>
+              </div>
+              <h4 style={{ fontSize: '16px', fontWeight: '800', marginBottom: '6px' }}>Reliable</h4>
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>Stable Connection, Less Downtime</p>
+            </div>
+
+            <div className="glass-panel" style={{ padding: '24px 20px', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+              <div style={{ fontSize: '28px', color: '#f59e0b', marginBottom: '10px' }}>
+                <i className="bi bi-piggy-bank"></i>
+              </div>
+              <h4 style={{ fontSize: '16px', fontWeight: '800', marginBottom: '6px' }}>Affordable</h4>
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>Great Value for Your Money</p>
+            </div>
+
+            <div className="glass-panel" style={{ padding: '24px 20px', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+              <div style={{ fontSize: '28px', color: '#8b5cf6', marginBottom: '10px' }}>
+                <i className="bi bi-house-check"></i>
+              </div>
+              <h4 style={{ fontSize: '16px', fontWeight: '800', marginBottom: '6px' }}>FTTH</h4>
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>Fiber to Home Technology</p>
+            </div>
+          </div>
+
           {/* Quick Support & Information Grid */}
-          <div className="content-grid" style={{ maxWidth: '900px', margin: '0 auto 40px' }}>
+          <div className="content-grid" style={{ maxWidth: '1000px', margin: '0 auto 40px' }}>
             <div className="glass-panel form-card" style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
               <div style={{
                 width: '48px',
@@ -308,7 +480,7 @@ export default function FiberDetails() {
             background: 'var(--bg-card)',
             border: '1px solid rgba(24, 73, 201, 0.15)',
             boxShadow: 'var(--shadow-lg)',
-            maxWidth: '900px',
+            maxWidth: '1000px',
             margin: '0 auto',
             padding: '30px'
           }}>
