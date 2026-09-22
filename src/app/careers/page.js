@@ -105,14 +105,31 @@ export default function CareersPage() {
     { key: 'corporate', label: 'Corporate & IT' }
   ];
 
+  const getApiUrl = () => {
+    let url = process.env.NEXT_PUBLIC_API_URL;
+    if (!url) {
+      if (typeof window !== 'undefined' && window.location.hostname.includes('ratelplus.net.ng')) {
+        url = 'https://attendance.ratelplus.net.ng/api/v1';
+      } else {
+        url = 'http://localhost:8000/api/v1';
+      }
+    }
+    url = url.trim().replace(/\/+$/, '');
+    if (!url.endsWith('/api/v1')) {
+      if (url.endsWith('/api')) {
+        url = `${url}/v1`;
+      } else {
+        url = `${url}/api/v1`;
+      }
+    }
+    return url;
+  };
+
   // Fetch job openings from API backend with category & search parameters
   React.useEffect(() => {
     let active = true;
     const loadJobs = async () => {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 
-        (typeof window !== 'undefined' && window.location.hostname.includes('ratelplus.net.ng')
-          ? 'https://attendance.ratelplus.net.ng/api/v1'
-          : 'http://localhost:8000/api/v1');
+      const apiUrl = getApiUrl();
 
       try {
         const params = new URLSearchParams({ active_only: 'true' });
@@ -134,6 +151,7 @@ export default function CareersPage() {
         console.warn('Jobs API unavailable, showing fallback listings:', e);
       }
     };
+
 
     const timer = setTimeout(() => {
       loadJobs();
@@ -186,12 +204,10 @@ export default function CareersPage() {
     setSubmitting(true);
     setSubmitError(null);
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 
-      (typeof window !== 'undefined' && window.location.hostname.includes('ratelplus.net.ng')
-        ? 'https://attendance.ratelplus.net.ng/api/v1'
-        : 'http://localhost:8000/api/v1');
+    const apiUrl = getApiUrl();
 
     try {
+
       const bodyData = new FormData();
       bodyData.append('full_name', formData.fullName);
       bodyData.append('email', formData.email);
