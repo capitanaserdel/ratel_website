@@ -107,7 +107,7 @@ export default function CareersPage() {
 
   const getApiUrl = () => {
     let url = process.env.NEXT_PUBLIC_API_URL;
-    if (!url) {
+    if (!url || url.includes('portal.ratelplus.net.ng')) {
       if (typeof window !== 'undefined' && window.location.hostname.includes('ratelplus.net.ng')) {
         url = 'https://attendance.ratelplus.net.ng/api/v1';
       } else {
@@ -140,7 +140,7 @@ export default function CareersPage() {
           params.append('search', searchQuery.trim());
         }
 
-        const res = await fetch(`${apiUrl}/jobs?${params.toString()}`);
+        const res = await fetch(`${apiUrl}/jobs/?${params.toString()}`);
         if (res.ok) {
           const data = await res.json();
           if (active && Array.isArray(data)) {
@@ -151,6 +151,7 @@ export default function CareersPage() {
         console.warn('Jobs API unavailable, showing fallback listings:', e);
       }
     };
+
 
 
     const timer = setTimeout(() => {
