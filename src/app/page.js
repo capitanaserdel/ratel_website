@@ -921,16 +921,16 @@ export default function Home() {
             <div className={`glass-panel ${styles.memberCard}`}>
               <div className={styles.memberImgArea}>
                 <div className={styles.memberGlow} />
-                <img src="/team/najib.jpeg" alt="Muhammad Najib" className={styles.memberImage} />
+                <img src="/team/khadijat.jpeg" alt="Khadijat Aminu" className={styles.memberImage} />
                 <div className={styles.memberOverlay}>
                   <div className={styles.memberSocials}>
-                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className={styles.socialIcon}><i className="bi bi-linkedin"></i></a>
-                    <a href="mailto:customercare@ratelplus.net.ng" className={styles.socialIcon}><i className="bi bi-envelope-fill"></i></a>
+                    <a href="https://www.linkedin.com/in/khadijat-aminu-5b526541b" target="_blank" rel="noopener noreferrer" className={styles.socialIcon}><i className="bi bi-linkedin"></i></a>
+                    <a href="mailto:frontdesk@ratelplus.net" className={styles.socialIcon}><i className="bi bi-envelope-fill"></i></a>
                   </div>
                 </div>
               </div>
               <div className={styles.memberInfo}>
-                <h4>Muhammad Najib</h4>
+                <h4>Khadijat Aminu</h4>
                 <span>{t('HoD VoIP Services')}</span>
               </div>
             </div>

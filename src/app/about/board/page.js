@@ -106,7 +106,7 @@ export default function BoardStructure() {
 
                   <div className="glass-panel" style={{ padding: '16px 20px', textAlign: 'center', flex: '1 1 250px' }}>
                     <h4 style={{ fontSize: '14px', margin: 0, color: 'var(--text-main)' }}>VoIP Services Department</h4>
-                    <span style={{ fontSize: '11px', color: 'var(--primary)' }}>Muhammad Najib (Head of Dept)</span>
+                    <span style={{ fontSize: '11px', color: 'var(--primary)' }}>Khadijat Aminu (Head of Dept)</span>
                   </div>
                 </div>
               </div>
