@@ -130,6 +130,11 @@ export default function Navbar() {
                 </div>
               </li>
               <li>
+                <Link href="/careers" className={`${styles.navLink} ${pathname === '/careers' ? styles.navItemActive : ''}`}>
+                  {t('Careers')}
+                </Link>
+              </li>
+              <li>
                 <Link href="/#contact" className={styles.navLink}>
                   {t('Contact')}
                 </Link>
@@ -236,6 +241,11 @@ export default function Navbar() {
                 <Link href="/#team" className={styles.mobileSubLink}>{t('Management Team')}</Link>
               </div>
             )}
+          </li>
+          <li>
+            <Link href="/careers" className={styles.mobileNavLink}>
+              {t('Careers')}
+            </Link>
           </li>
           <li>
             <Link href="/#contact" className={styles.mobileNavLink}>
