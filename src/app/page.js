@@ -881,21 +881,21 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Customer Care Manager */}
+            {/* HoD Customer Care */}
             <div className={`glass-panel ${styles.memberCard}`}>
               <div className={styles.memberImgArea}>
                 <div className={styles.memberGlow} />
-                <img src="/team/amina.jpeg" alt="Amina" className={styles.memberImage} />
+                <img src="/team/amina.jpeg" alt="Amina Ibrahim" className={styles.memberImage} />
                 <div className={styles.memberOverlay}>
                   <div className={styles.memberSocials}>
-                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className={styles.socialIcon}><i className="bi bi-linkedin"></i></a>
-                    <a href="mailto:customercare@ratelplus.net.ng" className={styles.socialIcon}><i className="bi bi-envelope-fill"></i></a>
+                    <a href="https://www.linkedin.com/in/amina-ibrahim-3846601b2" target="_blank" rel="noopener noreferrer" className={styles.socialIcon}><i className="bi bi-linkedin"></i></a>
+                    <a href="mailto:aminaibrahim@ratelplus.net" className={styles.socialIcon}><i className="bi bi-envelope-fill"></i></a>
                   </div>
                 </div>
               </div>
               <div className={styles.memberInfo}>
-                <h4>Amina</h4>
-                <span>{t('Customer Care Manager')}</span>
+                <h4>Amina Ibrahim</h4>
+                <span>{t('HoD Customer Care')}</span>
               </div>
             </div>
 
@@ -935,7 +935,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Network & Infrastructure Specialist */}
+            {/* CTO */}
             <div className={`glass-panel ${styles.memberCard}`}>
               <div className={styles.memberImgArea}>
                 <div className={styles.memberGlow} />
@@ -949,7 +949,7 @@ export default function Home() {
               </div>
               <div className={styles.memberInfo}>
                 <h4>Muhammad Najib</h4>
-                <span>{t('Network & Infrastructure Specialist')}</span>
+                <span>{t('CTO')}</span>
               </div>
             </div>
           </div>
