@@ -6,6 +6,8 @@ import { useLanguage } from '@/context/LanguageContext';
 
 const CURRENCY = 'NGN';
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.ratelplus.net.ng';
+// Our Paystack account rejects charges below ₦100 ("No active channel"); OPay has no such floor.
+const PAYSTACK_MIN_NGN = 100;
 
 // Approved prefix list for validation
 const APPROVED_PREFIXES = [
@@ -239,6 +241,10 @@ export default function BuyAirtime() {
 
   // ─── secure Paystack Checkout ──────────────────────────────────────────────
   const handlePayWithPaystack = async () => {
+    if ((parseInt(formData.amount, 10) || 0) < PAYSTACK_MIN_NGN) {
+      setPaymentError(t('Paystack payments must be at least ₦100. Please use OPay for smaller amounts.'));
+      return;
+    }
     setPaymentError('');
     setProcessingGateway('paystack');
     setPaidAmount(parseInt(formData.amount, 10) || 0);
@@ -866,7 +872,7 @@ export default function BuyAirtime() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <button
                 onClick={handlePayWithPaystack}
-                disabled={processingGateway !== null}
+                disabled={processingGateway !== null || (parseInt(formData.amount, 10) || 0) < PAYSTACK_MIN_NGN}
                 style={{
                   padding: '14px',
                   border: 'none',
@@ -875,7 +881,8 @@ export default function BuyAirtime() {
                   color: '#fff',
                   fontWeight: '700',
                   fontSize: '14.5px',
-                  cursor: 'pointer',
+                  cursor: (parseInt(formData.amount, 10) || 0) < PAYSTACK_MIN_NGN ? 'not-allowed' : 'pointer',
+                  opacity: (parseInt(formData.amount, 10) || 0) < PAYSTACK_MIN_NGN ? 0.5 : 1,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -887,6 +894,11 @@ export default function BuyAirtime() {
               >
                 <i className="bi bi-credit-card-fill" /> {t('Pay with Paystack')}
               </button>
+              {(parseInt(formData.amount, 10) || 0) < PAYSTACK_MIN_NGN && (
+                <span style={{ fontSize: '12px', color: 'var(--text-muted, #6b7280)', marginTop: '-8px', textAlign: 'center' }}>
+                  {t('Paystack minimum is ₦100. Use OPay for smaller amounts.')}
+                </span>
+              )}
 
               <button
                 onClick={handlePayWithOpay}
