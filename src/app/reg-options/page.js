@@ -40,9 +40,9 @@ export default function RegOptions() {
 
           <div className="content-grid" style={{ maxWidth: '900px', margin: '0 auto' }}>
 
-            {/* Personal Card — fully clickable */}
+            {/* Personal Card — registration is handled on the original site (ratelplus.net) */}
             <Link
-              href="/personal-subscribers"
+              href="https://ratelplus.net/personal-subscribers.php"
               id="reg-personal-card"
               className="glass-panel form-card"
               style={cardBase}
