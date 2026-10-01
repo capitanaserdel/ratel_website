@@ -66,7 +66,8 @@ export default function BuyAirtime() {
     try {
       // Check parameters from url (quick widget query)
       const params = new URLSearchParams(window.location.search);
-      const queryPhone = params.get('phone');
+      // `number` is what the mobile app sends (via ratelplus.net/pay.php → airtime.php).
+      const queryPhone = params.get('phone') || params.get('number');
       const queryAmount = params.get('amount');
       const queryStatus = params.get('status');
       const queryReference = params.get('reference');
