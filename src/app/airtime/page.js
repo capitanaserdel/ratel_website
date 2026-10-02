@@ -58,7 +58,6 @@ export default function BuyAirtime() {
   const [paymentPending, setPaymentPending] = useState(false);
   const [paymentError, setPaymentError] = useState('');
   const [processingGateway, setProcessingGateway] = useState(null); // 'paystack' | 'opay' | 'verifying' | null
-  const [opayTabUrl, setOpayTabUrl] = useState(null); // set after OPay tab opens; null = no tab open
 
   // Polls vos-portal's /api/payments/verify/:reference until it reports the airtime as
   // credited, or gives up. The verify endpoint is self-healing (it actively re-checks
@@ -420,28 +419,10 @@ export default function BuyAirtime() {
       const { reference, checkoutUrl } = initJson.data;
       setGeneratedRef(reference);
       savePending({ reference, provider: 'OPAY', amount: parseInt(formData.amount, 10) || 0 });
-      window.open(checkoutUrl, '_blank');
-      // Unblock the UI immediately so the user can see the "OPay tab" banner
-      // and use the confirm button if the popup was blocked.
-      setProcessingGateway(null);
-      setOpayTabUrl(checkoutUrl);
-
-      // Poll silently in the background — auto-resolves when OPay's webhook
-      // or the user's return confirms the payment.
-      pollCredit(reference, { attempts: 12, delayMs: 5000 }).then(({ credited, amountNGN }) => {
-        setOpayTabUrl(null);
-        setShowCheckout(false);
-        if (amountNGN) setPaidAmount(amountNGN);
-        if (credited) {
-          clearPending();
-          setPaymentSuccess(true);
-        } else {
-          setPaymentPending(true);
-        }
-      }).catch(() => {
-        setOpayTabUrl(null);
-        setPaymentPending(true);
-      });
+      // Same-tab redirect. A new tab opened after the async call above is blocked by iOS Safari
+      // (and some Android browsers). OPay returns the customer to /airtime?status=success&reference=…
+      // where the payment is verified; the saved pending payment covers any other way back.
+      window.location.assign(checkoutUrl);
     } catch (err) {
       setProcessingGateway(null);
       setPaymentError('Failed to initialize payment: ' + err.message);
@@ -456,7 +437,6 @@ export default function BuyAirtime() {
     const { credited, amountNGN } = await pollCredit(generatedRef, { attempts: 3, delayMs: 3000 });
     if (amountNGN) setPaidAmount(amountNGN);
     setProcessingGateway(null);
-    setOpayTabUrl(null);
     setShowCheckout(false);
     if (credited) {
       clearPending();
@@ -912,18 +892,10 @@ export default function BuyAirtime() {
               </div>
             )}
 
-            {opayTabUrl && (
-              <div style={{ background: 'rgba(0, 208, 156, 0.08)', border: '1px solid #00d09c', color: 'var(--text-main)', padding: '14px 16px', borderRadius: 'var(--radius-sm)', fontSize: '13px', marginBottom: '20px' }}>
-                <p style={{ fontWeight: '700', marginBottom: '6px' }}>
-                  <i className="bi bi-box-arrow-up-right" style={{ marginRight: '6px', color: '#00d09c' }} />
-                  {t('OPay checkout opened in a new tab')}
-                </p>
-                <p style={{ color: 'var(--text-muted)', marginBottom: '8px' }}>
-                  {t('Complete your payment in the OPay tab. This page will update automatically once confirmed.')}
-                </p>
-                <a href={opayTabUrl} target="_blank" rel="noreferrer" style={{ color: '#00d09c', fontWeight: '700', fontSize: '12.5px', textDecoration: 'underline' }}>
-                  {t('Tab not opening? Click here to open OPay →')}
-                </a>
+            {processingGateway === 'opay' && (
+              <div style={{ background: 'rgba(0, 208, 156, 0.08)', border: '1px solid #00d09c', color: 'var(--text-main)', padding: '12px', borderRadius: 'var(--radius-sm)', fontSize: '13px', marginBottom: '20px', textAlign: 'center' }}>
+                <i className="bi bi-arrow-repeat spin" style={{ marginRight: '6px', animation: 'spin 1s linear infinite', display: 'inline-block', color: '#00d09c' }} />
+                {t('Taking you to OPay to complete your payment...')}
               </div>
             )}
 
@@ -1007,7 +979,7 @@ export default function BuyAirtime() {
 
             <div style={{ marginTop: '24px', borderTop: '1px solid var(--border-color)', paddingTop: '16px', textAlign: 'center' }}>
               <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px' }}>
-                {t('Paid successfully in the OPay cashier tab?')}
+                {t('Already paid with OPay?')}
               </p>
               <button
                 onClick={handleConfirmOpayPayment}
