@@ -9,6 +9,26 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.ratelplus.net.ng'
 // Our Paystack account rejects charges below ₦100 ("No active channel"); OPay has no such floor.
 const PAYSTACK_MIN_NGN = 100;
 
+// Remember a payment in progress so that if the customer leaves for their bank/OPay app and the
+// browser reloads the tab (or the Paystack popup closes on its own), we re-check it on return
+// instead of showing an empty form that makes them think the payment failed.
+const PENDING_KEY = 'ratel_pending_payment';
+const PENDING_MAX_AGE_MS = 30 * 60 * 1000;
+function savePending(p) {
+  try { localStorage.setItem(PENDING_KEY, JSON.stringify({ ...p, at: Date.now() })); } catch { /* storage blocked */ }
+}
+function loadPending() {
+  try {
+    const p = JSON.parse(localStorage.getItem(PENDING_KEY) || 'null');
+    if (p && p.reference && Date.now() - p.at < PENDING_MAX_AGE_MS) return p;
+    localStorage.removeItem(PENDING_KEY);
+  } catch { /* storage blocked */ }
+  return null;
+}
+function clearPending() {
+  try { localStorage.removeItem(PENDING_KEY); } catch { /* storage blocked */ }
+}
+
 // Approved prefix list for validation
 const APPROVED_PREFIXES = [
   '0206470', '0209701', '0209702', '0209703', '0209704', 
@@ -62,6 +82,27 @@ export default function BuyAirtime() {
     return { credited: false, amountNGN: null };
   };
 
+  // While the pending screen is up, keep checking quietly and flip to success once credited.
+  useEffect(() => {
+    if (!paymentPending || !generatedRef) return;
+    let stopped = false;
+    const started = Date.now();
+    const timer = setInterval(async () => {
+      if (stopped) return;
+      if (Date.now() - started > PENDING_MAX_AGE_MS) { clearInterval(timer); return; }
+      const { credited, amountNGN } = await pollCredit(generatedRef, { attempts: 1 });
+      if (credited && !stopped) {
+        clearInterval(timer);
+        clearPending();
+        if (amountNGN) setPaidAmount(amountNGN);
+        setPaymentPending(false);
+        setPaymentSuccess(true);
+      }
+    }, 10000);
+    return () => { stopped = true; clearInterval(timer); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paymentPending, generatedRef]);
+
   useEffect(() => {
     try {
       // Check parameters from url (quick widget query)
@@ -85,6 +126,7 @@ export default function BuyAirtime() {
               if (amountNGN) setPaidAmount(amountNGN);
               window.history.replaceState({}, '', window.location.pathname);
               if (credited) {
+                clearPending();
                 setPaymentSuccess(true);
               } else {
                 setPaymentPending(true);
@@ -92,6 +134,24 @@ export default function BuyAirtime() {
             });
         } else {
           setPaymentPending(true);
+        }
+      } else {
+        // Came back (or the tab reloaded) while a payment was in progress: re-check it.
+        const pending = loadPending();
+        if (pending) {
+          setGeneratedRef(pending.reference);
+          if (pending.amount) setPaidAmount(pending.amount);
+          setProcessingGateway('verifying');
+          pollCredit(pending.reference, { attempts: 2, delayMs: 2000 }).then(({ credited, amountNGN }) => {
+            setProcessingGateway(null);
+            if (amountNGN) setPaidAmount(amountNGN);
+            if (credited) {
+              clearPending();
+              setPaymentSuccess(true);
+            } else {
+              setPaymentPending(true);
+            }
+          });
         }
       }
 
@@ -281,6 +341,7 @@ export default function BuyAirtime() {
 
       const { reference, accessCode } = initJson.data;
       setGeneratedRef(reference);
+      savePending({ reference, provider: 'PAYSTACK', amount: parseInt(formData.amount, 10) || 0 });
 
       // 2. Resume the server-initialized transaction in the inline popup (keeps the
       // existing inline UX, but the transaction itself is now created and tracked
@@ -295,14 +356,26 @@ export default function BuyAirtime() {
           setProcessingGateway(null);
           setShowCheckout(false);
           if (credited) {
+            clearPending();
             setPaymentSuccess(true);
           } else {
             setPaymentPending(true);
           }
         },
-        onCancel: () => {
+        // The popup also "cancels" when it closes after a bank / OPay-app transfer, even though
+        // the money went through. Check before telling the customer it failed.
+        onCancel: async () => {
+          setProcessingGateway('verifying');
+          const { credited, amountNGN } = await pollCredit(reference, { attempts: 3, delayMs: 3000 });
           setProcessingGateway(null);
-          setPaymentError('Payment cancelled.');
+          if (amountNGN) setPaidAmount(amountNGN);
+          setShowCheckout(false);
+          if (credited) {
+            clearPending();
+            setPaymentSuccess(true);
+          } else {
+            setPaymentPending(true);
+          }
         }
       });
     } catch (err) {
@@ -346,6 +419,7 @@ export default function BuyAirtime() {
 
       const { reference, checkoutUrl } = initJson.data;
       setGeneratedRef(reference);
+      savePending({ reference, provider: 'OPAY', amount: parseInt(formData.amount, 10) || 0 });
       window.open(checkoutUrl, '_blank');
       // Unblock the UI immediately so the user can see the "OPay tab" banner
       // and use the confirm button if the popup was blocked.
@@ -359,6 +433,7 @@ export default function BuyAirtime() {
         setShowCheckout(false);
         if (amountNGN) setPaidAmount(amountNGN);
         if (credited) {
+          clearPending();
           setPaymentSuccess(true);
         } else {
           setPaymentPending(true);
@@ -384,6 +459,7 @@ export default function BuyAirtime() {
     setOpayTabUrl(null);
     setShowCheckout(false);
     if (credited) {
+      clearPending();
       setPaymentSuccess(true);
     } else {
       setPaymentPending(true);
@@ -467,18 +543,21 @@ export default function BuyAirtime() {
               </div>
 
               <h2 style={{ fontSize: '30px', fontWeight: '800', color: 'var(--text-main)', marginBottom: '14px' }}>
-                {t('Payment Received, Confirming Credit...')}
+                {t('Confirming Your Payment...')}
               </h2>
 
-              <p style={{ fontSize: '15px', color: 'var(--text-muted)', lineHeight: '1.8', marginBottom: '30px' }}>
-                {t("We've received your payment but haven't been able to confirm the airtime credit yet. This can occasionally take a few extra minutes. If the credit hasn't arrived shortly, please contact support with this reference: {ref}").replace('{ref}', generatedRef)}
+              <p style={{ fontSize: '15px', color: 'var(--text-muted)', lineHeight: '1.8', marginBottom: '12px' }}>
+                {t("If you completed the payment, your airtime will be credited automatically, usually within a few minutes. Please don't pay again. This page will update by itself once it's confirmed.")}
+              </p>
+              <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.8', marginBottom: '30px' }}>
+                {t("If you didn't finish paying, tap Recharge Again. If the airtime hasn't arrived after 15 minutes, contact support with this reference: {ref}").replace('{ref}', generatedRef)}
               </p>
 
               <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
                 <Link href="/" className="btn-primary" style={{ padding: '12px 30px' }}>
                   {t('Return Home')}
                 </Link>
-                <button onClick={() => { setPaymentPending(false); setFormData(p => ({ ...p, amount: '' })); }} className="btn-secondary" style={{ padding: '12px 30px' }}>
+                <button onClick={() => { clearPending(); setPaymentPending(false); setFormData(p => ({ ...p, amount: '' })); }} className="btn-secondary" style={{ padding: '12px 30px' }}>
                   {t('Recharge Again')}
                 </button>
               </div>
