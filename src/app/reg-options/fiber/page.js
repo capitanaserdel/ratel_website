@@ -84,7 +84,6 @@ export default function FiberDetails() {
         <div className="container">
           <ul className="breadcrumbs">
             <li><Link href="/">{t('Home')}</Link></li>
-            <li><Link href="/reg-options">{t('Registration Options')}</Link></li>
             <li>{t('Fiber Subscribers')}</li>
           </ul>
           <h1 className="page-title">{t('Fiber Broadband Plans')}</h1>

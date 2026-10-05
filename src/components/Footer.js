@@ -22,7 +22,7 @@ export default function Footer() {
               <p>{t('Link your NIN, explore superfast fiber broadband plans, or recharge your airtime credit instantly.')}</p>
             </div>
             <div className={styles.bannerBtns}>
-              <Link href="/reg-options" className={styles.bannerBtnPrimary}>
+              <Link href="https://ratelplus.net/personal-subscribers.php" className={styles.bannerBtnPrimary}>
                 {t('Register Now')} <i className="bi bi-arrow-right-short" />
               </Link>
               <Link href="/airtime" className={styles.bannerBtnSecondary}>
@@ -86,8 +86,8 @@ export default function Footer() {
             <h4>{t('Our Services')}</h4>
             <ul className={styles.linkList}>
               <li className={styles.linkItem}><Link href="/services/voice">{t('Voice Services')}</Link></li>
-              <li className={styles.linkItem}><Link href="/aboutus">{t('Fibre to the Home (FTTH)')}</Link></li>
-              <li className={styles.linkItem}><Link href="/reg-options">{t('LTE Services')}</Link></li>
+              <li className={styles.linkItem}><Link href="/reg-options/fiber">{t('Fibre to the Home (FTTH)')}</Link></li>
+              <li className={styles.linkItem}><Link href="https://ratelplus.net/personal-subscribers.php">{t('LTE Services')}</Link></li>
               <li className={styles.linkItem}><Link href="/privacy-policy">{t('Privacy Policy')}</Link></li>
             </ul>
           </div>

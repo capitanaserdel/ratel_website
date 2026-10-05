@@ -233,7 +233,7 @@ export default function PrivacyPolicy() {
               <div className="glass-panel" style={{ padding: '30px', textAlign: 'center' }}>
                 <h3 style={{ fontSize: '18px', marginBottom: '20px' }}>Quick Access</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <Link href="/reg-options" className="btn-primary" style={{ fontSize: '14px', width: '100%' }}>
+                  <Link href="https://ratelplus.net/personal-subscribers.php" className="btn-primary" style={{ fontSize: '14px', width: '100%' }}>
                     Register Line
                   </Link>
                   <Link href="/airtime" className="btn-secondary" style={{ fontSize: '14px', width: '100%' }}>
