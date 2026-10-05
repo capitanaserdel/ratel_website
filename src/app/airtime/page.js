@@ -176,11 +176,18 @@ export default function BuyAirtime() {
         setSavedUser(user);
       }
 
+      // Digits only, and +234/234 → 0, so "+234 209 707 0003" matches "02097070003".
+      const normalizePhone = (n) => {
+        const d = String(n || '').replace(/\D/g, '');
+        return d.length === 13 && d.startsWith('234') ? `0${d.slice(3)}` : d;
+      };
+
       if (queryPhone || queryAmount) {
-        const cleanPhone = queryPhone || '';
+        const cleanPhone = normalizePhone(queryPhone);
         const cleanAmount = queryAmount || '';
         const isValid = cleanPhone.length === 11 && APPROVED_PREFIXES.some(pref => cleanPhone.startsWith(pref));
         const isAmtValid = parseInt(cleanAmount, 10) > 0;
+        const isOwnNumber = !!user && !!cleanPhone && normalizePhone(user.ratelnumber) === cleanPhone;
 
         setFormData({
           fname: user ? user.fname : '',
@@ -190,21 +197,14 @@ export default function BuyAirtime() {
           ratelnumber: cleanPhone
         });
 
-        if (isValid && isAmtValid) {
-          if (user) {
-            if (user.ratelnumber === cleanPhone) {
-              setRechargeType('self');
-            } else {
-              setRechargeType('others');
-            }
-            const ref = Math.floor(10000000 + Math.random() * 90000000).toString();
-            setGeneratedRef(ref);
-            setShowCheckout(true);
-          } else {
-            setRechargeType('others');
-          }
-        } else {
-          setRechargeType('others');
+        // The app opens this page with only ?number= (no amount), so the saved customer's own
+        // number must land on "Recharging for Myself" whether or not an amount was passed.
+        setRechargeType(isOwnNumber || (!cleanPhone && user) ? 'self' : 'others');
+
+        if (isValid && isAmtValid && user) {
+          const ref = Math.floor(10000000 + Math.random() * 90000000).toString();
+          setGeneratedRef(ref);
+          setShowCheckout(true);
         }
       } else if (user) {
         setRechargeType('self');
