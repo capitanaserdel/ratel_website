@@ -289,7 +289,7 @@ export default function Home() {
 
             {/* CTA Buttons */}
             <div className={styles.heroBtns}>
-              <Link href="https://ratelplus.net/personal-subscribers.php" id="hero-register-btn" className={`${styles.heroRegisterBtn} ${styles.heroBtnPulseBlue}`}>
+              <Link href="/reg-options" id="hero-register-btn" className={`${styles.heroRegisterBtn} ${styles.heroBtnPulseBlue}`}>
                 <i className="bi bi-person-plus-fill"></i>
                 {t('Register Now Btn')}
               </Link>

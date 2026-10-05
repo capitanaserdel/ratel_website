@@ -75,7 +75,7 @@ export default function Navbar() {
                     <i className="bi bi-wifi" style={{ marginRight: '8px', color: 'var(--primary)' }}></i>
                     {t('Broadband Internet Services')}
                   </Link>
-                  <Link href="https://ratelplus.net/personal-subscribers.php" className={styles.dropdownItem}>
+                  <Link href="/reg-options" className={styles.dropdownItem}>
                     <i className="bi bi-phone-vibrate-fill" style={{ marginRight: '8px', color: 'var(--accent-green)' }}></i>
                     {t('LTE Services')}
                   </Link>
@@ -83,7 +83,7 @@ export default function Navbar() {
                     <i className="bi bi-telephone-outbound-fill" style={{ marginRight: '8px', color: 'var(--primary)' }}></i>
                     {t('Voice over Internet Protocol (VoIP) Services')}
                   </Link>
-                  <Link href="/reg-options/fiber" className={styles.dropdownItem}>
+                  <Link href="/aboutus" className={styles.dropdownItem}>
                     <i className="bi bi-hdd-network-fill" style={{ marginRight: '8px', color: 'var(--accent-green)' }}></i>
                     {t('Fiber-to-the-Home (FTTH) Solutions')}
                   </Link>
@@ -159,7 +159,7 @@ export default function Navbar() {
             <Link href="/airtime" className={styles.btnAirtime}>
               {t('Buy Airtime')}
             </Link>
-            <Link href="https://ratelplus.net/personal-subscribers.php" className={styles.btnRegister}>
+            <Link href="/reg-options" className={styles.btnRegister}>
               {t('Register Now')}
             </Link>
           </div>
@@ -213,9 +213,9 @@ export default function Navbar() {
             {servicesOpen && (
               <div className={styles.mobileSubmenu}>
                 <Link href="/#services" className={styles.mobileSubLink}>{t('Broadband Internet Services')}</Link>
-                <Link href="https://ratelplus.net/personal-subscribers.php" className={styles.mobileSubLink}>{t('LTE Services')}</Link>
+                <Link href="/reg-options" className={styles.mobileSubLink}>{t('LTE Services')}</Link>
                 <Link href="/services/voice" className={styles.mobileSubLink}>{t('Voice over Internet Protocol (VoIP) Services')}</Link>
-                <Link href="/reg-options/fiber" className={styles.mobileSubLink}>{t('Fiber-to-the-Home (FTTH) Solutions')}</Link>
+                <Link href="/aboutus" className={styles.mobileSubLink}>{t('Fiber-to-the-Home (FTTH) Solutions')}</Link>
                 <Link href="/#services" className={styles.mobileSubLink}>{t('Enterprise Connectivity Solutions')}</Link>
                 <Link href="/#services" className={styles.mobileSubLink}>{t('Network Infrastructure Deployment')}</Link>
                 <Link href="/#services" className={styles.mobileSubLink}>{t('ICT Solutions')}</Link>
@@ -266,7 +266,7 @@ export default function Navbar() {
           <Link href="/airtime" className={styles.btnAirtime}>
             {t('Buy Airtime')}
           </Link>
-          <Link href="https://ratelplus.net/personal-subscribers.php" className={styles.btnRegister}>
+          <Link href="/reg-options" className={styles.btnRegister}>
             {t('Register Now')}
           </Link>
         </div>

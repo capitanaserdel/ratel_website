@@ -52,7 +52,7 @@ export default function NccModal() {
         </p>
 
         <div className={styles.btnGroup}>
-          <Link href="https://ratelplus.net/personal-subscribers.php" onClick={handleClose} className={styles.btnReg}>
+          <Link href="/reg-options" onClick={handleClose} className={styles.btnReg}>
             Link NIN Now
           </Link>
           <Link href="/airtime" onClick={handleClose} className={styles.btnAirtime}>
