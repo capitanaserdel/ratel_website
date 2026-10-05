@@ -5,7 +5,22 @@ import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
 
 const CURRENCY = 'NGN';
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.ratelplus.net.ng';
+// Payment calls go through this site (see app/api/portal) — same-site requests survive flaky mobile
+// data and data-saver browsers far better than calling portal.ratelplus.net.ng directly.
+const API = '/api/portal';
+const NETWORK_MSG = 'Network problem. Please check your connection and tap Pay again.';
+
+// Retries only network failures (no response at all), not answers from the server.
+async function apiFetch(path, options = {}, retries = 2) {
+  for (let i = 0; ; i++) {
+    try {
+      return await fetch(API + path, options);
+    } catch {
+      if (i >= retries) throw new Error(NETWORK_MSG);
+      await new Promise((r) => setTimeout(r, 1500 * (i + 1)));
+    }
+  }
+}
 // Our Paystack account rejects charges below ₦100 ("No active channel"); OPay has no such floor.
 const PAYSTACK_MIN_NGN = 100;
 
@@ -66,7 +81,7 @@ export default function BuyAirtime() {
   const pollCredit = async (reference, { attempts = 5, delayMs = 4000 } = {}) => {
     for (let i = 0; i < attempts; i++) {
       try {
-        const res = await fetch(`${apiUrl}/api/payments/verify/${reference}`);
+        const res = await apiFetch(`/payments/verify/${reference}`, {}, 1);
         const json = await res.json();
         if (json?.data?.rechargeApplied) {
           return { credited: true, amountNGN: json.data.amountNGN || 0 };
@@ -318,7 +333,7 @@ export default function BuyAirtime() {
     try {
       // 1. Ask vos-portal to resolve the Ratel number to a VOS3000 account and
       // initialize a Paystack transaction server-side.
-      const initRes = await fetch(`${apiUrl}/api/payments/initialize`, {
+      const initRes = await apiFetch('/payments/initialize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -379,7 +394,7 @@ export default function BuyAirtime() {
       });
     } catch (err) {
       setProcessingGateway(null);
-      setPaymentError('Failed to initialize payment: ' + err.message);
+      setPaymentError(err.message === NETWORK_MSG ? NETWORK_MSG : 'Failed to initialize payment: ' + err.message);
     }
   };
 
@@ -396,7 +411,7 @@ export default function BuyAirtime() {
     const finalLname = rechargeType === 'self' && savedUser ? savedUser.lname : formData.sname;
 
     try {
-      const initRes = await fetch(`${apiUrl}/api/payments/initialize`, {
+      const initRes = await apiFetch('/payments/initialize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -425,7 +440,7 @@ export default function BuyAirtime() {
       window.location.assign(checkoutUrl);
     } catch (err) {
       setProcessingGateway(null);
-      setPaymentError('Failed to initialize payment: ' + err.message);
+      setPaymentError(err.message === NETWORK_MSG ? NETWORK_MSG : 'Failed to initialize payment: ' + err.message);
     }
   };
 
