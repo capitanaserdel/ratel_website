@@ -6,12 +6,12 @@ import Image from 'next/image';
 const SERVICES = {
   register: {
     label: 'Register for RatelSIM',
-    url: 'https://www.ratelplus.net/personal-subscribers.php',
+    url: '/personal-subscribers',
     icon: 'bi-person-plus-fill',
   },
   airtime: {
     label: 'Buy Airtime / Recharge',
-    url: 'https://www.ratelplus.net/airtime.php',
+    url: '/airtime',
     icon: 'bi-phone-fill',
   },
 };
