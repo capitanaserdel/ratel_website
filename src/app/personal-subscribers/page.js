@@ -34,6 +34,11 @@ export default function PersonalSubscribers() {
   const [generatedRef, setGeneratedRef] = useState('');
   const [registrationId, setRegistrationId] = useState('');
 
+  // NIN verification
+  const [ninVerified, setNinVerified] = useState(false);
+  const [isVerifyingNin, setIsVerifyingNin] = useState(false);
+  const [ninVerificationError, setNinVerificationError] = useState('');
+
   const [proceedLoading, setProceedLoading] = useState(false);
   const [paystackLoading, setPaystackLoading] = useState(false);
   const [opayLoading, setOpayLoading] = useState(false);
@@ -125,7 +130,13 @@ export default function PersonalSubscribers() {
         }
       }
       if (name === 'nin') {
-        setFormData(prev => ({ ...prev, nin: cleanValue }));
+        // Changing the NIN invalidates whatever was fetched for the old one — the auto-filled
+        // fields belong to that NIN, not whatever the customer types next.
+        setNinVerified(false);
+        setNinVerificationError('');
+        setFormData(prev => ({
+          ...prev, nin: cleanValue, fname: '', sname: '', email: '', mobile: '', addr: '',
+        }));
         if (cleanValue.length > 0 && cleanValue.length !== 11) {
           setErrors(prev => ({ ...prev, nin: 'NIN must be exactly 11 digits' }));
         } else {
@@ -136,6 +147,42 @@ export default function PersonalSubscribers() {
     }
 
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleVerifyNin = async () => {
+    setNinVerificationError('');
+    if (formData.nin.length !== 11) {
+      setNinVerificationError('NIN must be exactly 11 digits');
+      return;
+    }
+    setIsVerifyingNin(true);
+    try {
+      const res = await fetch(`${apiUrl}/api/nin/public-verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nin: formData.nin }),
+      });
+      const resData = await res.json();
+      if (!resData.success) {
+        throw new Error(resData.message || 'Verification failed.');
+      }
+      const details = resData.data || {};
+      setNinVerified(true);
+      // Only fill what NIMC actually returned — anything it didn't provide stays blank for the
+      // customer to fill in themselves (NIMC's own record is often missing email/phone).
+      setFormData(prev => ({
+        ...prev,
+        fname: details.fname || prev.fname,
+        sname: details.sname || prev.sname,
+        email: details.email || prev.email,
+        mobile: details.mobile || prev.mobile,
+        addr: details.addr || prev.addr,
+      }));
+    } catch (err) {
+      setNinVerificationError(err.message || 'Verification failed. Please try again.');
+    } finally {
+      setIsVerifyingNin(false);
+    }
   };
 
   // ─── File Select & Drop Handlers ─────────────────────────────────────────
@@ -207,11 +254,12 @@ export default function PersonalSubscribers() {
     e.preventDefault();
     const activeErrors = {};
 
+    if (!ninVerified) activeErrors.nin = 'Please verify your NIN first';
+    else if (formData.nin.length !== 11) activeErrors.nin = 'NIN must be exactly 11 digits';
     if (!formData.fname.trim()) activeErrors.fname = 'First name is required';
     if (!formData.sname.trim()) activeErrors.sname = 'Surname is required';
     if (!formData.email.trim()) activeErrors.email = 'Email address is required';
     if (formData.mobile.length !== 11) activeErrors.mobile = 'An 11-digit mobile number is required';
-    if (formData.nin && formData.nin.length !== 11) activeErrors.nin = 'NIN must be exactly 11 digits';
     if (!formData.addr.trim()) activeErrors.addr = 'Residential address is required';
 
     if (!idCardFile || idCardFile.progress < 100) {
@@ -641,56 +689,123 @@ export default function PersonalSubscribers() {
                   {t('Subscriber Registration Form')}
                 </h3>
 
-                {/* 1. NIN Field (collected for customer care to verify manually) */}
+                {/* 1. NIN Field & Integrated Verification Button */}
                 <div style={{ marginBottom: '20px' }}>
                   <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>
-                    {t('National Identification Number (NIN)')}
+                    {t('National Identification Number (NIN) *')}
                   </label>
-                  <input
-                    type="text"
-                    name="nin"
-                    placeholder={t("Enter 11-digit NIN")}
-                    maxLength={11}
-                    value={formData.nin}
-                    onChange={handleInputChange}
-                    className="form-input"
-                    style={{ width: '100%' }}
-                  />
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <input
+                      type="text"
+                      name="nin"
+                      placeholder={t("Enter 11-digit NIN")}
+                      maxLength={11}
+                      value={formData.nin}
+                      onChange={handleInputChange}
+                      className="form-input"
+                      style={{ width: '100%', paddingRight: '110px' }}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={handleVerifyNin}
+                      disabled={isVerifyingNin || formData.nin.length !== 11}
+                      className="btn-primary"
+                      style={{
+                        position: 'absolute',
+                        right: '6px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        padding: '6px 14px',
+                        fontSize: '11.5px',
+                        fontWeight: '700',
+                        whiteSpace: 'nowrap',
+                        boxShadow: 'none',
+                        borderRadius: 'var(--radius-sm)',
+                        background: ninVerified ? '#10b981' : 'var(--primary)',
+                        borderColor: ninVerified ? '#10b981' : 'var(--primary)',
+                        opacity: (formData.nin.length === 11 && !isVerifyingNin) ? 1 : 0.6,
+                        cursor: (formData.nin.length === 11 && !isVerifyingNin) ? 'pointer' : 'not-allowed',
+                        zIndex: 2,
+                        minWidth: '85px',
+                        height: 'calc(100% - 12px)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      {isVerifyingNin ? (
+                        <>
+                          <i className="bi bi-arrow-repeat spin" style={{ animation: 'spin 1s linear infinite', display: 'inline-block', marginRight: '4px' }} /> {t('Verify')}
+                        </>
+                      ) : ninVerified ? (
+                        <>
+                          <i className="bi bi-check-circle-fill" style={{ marginRight: '4px' }} /> {t('Verified')}
+                        </>
+                      ) : t('Verify')}
+                    </button>
+                  </div>
                   {errors.nin && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.nin)}</span>}
+                  {ninVerificationError && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(ninVerificationError)}</span>}
+                  {ninVerified && (
+                    <span style={{ fontSize: '11.5px', color: '#10b981', marginTop: '6px', display: 'block', fontWeight: '600' }}>
+                      <i className="bi bi-shield-fill-check" /> {t('NIN verified successfully.')}
+                    </span>
+                  )}
                 </div>
 
-                {/* 2. First Name & Surname */}
+                {/* 2. Locked Warning Banner (visible until verified) */}
+                {!ninVerified && (
+                  <div style={{
+                    background: 'rgba(24, 73, 201, 0.04)',
+                    border: '1px dashed rgba(24, 73, 201, 0.25)',
+                    borderRadius: 'var(--radius-sm)',
+                    padding: '14px 16px',
+                    marginBottom: '20px',
+                    display: 'flex',
+                    gap: '12px',
+                    alignItems: 'center'
+                  }}>
+                    <i className="bi bi-lock-fill" style={{ fontSize: '18px', color: 'var(--primary)' }} />
+                    <span style={{ fontSize: '12.5px', color: 'var(--text-muted)', lineHeight: '1.5', textAlign: 'left' }}>
+                      {t('Please enter and verify your 11-digit NIN first to unlock the rest of the form.')}
+                    </span>
+                  </div>
+                )}
+
+                {/* 3. First Name & Surname — from NIMC, not editable */}
                 <div className="content-grid" style={{ marginBottom: '20px' }}>
                   <div>
-                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('First Name *')}</label>
-                    <input type="text" name="fname" value={formData.fname} onChange={handleInputChange} className="form-input" required />
+                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('First Name *')}</label>
+                    <input type="text" name="fname" value={formData.fname} onChange={handleInputChange} className="form-input" required disabled style={{ opacity: ninVerified ? 0.9 : 0.6, cursor: 'not-allowed' }} />
                     {errors.fname && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.fname)}</span>}
                   </div>
                   <div>
-                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('Surname *')}</label>
-                    <input type="text" name="sname" value={formData.sname} onChange={handleInputChange} className="form-input" required />
+                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Surname *')}</label>
+                    <input type="text" name="sname" value={formData.sname} onChange={handleInputChange} className="form-input" required disabled style={{ opacity: ninVerified ? 0.9 : 0.6, cursor: 'not-allowed' }} />
                     {errors.sname && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.sname)}</span>}
                   </div>
                 </div>
 
-                {/* 3. Email Address */}
+                {/* 4. Email Address — pre-filled when NIMC has it, editable, unlocked after verify */}
                 <div style={{ marginBottom: '20px' }}>
-                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('Email Address *')}</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="form-input" required />
+                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Email Address *')}</label>
+                  <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="form-input" required disabled={!ninVerified} style={{ opacity: ninVerified ? 1 : 0.6, cursor: ninVerified ? 'text' : 'not-allowed' }} />
                   {errors.email && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.email)}</span>}
                 </div>
 
-                {/* 4. Mobile Number */}
+                {/* 5. Mobile Number — pre-filled when NIMC has it, editable, unlocked after verify */}
                 <div style={{ marginBottom: '20px' }}>
-                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('Mobile Number *')}</label>
-                  <input type="text" name="mobile" placeholder="e.g. 08031234567" maxLength={11} value={formData.mobile} onChange={handleInputChange} className="form-input" required />
+                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Mobile Number *')}</label>
+                  <input type="text" name="mobile" placeholder="e.g. 08031234567" maxLength={11} value={formData.mobile} onChange={handleInputChange} className="form-input" required disabled={!ninVerified} style={{ opacity: ninVerified ? 1 : 0.6, cursor: ninVerified ? 'text' : 'not-allowed' }} />
                   {errors.mobile && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.mobile)}</span>}
                 </div>
 
-                {/* 5. Residential Address */}
+                {/* 6. Residential Address — pre-filled when NIMC has it, editable, unlocked after verify */}
                 <div style={{ marginBottom: '25px' }}>
-                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('Residential Address *')}</label>
-                  <textarea name="addr" rows={3} value={formData.addr} onChange={handleInputChange} className="form-input" required style={{ resize: 'vertical' }} />
+                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Residential Address *')}</label>
+                  <textarea name="addr" rows={3} value={formData.addr} onChange={handleInputChange} className="form-input" required disabled={!ninVerified} style={{ resize: 'vertical', opacity: ninVerified ? 1 : 0.6, cursor: ninVerified ? 'text' : 'not-allowed' }} />
                   {errors.addr && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.addr)}</span>}
                 </div>
 

@@ -13,6 +13,7 @@ const ALLOWED = [
   { method: 'POST', re: /^payments\/initialize-registration$/ },
   { method: 'GET', re: /^payments\/verify\/[A-Za-z0-9-]{4,60}$/ },
   { method: 'POST', re: /^registrations$/ },
+  { method: 'POST', re: /^nin\/public-verify$/ },
 ];
 
 function clientIp(request) {
