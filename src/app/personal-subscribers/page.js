@@ -8,6 +8,14 @@ const REGISTRATION_FEE = 1000;
 const CURRENCY = 'NGN';
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.ratelplus.net.ng';
 
+const NIGERIAN_STATES = [
+  'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno',
+  'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'Gombe', 'Imo', 'Jigawa',
+  'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger',
+  'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe',
+  'Zamfara', 'FCT (Abuja)',
+];
+
 // Reads a File into a base64 data URL (vos-portal's registration endpoint takes
 // documents inline as base64 rather than via a separate upload step).
 function fileToBase64(file) {
@@ -27,7 +35,8 @@ export default function PersonalSubscribers() {
     email: '',
     mobile: '',
     nin: '',
-    addr: ''
+    addr: '',
+    stateOfOrigin: ''
   });
 
   const [errors, setErrors] = useState({});
@@ -145,7 +154,7 @@ export default function PersonalSubscribers() {
         setNimcDob('');
         setNimcAddr('');
         setFormData(prev => ({
-          ...prev, nin: cleanValue, fname: '', sname: '', email: '', mobile: '', addr: '',
+          ...prev, nin: cleanValue, fname: '', sname: '', email: '', mobile: '', addr: '', stateOfOrigin: '',
         }));
         if (cleanValue.length > 0 && cleanValue.length !== 11) {
           setErrors(prev => ({ ...prev, nin: 'NIN must be exactly 11 digits' }));
@@ -276,6 +285,7 @@ export default function PersonalSubscribers() {
     if (!formData.email.trim()) activeErrors.email = 'Email address is required';
     if (formData.mobile.length !== 11) activeErrors.mobile = 'An 11-digit mobile number is required';
     if (!formData.addr.trim()) activeErrors.addr = 'Residential address is required';
+    if (!formData.stateOfOrigin) activeErrors.stateOfOrigin = 'State of origin is required';
 
     if (!idCardFile || idCardFile.progress < 100) {
       activeErrors.idCard = 'ID card slip is required';
@@ -307,6 +317,7 @@ export default function PersonalSubscribers() {
           ninDocument: idCardFile.base64,
           photo: portraitFile.base64,
           address: formData.addr,
+          stateOfOrigin: formData.stateOfOrigin,
           nimcGender,
           nimcDob,
           nimcAddress: nimcAddr,
@@ -844,6 +855,18 @@ export default function PersonalSubscribers() {
                   <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Residential Address *')}</label>
                   <textarea name="addr" rows={3} value={formData.addr} onChange={handleInputChange} className="form-input" required disabled={!ninVerified} style={{ resize: 'vertical', opacity: ninVerified ? 1 : 0.6, cursor: ninVerified ? 'text' : 'not-allowed' }} />
                   {errors.addr && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.addr)}</span>}
+                </div>
+
+                {/* 7. State of Origin — customer's own entry, not from NIMC */}
+                <div style={{ marginBottom: '25px' }}>
+                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('State of Origin *')}</label>
+                  <select name="stateOfOrigin" value={formData.stateOfOrigin} onChange={handleInputChange} className="form-input" required disabled={!ninVerified} style={{ opacity: ninVerified ? 1 : 0.6, cursor: ninVerified ? 'pointer' : 'not-allowed' }}>
+                    <option value="">{t('Select state...')}</option>
+                    {NIGERIAN_STATES.map((state) => (
+                      <option key={state} value={state}>{state}</option>
+                    ))}
+                  </select>
+                  {errors.stateOfOrigin && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.stateOfOrigin)}</span>}
                 </div>
 
                 {/* RESPONSIVE VISUAL FILE UPLOADER */}
