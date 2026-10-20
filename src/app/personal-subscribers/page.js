@@ -39,6 +39,13 @@ export default function PersonalSubscribers() {
   const [isVerifyingNin, setIsVerifyingNin] = useState(false);
   const [ninVerificationError, setNinVerificationError] = useState('');
 
+  // NIMC record — read-only, fetched at verification. nimcAddr is NIMC's own address
+  // on file ("permanent address"), distinct from formData.addr which the customer
+  // fills in themselves as their current residential address.
+  const [nimcGender, setNimcGender] = useState('');
+  const [nimcDob, setNimcDob]       = useState('');
+  const [nimcAddr, setNimcAddr]     = useState('');
+
   const [proceedLoading, setProceedLoading] = useState(false);
   const [paystackLoading, setPaystackLoading] = useState(false);
   const [opayLoading, setOpayLoading] = useState(false);
@@ -134,6 +141,9 @@ export default function PersonalSubscribers() {
         // fields belong to that NIN, not whatever the customer types next.
         setNinVerified(false);
         setNinVerificationError('');
+        setNimcGender('');
+        setNimcDob('');
+        setNimcAddr('');
         setFormData(prev => ({
           ...prev, nin: cleanValue, fname: '', sname: '', email: '', mobile: '', addr: '',
         }));
@@ -170,14 +180,19 @@ export default function PersonalSubscribers() {
       setNinVerified(true);
       // Only fill what NIMC actually returned — anything it didn't provide stays blank for the
       // customer to fill in themselves (NIMC's own record is often missing email/phone).
+      // Residential address (formData.addr) is deliberately NOT auto-filled — it's always the
+      // customer's own entry, separate from NIMC's address on file (nimcAddr, shown read-only
+      // as "Permanent Address").
       setFormData(prev => ({
         ...prev,
         fname: details.fname || prev.fname,
         sname: details.sname || prev.sname,
         email: details.email || prev.email,
         mobile: details.mobile || prev.mobile,
-        addr: details.addr || prev.addr,
       }));
+      setNimcGender(details.gender || '');
+      setNimcDob(details.dob || '');
+      setNimcAddr(details.addr || '');
     } catch (err) {
       setNinVerificationError(err.message || 'Verification failed. Please try again.');
     } finally {
@@ -291,6 +306,10 @@ export default function PersonalSubscribers() {
           nin: formData.nin,
           ninDocument: idCardFile.base64,
           photo: portraitFile.base64,
+          address: formData.addr,
+          nimcGender,
+          nimcDob,
+          nimcAddress: nimcAddr,
         }),
       });
       const json = await res.json();
@@ -788,6 +807,24 @@ export default function PersonalSubscribers() {
                   </div>
                 </div>
 
+                {/* 3b. Gender & Date of Birth — from NIMC, not editable */}
+                <div className="content-grid" style={{ marginBottom: '20px' }}>
+                  <div>
+                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Gender')}</label>
+                    <input type="text" value={nimcGender} readOnly disabled className="form-input" style={{ opacity: ninVerified ? 0.9 : 0.6, cursor: 'not-allowed', textTransform: 'capitalize' }} />
+                  </div>
+                  <div>
+                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Date of Birth')}</label>
+                    <input type="text" value={nimcDob} readOnly disabled className="form-input" style={{ opacity: ninVerified ? 0.9 : 0.6, cursor: 'not-allowed' }} />
+                  </div>
+                </div>
+
+                {/* 3c. Permanent Address — NIMC's address on file, not editable */}
+                <div style={{ marginBottom: '20px' }}>
+                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Permanent Address')}</label>
+                  <textarea rows={2} value={nimcAddr} readOnly disabled className="form-input" style={{ resize: 'vertical', opacity: ninVerified ? 0.9 : 0.6, cursor: 'not-allowed' }} />
+                </div>
+
                 {/* 4. Email Address — pre-filled when NIMC has it, editable, unlocked after verify */}
                 <div style={{ marginBottom: '20px' }}>
                   <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Email Address *')}</label>
@@ -802,7 +839,7 @@ export default function PersonalSubscribers() {
                   {errors.mobile && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.mobile)}</span>}
                 </div>
 
-                {/* 6. Residential Address — pre-filled when NIMC has it, editable, unlocked after verify */}
+                {/* 6. Residential Address — customer's own entry, not from NIMC */}
                 <div style={{ marginBottom: '25px' }}>
                   <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Residential Address *')}</label>
                   <textarea name="addr" rows={3} value={formData.addr} onChange={handleInputChange} className="form-input" required disabled={!ninVerified} style={{ resize: 'vertical', opacity: ninVerified ? 1 : 0.6, cursor: ninVerified ? 'text' : 'not-allowed' }} />
