@@ -3,18 +3,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
+import { NIGERIAN_STATES, STATE_LGA_MAP } from '@/lib/nigeriaStatesLgas';
 
 const REGISTRATION_FEE = 1000;
 const CURRENCY = 'NGN';
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.ratelplus.net.ng';
-
-const NIGERIAN_STATES = [
-  'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno',
-  'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'Gombe', 'Imo', 'Jigawa',
-  'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger',
-  'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe',
-  'Zamfara', 'FCT (Abuja)',
-];
 
 // Reads a File into a base64 data URL (vos-portal's registration endpoint takes
 // documents inline as base64 rather than via a separate upload step).
@@ -36,7 +29,8 @@ export default function PersonalSubscribers() {
     mobile: '',
     nin: '',
     addr: '',
-    stateOfOrigin: ''
+    stateOfOrigin: '',
+    localGovernment: ''
   });
 
   const [errors, setErrors] = useState({});
@@ -154,7 +148,7 @@ export default function PersonalSubscribers() {
         setNimcDob('');
         setNimcAddr('');
         setFormData(prev => ({
-          ...prev, nin: cleanValue, fname: '', sname: '', email: '', mobile: '', addr: '', stateOfOrigin: '',
+          ...prev, nin: cleanValue, fname: '', sname: '', email: '', mobile: '', addr: '', stateOfOrigin: '', localGovernment: '',
         }));
         if (cleanValue.length > 0 && cleanValue.length !== 11) {
           setErrors(prev => ({ ...prev, nin: 'NIN must be exactly 11 digits' }));
@@ -162,6 +156,12 @@ export default function PersonalSubscribers() {
           setErrors(prev => { const c = { ...prev }; delete c.nin; return c; });
         }
       }
+      return;
+    }
+
+    if (name === 'stateOfOrigin') {
+      // LGA list depends on the selected state, so a state change invalidates whatever was picked.
+      setFormData(prev => ({ ...prev, stateOfOrigin: value, localGovernment: '' }));
       return;
     }
 
@@ -286,6 +286,7 @@ export default function PersonalSubscribers() {
     if (formData.mobile.length !== 11) activeErrors.mobile = 'An 11-digit mobile number is required';
     if (!formData.addr.trim()) activeErrors.addr = 'Residential address is required';
     if (!formData.stateOfOrigin) activeErrors.stateOfOrigin = 'State of origin is required';
+    if (!formData.localGovernment) activeErrors.localGovernment = 'Local government is required';
 
     if (!idCardFile || idCardFile.progress < 100) {
       activeErrors.idCard = 'ID card slip is required';
@@ -318,6 +319,7 @@ export default function PersonalSubscribers() {
           photo: portraitFile.base64,
           address: formData.addr,
           stateOfOrigin: formData.stateOfOrigin,
+          localGovernment: formData.localGovernment,
           nimcGender,
           nimcDob,
           nimcAddress: nimcAddr,
@@ -867,6 +869,18 @@ export default function PersonalSubscribers() {
                     ))}
                   </select>
                   {errors.stateOfOrigin && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.stateOfOrigin)}</span>}
+                </div>
+
+                {/* 8. Local Government — cascades from State of Origin */}
+                <div style={{ marginBottom: '25px' }}>
+                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Local Government *')}</label>
+                  <select name="localGovernment" value={formData.localGovernment} onChange={handleInputChange} className="form-input" required disabled={!ninVerified || !formData.stateOfOrigin} style={{ opacity: ninVerified && formData.stateOfOrigin ? 1 : 0.6, cursor: ninVerified && formData.stateOfOrigin ? 'pointer' : 'not-allowed' }}>
+                    <option value="">{t(formData.stateOfOrigin ? 'Select local government...' : 'Select state first')}</option>
+                    {(STATE_LGA_MAP[formData.stateOfOrigin] || []).map((lga) => (
+                      <option key={lga} value={lga}>{lga}</option>
+                    ))}
+                  </select>
+                  {errors.localGovernment && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.localGovernment)}</span>}
                 </div>
 
                 {/* RESPONSIVE VISUAL FILE UPLOADER */}
