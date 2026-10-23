@@ -37,20 +37,6 @@ export default function PersonalSubscribers() {
   const [generatedRef, setGeneratedRef] = useState('');
   const [registrationId, setRegistrationId] = useState('');
 
-  // NIN verification
-  const [ninVerified, setNinVerified] = useState(false);
-  const [isVerifyingNin, setIsVerifyingNin] = useState(false);
-  const [ninVerificationError, setNinVerificationError] = useState('');
-
-  // NIMC record — read-only, fetched at verification. nimcAddr (NIMC's address on
-  // file) is still captured and sent with the registration even though it's not
-  // shown on the form — distinct from formData.addr, which the customer fills in
-  // themselves as their current residential address.
-  const [nimcGender, setNimcGender] = useState('');
-  const [nimcDob, setNimcDob]       = useState('');
-  const [nimcAddr, setNimcAddr]     = useState('');
-  const [ninPhoto, setNinPhoto]     = useState('');
-
   const [proceedLoading, setProceedLoading] = useState(false);
   const [paystackLoading, setPaystackLoading] = useState(false);
   const [opayLoading, setOpayLoading] = useState(false);
@@ -142,17 +128,7 @@ export default function PersonalSubscribers() {
         }
       }
       if (name === 'nin') {
-        // Changing the NIN invalidates whatever was fetched for the old one — the auto-filled
-        // fields belong to that NIN, not whatever the customer types next.
-        setNinVerified(false);
-        setNinVerificationError('');
-        setNimcGender('');
-        setNimcDob('');
-        setNimcAddr('');
-        setNinPhoto('');
-        setFormData(prev => ({
-          ...prev, nin: cleanValue, fname: '', sname: '', email: '', mobile: '', addr: '', stateOfOrigin: '', localGovernment: '',
-        }));
+        setFormData(prev => ({ ...prev, nin: cleanValue }));
         if (cleanValue.length > 0 && cleanValue.length !== 11) {
           setErrors(prev => ({ ...prev, nin: 'NIN must be exactly 11 digits' }));
         } else {
@@ -169,48 +145,6 @@ export default function PersonalSubscribers() {
     }
 
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleVerifyNin = async () => {
-    setNinVerificationError('');
-    if (formData.nin.length !== 11) {
-      setNinVerificationError('NIN must be exactly 11 digits');
-      return;
-    }
-    setIsVerifyingNin(true);
-    try {
-      const res = await fetch(`${apiUrl}/api/nin/public-verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nin: formData.nin }),
-      });
-      const resData = await res.json();
-      if (!resData.success) {
-        throw new Error(resData.message || 'Verification failed.');
-      }
-      const details = resData.data || {};
-      setNinVerified(true);
-      // Only fill what NIMC actually returned — anything it didn't provide stays blank for the
-      // customer to fill in themselves (NIMC's own record is often missing email/phone).
-      // Residential address (formData.addr) is deliberately NOT auto-filled — it's always the
-      // customer's own entry, separate from NIMC's address on file (nimcAddr, shown read-only
-      // as "Permanent Address").
-      setFormData(prev => ({
-        ...prev,
-        fname: details.fname || prev.fname,
-        sname: details.sname || prev.sname,
-        email: details.email || prev.email,
-        mobile: details.mobile || prev.mobile,
-      }));
-      setNimcGender(details.gender || '');
-      setNimcDob(details.dob || '');
-      setNimcAddr(details.addr || '');
-      setNinPhoto(details.photo || '');
-    } catch (err) {
-      setNinVerificationError(err.message || 'Verification failed. Please try again.');
-    } finally {
-      setIsVerifyingNin(false);
-    }
   };
 
   // ─── File Select & Drop Handlers ─────────────────────────────────────────
@@ -282,8 +216,7 @@ export default function PersonalSubscribers() {
     e.preventDefault();
     const activeErrors = {};
 
-    if (!ninVerified) activeErrors.nin = 'Please verify your NIN first';
-    else if (formData.nin.length !== 11) activeErrors.nin = 'NIN must be exactly 11 digits';
+    if (formData.nin.length !== 11) activeErrors.nin = 'NIN must be exactly 11 digits';
     if (!formData.fname.trim()) activeErrors.fname = 'First name is required';
     if (!formData.sname.trim()) activeErrors.sname = 'Surname is required';
     if (!formData.email.trim()) activeErrors.email = 'Email address is required';
@@ -324,10 +257,6 @@ export default function PersonalSubscribers() {
           address: formData.addr,
           stateOfOrigin: formData.stateOfOrigin,
           localGovernment: formData.localGovernment,
-          nimcGender,
-          nimcDob,
-          nimcAddress: nimcAddr,
-          nimcPhoto: ninPhoto,
         }),
       });
       const json = await res.json();
@@ -726,151 +655,64 @@ export default function PersonalSubscribers() {
                   {t('Subscriber Registration Form')}
                 </h3>
 
-                {/* 1. NIN Field & Integrated Verification Button */}
+                {/* 1. NIN Field */}
                 <div style={{ marginBottom: '20px' }}>
                   <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>
                     {t('National Identification Number (NIN) *')}
                   </label>
-                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                    <input
-                      type="text"
-                      name="nin"
-                      placeholder={t("Enter 11-digit NIN")}
-                      maxLength={11}
-                      value={formData.nin}
-                      onChange={handleInputChange}
-                      className="form-input"
-                      style={{ width: '100%', paddingRight: '110px' }}
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={handleVerifyNin}
-                      disabled={isVerifyingNin || formData.nin.length !== 11}
-                      className="btn-primary"
-                      style={{
-                        position: 'absolute',
-                        right: '6px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        padding: '6px 14px',
-                        fontSize: '11.5px',
-                        fontWeight: '700',
-                        whiteSpace: 'nowrap',
-                        boxShadow: 'none',
-                        borderRadius: 'var(--radius-sm)',
-                        background: ninVerified ? '#10b981' : 'var(--primary)',
-                        borderColor: ninVerified ? '#10b981' : 'var(--primary)',
-                        opacity: (formData.nin.length === 11 && !isVerifyingNin) ? 1 : 0.6,
-                        cursor: (formData.nin.length === 11 && !isVerifyingNin) ? 'pointer' : 'not-allowed',
-                        zIndex: 2,
-                        minWidth: '85px',
-                        height: 'calc(100% - 12px)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      {isVerifyingNin ? (
-                        <>
-                          <i className="bi bi-arrow-repeat spin" style={{ animation: 'spin 1s linear infinite', display: 'inline-block', marginRight: '4px' }} /> {t('Verify')}
-                        </>
-                      ) : ninVerified ? (
-                        <>
-                          <i className="bi bi-check-circle-fill" style={{ marginRight: '4px' }} /> {t('Verified')}
-                        </>
-                      ) : t('Verify')}
-                    </button>
-                  </div>
+                  <input
+                    type="text"
+                    name="nin"
+                    placeholder={t("Enter 11-digit NIN")}
+                    maxLength={11}
+                    value={formData.nin}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    style={{ width: '100%' }}
+                    required
+                  />
                   {errors.nin && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.nin)}</span>}
-                  {ninVerificationError && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(ninVerificationError)}</span>}
-                  {ninVerified && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px' }}>
-                      <span style={{ fontSize: '11.5px', color: '#10b981', fontWeight: '600' }}>
-                        <i className="bi bi-shield-fill-check" /> {t('NIN verified successfully.')}
-                      </span>
-                      {ninPhoto && (
-                        <img
-                          src={`data:image/jpeg;base64,${ninPhoto}`}
-                          alt={t('NIMC photo')}
-                          style={{ width: '56px', height: '56px', borderRadius: '10px', objectFit: 'cover', border: '2px solid rgba(16,185,129,0.4)', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}
-                        />
-                      )}
-                    </div>
-                  )}
                 </div>
 
-                {/* 2. Locked Warning Banner (visible until verified) */}
-                {!ninVerified && (
-                  <div style={{
-                    background: 'rgba(24, 73, 201, 0.04)',
-                    border: '1px dashed rgba(24, 73, 201, 0.25)',
-                    borderRadius: 'var(--radius-sm)',
-                    padding: '14px 16px',
-                    marginBottom: '20px',
-                    display: 'flex',
-                    gap: '12px',
-                    alignItems: 'center'
-                  }}>
-                    <i className="bi bi-lock-fill" style={{ fontSize: '18px', color: 'var(--primary)' }} />
-                    <span style={{ fontSize: '12.5px', color: 'var(--text-muted)', lineHeight: '1.5', textAlign: 'left' }}>
-                      {t('Please enter and verify your 11-digit NIN first to unlock the rest of the form.')}
-                    </span>
-                  </div>
-                )}
-
-                {/* 3. First Name & Surname — from NIMC, not editable */}
+                {/* 2. First Name & Surname */}
                 <div className="content-grid" style={{ marginBottom: '20px' }}>
                   <div>
-                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('First Name *')}</label>
-                    <input type="text" name="fname" value={formData.fname} onChange={handleInputChange} className="form-input" required disabled style={{ opacity: ninVerified ? 0.9 : 0.6, cursor: 'not-allowed' }} />
+                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('First Name *')}</label>
+                    <input type="text" name="fname" value={formData.fname} onChange={handleInputChange} className="form-input" required />
                     {errors.fname && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.fname)}</span>}
                   </div>
                   <div>
-                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Surname *')}</label>
-                    <input type="text" name="sname" value={formData.sname} onChange={handleInputChange} className="form-input" required disabled style={{ opacity: ninVerified ? 0.9 : 0.6, cursor: 'not-allowed' }} />
+                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('Surname *')}</label>
+                    <input type="text" name="sname" value={formData.sname} onChange={handleInputChange} className="form-input" required />
                     {errors.sname && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.sname)}</span>}
                   </div>
                 </div>
 
-                {/* 3b. Gender & Date of Birth — from NIMC, not editable */}
-                <div className="content-grid" style={{ marginBottom: '20px' }}>
-                  <div>
-                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Gender')}</label>
-                    <input type="text" value={nimcGender} readOnly disabled className="form-input" style={{ opacity: ninVerified ? 0.9 : 0.6, cursor: 'not-allowed', textTransform: 'capitalize' }} />
-                  </div>
-                  <div>
-                    <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Date of Birth')}</label>
-                    <input type="text" value={nimcDob} readOnly disabled className="form-input" style={{ opacity: ninVerified ? 0.9 : 0.6, cursor: 'not-allowed' }} />
-                  </div>
-                </div>
-
-                {/* 4. Email Address — pre-filled when NIMC has it, editable, unlocked after verify */}
+                {/* 3. Email Address */}
                 <div style={{ marginBottom: '20px' }}>
-                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Email Address *')}</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="form-input" required disabled={!ninVerified} style={{ opacity: ninVerified ? 1 : 0.6, cursor: ninVerified ? 'text' : 'not-allowed' }} />
+                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('Email Address *')}</label>
+                  <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="form-input" required />
                   {errors.email && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.email)}</span>}
                 </div>
 
-                {/* 5. Mobile Number — pre-filled when NIMC has it, editable, unlocked after verify */}
+                {/* 4. Mobile Number */}
                 <div style={{ marginBottom: '20px' }}>
-                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Mobile Number *')}</label>
-                  <input type="text" name="mobile" placeholder="e.g. 08031234567" maxLength={11} value={formData.mobile} onChange={handleInputChange} className="form-input" required disabled={!ninVerified} style={{ opacity: ninVerified ? 1 : 0.6, cursor: ninVerified ? 'text' : 'not-allowed' }} />
+                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('Mobile Number *')}</label>
+                  <input type="text" name="mobile" placeholder="e.g. 08031234567" maxLength={11} value={formData.mobile} onChange={handleInputChange} className="form-input" required />
                   {errors.mobile && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.mobile)}</span>}
                 </div>
 
-                {/* 6. Residential Address — customer's own entry, not from NIMC */}
+                {/* 5. Residential Address */}
                 <div style={{ marginBottom: '25px' }}>
-                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Residential Address *')}</label>
-                  <textarea name="addr" rows={3} value={formData.addr} onChange={handleInputChange} className="form-input" required disabled={!ninVerified} style={{ resize: 'vertical', opacity: ninVerified ? 1 : 0.6, cursor: ninVerified ? 'text' : 'not-allowed' }} />
+                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('Residential Address *')}</label>
+                  <textarea name="addr" rows={3} value={formData.addr} onChange={handleInputChange} className="form-input" required style={{ resize: 'vertical' }} />
                   {errors.addr && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.addr)}</span>}
                 </div>
 
-                {/* 7. State of Origin — customer's own entry, not from NIMC */}
+                {/* 6. State of Origin */}
                 <div style={{ marginBottom: '25px' }}>
-                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('State of Origin *')}</label>
-                  <select name="stateOfOrigin" value={formData.stateOfOrigin} onChange={handleInputChange} className="form-input" required disabled={!ninVerified} style={{ opacity: ninVerified ? 1 : 0.6, cursor: ninVerified ? 'pointer' : 'not-allowed' }}>
+                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('State of Origin *')}</label>
+                  <select name="stateOfOrigin" value={formData.stateOfOrigin} onChange={handleInputChange} className="form-input" required>
                     <option value="">{t('Select state...')}</option>
                     {NIGERIAN_STATES.map((state) => (
                       <option key={state} value={state}>{state}</option>
@@ -879,10 +721,10 @@ export default function PersonalSubscribers() {
                   {errors.stateOfOrigin && <span style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px', display: 'block' }}>{t(errors.stateOfOrigin)}</span>}
                 </div>
 
-                {/* 8. Local Government — cascades from State of Origin */}
+                {/* 7. Local Government — cascades from State of Origin */}
                 <div style={{ marginBottom: '25px' }}>
-                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px', opacity: ninVerified ? 1 : 0.6 }}>{t('Local Government *')}</label>
-                  <select name="localGovernment" value={formData.localGovernment} onChange={handleInputChange} className="form-input" required disabled={!ninVerified || !formData.stateOfOrigin} style={{ opacity: ninVerified && formData.stateOfOrigin ? 1 : 0.6, cursor: ninVerified && formData.stateOfOrigin ? 'pointer' : 'not-allowed' }}>
+                  <label className="formLabel" style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>{t('Local Government *')}</label>
+                  <select name="localGovernment" value={formData.localGovernment} onChange={handleInputChange} className="form-input" required disabled={!formData.stateOfOrigin} style={{ opacity: formData.stateOfOrigin ? 1 : 0.6, cursor: formData.stateOfOrigin ? 'pointer' : 'not-allowed' }}>
                     <option value="">{t(formData.stateOfOrigin ? 'Select local government...' : 'Select state first')}</option>
                     {(STATE_LGA_MAP[formData.stateOfOrigin] || []).map((lga) => (
                       <option key={lga} value={lga}>{lga}</option>
