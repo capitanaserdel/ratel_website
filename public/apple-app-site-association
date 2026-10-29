@@ -1,0 +1,52 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": [
+          "VFR3UKM888.org.net.ratelplus.phone",
+          "VFR3UKM888.net.ratelplus.phone",
+          "Z2V957B3D6.org.net.ratelplus.phone",
+          "Z2V957B3D6.net.ratelplus.phone"
+        ],
+        "components": [
+          {
+            "/": "/*"
+          }
+        ]
+      },
+      {
+        "appID": "VFR3UKM888.org.net.ratelplus.phone",
+        "paths": [
+          "*"
+        ]
+      },
+      {
+        "appID": "VFR3UKM888.net.ratelplus.phone",
+        "paths": [
+          "*"
+        ]
+      },
+      {
+        "appID": "Z2V957B3D6.org.net.ratelplus.phone",
+        "paths": [
+          "*"
+        ]
+      },
+      {
+        "appID": "Z2V957B3D6.net.ratelplus.phone",
+        "paths": [
+          "*"
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "VFR3UKM888.org.net.ratelplus.phone",
+      "VFR3UKM888.net.ratelplus.phone",
+      "Z2V957B3D6.org.net.ratelplus.phone",
+      "Z2V957B3D6.net.ratelplus.phone"
+    ]
+  }
+}
