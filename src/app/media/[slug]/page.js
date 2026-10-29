@@ -19,6 +19,10 @@ function DetailBannerImage({ src, alt }) {
   const [hasError, setHasError] = useState(false);
   const imageUrl = getMediaImageUrl(src);
 
+  useEffect(() => {
+    setHasError(false);
+  }, [src]);
+
   if (!imageUrl || hasError) {
     return (
       <div
