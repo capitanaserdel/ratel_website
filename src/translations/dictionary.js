@@ -27,6 +27,7 @@ export const dictionary = {
     'Share this article:': 'Share this article:',
     'Related Publications': 'Related Publications',
     'Careers': 'Careers',
+    'Job Openings': 'Job Openings',
     'About us': 'About us',
 
     'Message from CEO': 'Message from CEO',
@@ -471,6 +472,7 @@ export const dictionary = {
     'Share this article:': 'Raba wannan labari:',
     'Related Publications': 'Labaran da ke da Alaƙa',
     'Careers': 'Ayyukan Yi',
+    'Job Openings': 'Gurbin Ayyukan Yi',
     'About us': 'Game da mu',
 
     'Message from CEO': 'Saƙo daga Shugaba (CEO)',
