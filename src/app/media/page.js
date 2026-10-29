@@ -5,7 +5,42 @@ import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
 import styles from './media.module.css';
 
-// Initial Fallback publications if backend is offline or loading
+export const getMediaImageUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  if (url.startsWith('/static/')) {
+    return `https://attendance.ratelplus.net.ng${url}`;
+  }
+  return url;
+};
+
+function MediaImage({ src, alt, className, style, category }) {
+  const [hasError, setHasError] = useState(false);
+  const imageUrl = getMediaImageUrl(src);
+
+  if (!imageUrl || hasError) {
+    return (
+      <div className={styles.placeholderBanner} style={style}>
+        <div className={styles.placeholderIconWrapper}>
+          <i className="bi bi-newspaper" />
+        </div>
+        <span className={styles.placeholderBrand}>RATEL PLUS MEDIA</span>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={imageUrl}
+      alt={alt}
+      className={className}
+      style={style}
+      onError={() => setHasError(true)}
+    />
+  );
+}
+
+// Fallback publications if backend is offline or loading
 const SAMPLE_MEDIA_POSTS = [
   {
     id: 'post-1',
@@ -14,12 +49,12 @@ const SAMPLE_MEDIA_POSTS = [
     category: 'Infrastructure & Fiber',
     summary: 'Phase-2 fiber optic backbone expansion connects over 2,500 residential homes and corporate office complexes with unthrottled gigabit speeds.',
     content: 'Full details on Phase-2 fiber optic deployment across Kano metropolis...',
-    featured_image: '/assets/fiber_installation.png',
+    featured_image: '/datacenter_fiber.png',
     author: 'Engr. Ahmed Bello',
     read_time: '4 min read',
     tags: ['Fiber', 'FTTH', 'Kano', 'Broadband'],
     is_published: true,
-    views_count: 342,
+    views_count: 0,
     published_at: '2026-10-24T10:00:00Z',
   },
   {
@@ -34,7 +69,7 @@ const SAMPLE_MEDIA_POSTS = [
     read_time: '3 min read',
     tags: ['VoIP', 'Mobile App', 'Voice', 'SIP'],
     is_published: true,
-    views_count: 518,
+    views_count: 0,
     published_at: '2026-10-20T14:30:00Z',
   },
   {
@@ -44,12 +79,12 @@ const SAMPLE_MEDIA_POSTS = [
     category: 'Wireless & LTE',
     summary: 'Commercial enterprises now have access to high-capacity 4G LTE wireless routers with dedicated bandwidth and guaranteed uptime.',
     content: 'High-speed 4G LTE wireless routers for commercial enterprises...',
-    featured_image: '/assets/lte_router.png',
+    featured_image: '/lte_mast.png',
     author: 'Kabir Sani',
     read_time: '4 min read',
     tags: ['LTE', 'Wireless', 'Enterprise', 'FWA'],
     is_published: true,
-    views_count: 275,
+    views_count: 0,
     published_at: '2026-10-16T09:15:00Z',
   },
   {
@@ -59,12 +94,12 @@ const SAMPLE_MEDIA_POSTS = [
     category: 'Academy & Training',
     summary: 'Join our comprehensive hands-on technical masterclasses covering fiber fusion splicing, service provider IP routing, and wireless infrastructure.',
     content: 'Technical labs and field mastery for aspiring engineers...',
-    featured_image: '/assets/academy_banner.png',
+    featured_image: '/router_hub.png',
     author: 'Dr. Amina Garba',
     read_time: '3 min read',
     tags: ['Academy', 'Education', 'Fiber', 'Networking'],
     is_published: true,
-    views_count: 689,
+    views_count: 0,
     published_at: '2026-10-11T12:00:00Z',
   },
 ];
@@ -246,18 +281,12 @@ export default function MediaPage() {
               {featuredPost && (
                 <Link href={`/media/${featuredPost.slug}`} className={styles.featuredStoryCard}>
                   <div className={styles.featuredImageWrapper}>
-                    {featuredPost.featured_image ? (
-                      <img
-                        src={featuredPost.featured_image}
-                        alt={featuredPost.title}
-                        className={styles.featuredImage}
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <i className={`bi bi-newspaper ${styles.featuredPlaceholder}`} />
-                    )}
+                    <MediaImage
+                      src={featuredPost.featured_image}
+                      alt={featuredPost.title}
+                      className={styles.featuredImage}
+                      category={featuredPost.category}
+                    />
                   </div>
 
                   <div className={styles.featuredContent}>
@@ -274,6 +303,10 @@ export default function MediaPage() {
                           day: 'numeric',
                           year: 'numeric',
                         })}
+                      </span>
+                      <span className={styles.metaText}>
+                        <i className="bi bi-eye" />
+                        {featuredPost.views_count || 0} {t('views')}
                       </span>
                     </div>
 
@@ -294,18 +327,12 @@ export default function MediaPage() {
                   {remainingPosts.map((post) => (
                     <Link key={post.id || post.slug} href={`/media/${post.slug}`} className={styles.articleCard}>
                       <div className={styles.cardImageWrapper}>
-                        {post.featured_image ? (
-                          <img
-                            src={post.featured_image}
-                            alt={post.title}
-                            className={styles.cardImage}
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                            }}
-                          />
-                        ) : (
-                          <i className="bi bi-image" style={{ fontSize: '42px', color: 'rgba(37, 99, 235, 0.4)' }} />
-                        )}
+                        <MediaImage
+                          src={post.featured_image}
+                          alt={post.title}
+                          className={styles.cardImage}
+                          category={post.category}
+                        />
                       </div>
 
                       <div className={styles.cardContent}>
@@ -326,11 +353,8 @@ export default function MediaPage() {
                             {post.author}
                           </span>
                           <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <i className="bi bi-calendar3" />
-                            {new Date(post.published_at || Date.now()).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                            })}
+                            <i className="bi bi-eye" />
+                            {post.views_count || 0}
                           </span>
                         </div>
                       </div>

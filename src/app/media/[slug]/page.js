@@ -2,9 +2,50 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import styles from '../media.module.css';
+
+export const getMediaImageUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  if (url.startsWith('/static/')) {
+    return `https://attendance.ratelplus.net.ng${url}`;
+  }
+  return url;
+};
+
+function DetailBannerImage({ src, alt }) {
+  const [hasError, setHasError] = useState(false);
+  const imageUrl = getMediaImageUrl(src);
+
+  if (!imageUrl || hasError) {
+    return (
+      <div
+        className={styles.placeholderBanner}
+        style={{
+          height: '240px',
+          borderRadius: '16px',
+          marginBottom: '36px',
+        }}
+      >
+        <div className={styles.placeholderIconWrapper}>
+          <i className="bi bi-newspaper" />
+        </div>
+        <span className={styles.placeholderBrand}>RATEL PLUS PRESS & MEDIA</span>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={imageUrl}
+      alt={alt}
+      className={styles.readerBanner}
+      onError={() => setHasError(true)}
+    />
+  );
+}
 
 const SAMPLE_MEDIA_POSTS = [
   {
@@ -29,12 +70,12 @@ With GPON and active Ethernet technology, subscribers can experience speeds up t
 - Direct peering with major global content delivery networks (CDNs)
 
 Residential and commercial property owners can check coverage and request site survey inspections directly on the Ratel Plus portal.`,
-    featured_image: '/assets/fiber_installation.png',
+    featured_image: '/datacenter_fiber.png',
     author: 'Engr. Ahmed Bello',
     read_time: '4 min read',
     tags: ['Fiber', 'FTTH', 'Kano', 'Broadband', 'Infrastructure'],
     is_published: true,
-    views_count: 342,
+    views_count: 0,
     published_at: '2026-10-24T10:00:00Z',
   },
   {
@@ -62,7 +103,7 @@ The app transforms any smartphone into an enterprise-grade extension, allowing u
     read_time: '3 min read',
     tags: ['VoIP', 'Mobile App', 'Voice', 'SIP'],
     is_published: true,
-    views_count: 518,
+    views_count: 0,
     published_at: '2026-10-20T14:30:00Z',
   },
   {
@@ -83,12 +124,12 @@ Ratel Plus has introduced its new enterprise Fixed Wireless Access (FWA) routers
 "We recognize that modern commerce doesn't sleep," explained Kabir Sani, Lead NOC Specialist. "Our enterprise LTE packages guarantee business-first priority queuing across our radio base stations."
 
 Contact our enterprise team today to schedule an onsite RF survey for your premises.`,
-    featured_image: '/assets/lte_router.png',
+    featured_image: '/lte_mast.png',
     author: 'Kabir Sani',
     read_time: '4 min read',
     tags: ['LTE', 'Wireless', 'Enterprise', 'FWA'],
     is_published: true,
-    views_count: 275,
+    views_count: 0,
     published_at: '2026-10-16T09:15:00Z',
   },
   {
@@ -112,12 +153,12 @@ Our state-of-the-art training facilities in Kano provide students with direct ac
 The top 20% of graduates from each cohort are offered direct internship and junior engineering employment opportunities within Ratel Plus and partner telecom providers.
 
 Applications are now open online through the **Ratel Academy** portal.`,
-    featured_image: '/assets/academy_banner.png',
+    featured_image: '/router_hub.png',
     author: 'Dr. Amina Garba',
     read_time: '3 min read',
     tags: ['Academy', 'Education', 'Fiber', 'Networking'],
     is_published: true,
-    views_count: 689,
+    views_count: 0,
     published_at: '2026-10-11T12:00:00Z',
   },
 ];
@@ -264,22 +305,13 @@ export default function ArticleDetailPage() {
 
               <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-muted)' }}>
                 <i className="bi bi-eye"></i>
-                <span>{post.views_count || 1} {t('views')}</span>
+                <span>{post.views_count || 0} {t('views')}</span>
               </div>
             </div>
           </div>
 
           {/* Featured Image */}
-          {post.featured_image && (
-            <img
-              src={post.featured_image}
-              alt={post.title}
-              className={styles.readerBanner}
-              onError={(e) => {
-                e.target.style.display = 'none';
-              }}
-            />
-          )}
+          <DetailBannerImage src={post.featured_image} alt={post.title} />
 
           {/* Article Body */}
           <div className={styles.readerBody}>
@@ -397,7 +429,7 @@ export default function ArticleDetailPage() {
                   <Link key={rel.slug} href={`/media/${rel.slug}`} className={styles.articleCard}>
                     <div className={styles.cardImageWrapper}>
                       {rel.featured_image ? (
-                        <img src={rel.featured_image} alt={rel.title} className={styles.cardImage} />
+                        <img src={getMediaImageUrl(rel.featured_image)} alt={rel.title} className={styles.cardImage} />
                       ) : (
                         <i className="bi bi-newspaper" style={{ fontSize: '40px', color: 'rgba(37,99,235,0.4)' }}></i>
                       )}
