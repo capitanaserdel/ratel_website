@@ -43,8 +43,18 @@ export default function PersonalSubscribers() {
   const [showOpayConfirm, setShowOpayConfirm] = useState(false);
   const [opayTabUrl, setOpayTabUrl] = useState(null);
 
-  // Privacy policy consent
+  // Mandatory Regulatory Consent states
   const [privacyAgreed, setPrivacyAgreed] = useState(false);
+  const [ninLimitAgreed, setNinLimitAgreed] = useState(false);
+  const [noRefundAgreed, setNoRefundAgreed] = useState(false);
+
+  const allAgreementsAccepted = privacyAgreed && ninLimitAgreed && noRefundAgreed;
+
+  const handleToggleAllAgreements = (targetState) => {
+    setPrivacyAgreed(targetState);
+    setNinLimitAgreed(targetState);
+    setNoRefundAgreed(targetState);
+  };
 
   // Explicit upload slots states
   const [idCardFile, setIdCardFile] = useState(null);
@@ -214,6 +224,12 @@ export default function PersonalSubscribers() {
   // ─── Form Submission ──────────────────────────────────────────────────────
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+
+    if (!allAgreementsAccepted) {
+      alert(t('Please review and accept all 3 statutory agreements before continuing.'));
+      return;
+    }
+
     const activeErrors = {};
 
     if (formData.nin.length !== 11) activeErrors.nin = 'NIN must be exactly 11 digits';
@@ -474,109 +490,352 @@ export default function PersonalSubscribers() {
         zIndex: 0
       }} />
 
-      {/* ── Privacy Policy Consent Banner ── */}
+      {/* ── Mandatory Regulatory Compliance & Subscriber Terms ── */}
       <div style={{
         position: 'relative',
         zIndex: 10,
-        background: privacyAgreed
-          ? 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(16,185,129,0.04) 100%)'
-          : 'linear-gradient(135deg, rgba(24,73,201,0.10) 0%, rgba(24,73,201,0.05) 100%)',
-        borderBottom: privacyAgreed
+        background: allAgreementsAccepted
+          ? 'linear-gradient(135deg, rgba(16,185,129,0.06) 0%, rgba(16,185,129,0.02) 100%)'
+          : 'linear-gradient(135deg, rgba(24,73,201,0.08) 0%, rgba(24,73,201,0.02) 100%)',
+        borderBottom: allAgreementsAccepted
           ? '1px solid rgba(16,185,129,0.25)'
-          : '1px solid rgba(24,73,201,0.25)',
-        padding: '20px 0',
+          : '1px solid rgba(24,73,201,0.2)',
+        padding: '24px 0',
         transition: 'all 0.4s ease',
       }}>
         <div className="container">
+          {/* Header Row */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '18px',
+            justifyContent: 'space-between',
+            gap: '16px',
             flexWrap: 'wrap',
+            marginBottom: '20px',
+            paddingBottom: '16px',
+            borderBottom: '1px solid var(--border-color)',
           }}>
-            {/* Icon */}
-            <div style={{
-              flexShrink: 0,
-              width: '46px',
-              height: '46px',
-              borderRadius: '12px',
-              background: privacyAgreed ? 'rgba(16,185,129,0.15)' : 'rgba(24,73,201,0.12)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '22px',
-              color: privacyAgreed ? '#10b981' : 'var(--primary)',
-              transition: 'all 0.3s ease',
-            }}>
-              <i className={privacyAgreed ? 'bi bi-shield-fill-check' : 'bi bi-shield-lock-fill'} />
-            </div>
-
-            {/* Text */}
-            <div style={{ flex: 1, minWidth: '220px' }}>
-              <p style={{ fontSize: '13.5px', color: 'var(--text-main)', lineHeight: '1.6', margin: 0 }}>
-                {t('By continuing, you agree to our')}{' '}
-                <Link
-                  href="/privacy-policy"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    color: 'var(--primary)',
-                    fontWeight: '700',
-                    textDecoration: 'underline',
-                    textUnderlineOffset: '3px',
-                  }}
-                >
-                  {t('Privacy Policy')}
-                </Link>{' '}
-                {t('and consent to the collection and processing of your personal data (NIN, name, address, photos) in accordance with NCC subscriber registration requirements.')}
-              </p>
-            </div>
-
-            {/* Checkbox */}
-            <label
-              htmlFor="privacy-agree-checkbox"
-              style={{
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{
+                width: '46px',
+                height: '46px',
+                borderRadius: '12px',
+                background: allAgreementsAccepted ? 'rgba(16,185,129,0.15)' : 'rgba(24,73,201,0.12)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px',
-                cursor: 'pointer',
-                flexShrink: 0,
-                background: privacyAgreed ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.04)',
-                border: privacyAgreed ? '1.5px solid rgba(16,185,129,0.5)' : '1.5px solid rgba(24,73,201,0.3)',
-                borderRadius: '10px',
-                padding: '10px 18px',
+                justifyContent: 'center',
+                fontSize: '22px',
+                color: allAgreementsAccepted ? '#10b981' : 'var(--primary)',
                 transition: 'all 0.3s ease',
-                userSelect: 'none',
-              }}
-            >
-              <input
-                id="privacy-agree-checkbox"
-                type="checkbox"
-                checked={privacyAgreed}
-                onChange={e => setPrivacyAgreed(e.target.checked)}
-                style={{
-                  width: '18px',
-                  height: '18px',
-                  accentColor: privacyAgreed ? '#10b981' : 'var(--primary)',
-                  cursor: 'pointer',
-                  flexShrink: 0,
-                }}
-              />
-              <span style={{
+                flexShrink: 0,
+              }}>
+                <i className={allAgreementsAccepted ? 'bi bi-shield-fill-check' : 'bi bi-shield-lock-fill'} />
+              </div>
+              <div>
+                <h3 style={{
+                  fontSize: '16px',
+                  fontWeight: '800',
+                  color: 'var(--text-main)',
+                  margin: '0 0 4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  flexWrap: 'wrap',
+                }}>
+                  {t('Mandatory Subscriber Regulatory Terms & Agreements')}
+                  <span style={{
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    padding: '3px 10px',
+                    borderRadius: '20px',
+                    background: allAgreementsAccepted ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.12)',
+                    color: allAgreementsAccepted ? '#10b981' : '#ef4444',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em'
+                  }}>
+                    {allAgreementsAccepted ? t('All 3 Accepted ✓') : t('Action Required (3/3)')}
+                  </span>
+                </h3>
+                <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>
+                  {t('In accordance with NCC and NDPA guidelines, please review and accept all 3 statutory agreements to unlock subscriber SIM registration.')}
+                </p>
+              </div>
+            </div>
+
+            {/* Master Toggle */}
+            <button
+              type="button"
+              onClick={() => handleToggleAllAgreements(!allAgreementsAccepted)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 20px',
+                borderRadius: '10px',
                 fontSize: '13px',
                 fontWeight: '700',
-                color: privacyAgreed ? '#10b981' : 'var(--text-main)',
-                whiteSpace: 'nowrap',
-                transition: 'color 0.3s ease',
-              }}>
-                {privacyAgreed ? t('Agreed ✓') : t('I Agree to Continue')}
-              </span>
-            </label>
+                cursor: 'pointer',
+                background: allAgreementsAccepted ? 'rgba(16,185,129,0.15)' : 'var(--primary)',
+                color: allAgreementsAccepted ? '#10b981' : '#ffffff',
+                border: allAgreementsAccepted ? '1.5px solid rgba(16,185,129,0.4)' : 'none',
+                transition: 'all 0.25s ease',
+                boxShadow: allAgreementsAccepted ? 'none' : '0 4px 14px rgba(24,73,201,0.25)',
+              }}
+            >
+              <i className={allAgreementsAccepted ? 'bi bi-check-all' : 'bi bi-check2-circle'} style={{ fontSize: '16px' }} />
+              {allAgreementsAccepted ? t('All Terms Confirmed ✓') : t('Accept All 3 Agreements')}
+            </button>
+          </div>
+
+          {/* 3 Agreement Cards */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '16px',
+          }}>
+            {/* Agreement 1: Privacy Policy & Data Consent */}
+            <div style={{
+              background: 'var(--surface)',
+              border: privacyAgreed ? '1.5px solid rgba(16,185,129,0.45)' : '1px solid var(--border-color)',
+              borderRadius: '14px',
+              padding: '18px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '14px',
+              boxShadow: privacyAgreed ? '0 4px 16px rgba(16,185,129,0.06)' : '0 2px 8px rgba(0,0,0,0.02)',
+              transition: 'all 0.3s ease',
+            }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <span style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '6px',
+                    background: privacyAgreed ? 'rgba(16,185,129,0.15)' : 'rgba(24,73,201,0.1)',
+                    color: privacyAgreed ? '#10b981' : 'var(--primary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '12px',
+                    fontWeight: '800',
+                  }}>1</span>
+                  <strong style={{ fontSize: '14px', color: 'var(--text-main)' }}>
+                    {t('Privacy Policy & Data Processing')}
+                  </strong>
+                </div>
+                <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', lineHeight: '1.55', margin: 0 }}>
+                  {t('By continuing, you agree to our')}{' '}
+                  <Link
+                    href="/privacy-policy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      color: 'var(--primary)',
+                      fontWeight: '700',
+                      textDecoration: 'underline',
+                      textUnderlineOffset: '2px',
+                    }}
+                  >
+                    {t('Privacy Policy')}
+                  </Link>{' '}
+                  {t('and consent to the collection and processing of your personal data (NIN, name, address, photos) in accordance with NCC subscriber registration requirements.')}
+                </p>
+              </div>
+
+              <label
+                htmlFor="privacy-agree-checkbox"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  cursor: 'pointer',
+                  background: privacyAgreed ? 'rgba(16,185,129,0.1)' : 'rgba(0,0,0,0.02)',
+                  border: privacyAgreed ? '1px solid rgba(16,185,129,0.4)' : '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  padding: '9px 12px',
+                  userSelect: 'none',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <input
+                  id="privacy-agree-checkbox"
+                  type="checkbox"
+                  checked={privacyAgreed}
+                  onChange={e => setPrivacyAgreed(e.target.checked)}
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    accentColor: '#10b981',
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                  }}
+                />
+                <span style={{
+                  fontSize: '12.5px',
+                  fontWeight: '700',
+                  color: privacyAgreed ? '#10b981' : 'var(--text-main)',
+                  transition: 'color 0.2s ease',
+                }}>
+                  {privacyAgreed ? t('Data Consent Accepted ✓') : t('I Agree to Privacy Terms')}
+                </span>
+              </label>
+            </div>
+
+            {/* Agreement 2: NCC 1 NIN for 4 Numbers Limit */}
+            <div style={{
+              background: 'var(--surface)',
+              border: ninLimitAgreed ? '1.5px solid rgba(16,185,129,0.45)' : '1px solid var(--border-color)',
+              borderRadius: '14px',
+              padding: '18px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '14px',
+              boxShadow: ninLimitAgreed ? '0 4px 16px rgba(16,185,129,0.06)' : '0 2px 8px rgba(0,0,0,0.02)',
+              transition: 'all 0.3s ease',
+            }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <span style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '6px',
+                    background: ninLimitAgreed ? 'rgba(16,185,129,0.15)' : 'rgba(24,73,201,0.1)',
+                    color: ninLimitAgreed ? '#10b981' : 'var(--primary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '12px',
+                    fontWeight: '800',
+                  }}>2</span>
+                  <strong style={{ fontSize: '14px', color: 'var(--text-main)' }}>
+                    {t('NCC Regulatory Limit: 1 NIN for 4 SIMs')}
+                  </strong>
+                </div>
+                <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', lineHeight: '1.55', margin: 0 }}>
+                  {t('You acknowledge and confirm compliance with Nigerian Communications Commission (NCC) regulations stipulating that one (1) NIN is permitted for a maximum of four (4) mobile lines across all networks. You verify that this line registration does not exceed your statutory quota.')}
+                </p>
+              </div>
+
+              <label
+                htmlFor="nin-limit-checkbox"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  cursor: 'pointer',
+                  background: ninLimitAgreed ? 'rgba(16,185,129,0.1)' : 'rgba(0,0,0,0.02)',
+                  border: ninLimitAgreed ? '1px solid rgba(16,185,129,0.4)' : '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  padding: '9px 12px',
+                  userSelect: 'none',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <input
+                  id="nin-limit-checkbox"
+                  type="checkbox"
+                  checked={ninLimitAgreed}
+                  onChange={e => setNinLimitAgreed(e.target.checked)}
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    accentColor: '#10b981',
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                  }}
+                />
+                <span style={{
+                  fontSize: '12.5px',
+                  fontWeight: '700',
+                  color: ninLimitAgreed ? '#10b981' : 'var(--text-main)',
+                  transition: 'color 0.2s ease',
+                }}>
+                  {ninLimitAgreed ? t('Quota Confirmed ✓') : t('I Acknowledge 4-SIM Limit')}
+                </span>
+              </label>
+            </div>
+
+            {/* Agreement 3: Payment Finality & No-Refund Policy */}
+            <div style={{
+              background: 'var(--surface)',
+              border: noRefundAgreed ? '1.5px solid rgba(16,185,129,0.45)' : '1px solid var(--border-color)',
+              borderRadius: '14px',
+              padding: '18px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '14px',
+              boxShadow: noRefundAgreed ? '0 4px 16px rgba(16,185,129,0.06)' : '0 2px 8px rgba(0,0,0,0.02)',
+              transition: 'all 0.3s ease',
+            }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <span style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '6px',
+                    background: noRefundAgreed ? 'rgba(16,185,129,0.15)' : 'rgba(24,73,201,0.1)',
+                    color: noRefundAgreed ? '#10b981' : 'var(--primary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '12px',
+                    fontWeight: '800',
+                  }}>3</span>
+                  <strong style={{ fontSize: '14px', color: 'var(--text-main)' }}>
+                    {t('Non-Refundable Fee Policy')}
+                  </strong>
+                </div>
+                <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', lineHeight: '1.55', margin: 0 }}>
+                  {t('You agree that all payments made for subscriber registration, identity verification, and line provisioning are strictly final and non-refundable once payment is completed and verification processing is initiated with national identity databases.')}
+                </p>
+              </div>
+
+              <label
+                htmlFor="no-refund-checkbox"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  cursor: 'pointer',
+                  background: noRefundAgreed ? 'rgba(16,185,129,0.1)' : 'rgba(0,0,0,0.02)',
+                  border: noRefundAgreed ? '1px solid rgba(16,185,129,0.4)' : '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  padding: '9px 12px',
+                  userSelect: 'none',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <input
+                  id="no-refund-checkbox"
+                  type="checkbox"
+                  checked={noRefundAgreed}
+                  onChange={e => setNoRefundAgreed(e.target.checked)}
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    accentColor: '#10b981',
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                  }}
+                />
+                <span style={{
+                  fontSize: '12.5px',
+                  fontWeight: '700',
+                  color: noRefundAgreed ? '#10b981' : 'var(--text-main)',
+                  transition: 'color 0.2s ease',
+                }}>
+                  {noRefundAgreed ? t('Policy Accepted ✓') : t('I Agree to No-Refund Terms')}
+                </span>
+              </label>
+            </div>
           </div>
         </div>
       </div>
 
-      <section className="section-padding" style={{ position: 'relative', zIndex: 1, opacity: privacyAgreed ? 1 : 0.35, pointerEvents: privacyAgreed ? 'auto' : 'none', filter: privacyAgreed ? 'none' : 'blur(3px)', transition: 'opacity 0.4s ease, filter 0.4s ease' }}>
+      <section className="section-padding" style={{ position: 'relative', zIndex: 1, opacity: allAgreementsAccepted ? 1 : 0.35, pointerEvents: allAgreementsAccepted ? 'auto' : 'none', filter: allAgreementsAccepted ? 'none' : 'blur(3px)', transition: 'opacity 0.4s ease, filter 0.4s ease' }}>
         <div className="container">
           {/* Main Grid: Equal Height Desktop Layout */}
           <div className="subscribers-layout">
@@ -981,6 +1240,26 @@ export default function PersonalSubscribers() {
                 <strong style={{ fontSize: '18px', fontWeight: '800', color: 'var(--primary)' }}>
                   ₦{REGISTRATION_FEE.toLocaleString()}
                 </strong>
+              </div>
+            </div>
+
+            {/* Regulatory & No-Refund Advisory */}
+            <div style={{
+              background: 'rgba(24, 73, 201, 0.05)',
+              border: '1px solid rgba(24, 73, 201, 0.16)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '12px 14px',
+              marginBottom: '18px',
+              fontSize: '12px',
+              color: 'var(--text-muted)',
+              lineHeight: '1.5'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '700', color: 'var(--text-main)', marginBottom: '4px' }}>
+                <i className="bi bi-shield-exclamation" style={{ color: 'var(--primary)', fontSize: '14px' }} />
+                {t('Subscriber Regulatory & Payment Notice')}
+              </div>
+              <div>
+                {t('By proceeding, you confirm that your NIN is linked to no more than 4 SIMs as mandated by NCC regulations. Registration and verification fees are strictly non-refundable once payment is processed.')}
               </div>
             </div>
 

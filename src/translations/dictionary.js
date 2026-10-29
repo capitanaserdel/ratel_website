@@ -442,7 +442,29 @@ export const dictionary = {
     'Loading broadband services...': 'Loading broadband services...',
     'Optimizing network routes...': 'Optimizing network routes...',
     'Establishing secure connection...': 'Establishing secure connection...',
-    'Welcome to Ratel Plus': 'Welcome to Ratel Plus'
+    'Welcome to Ratel Plus': 'Welcome to Ratel Plus',
+
+    // Regulatory & Subscriber Terms
+    'Mandatory Subscriber Regulatory Terms & Agreements': 'Mandatory Subscriber Regulatory Terms & Agreements',
+    'All 3 Accepted ✓': 'All 3 Accepted ✓',
+    'Action Required (3/3)': 'Action Required (3/3)',
+    'In accordance with NCC and NDPA guidelines, please review and accept all 3 statutory agreements to unlock subscriber SIM registration.': 'In accordance with NCC and NDPA guidelines, please review and accept all 3 statutory agreements to unlock subscriber SIM registration.',
+    'Accept All 3 Agreements': 'Accept All 3 Agreements',
+    'All Terms Confirmed ✓': 'All Terms Confirmed ✓',
+    'Privacy Policy & Data Processing': 'Privacy Policy & Data Processing',
+    'Data Consent Accepted ✓': 'Data Consent Accepted ✓',
+    'I Agree to Privacy Terms': 'I Agree to Privacy Terms',
+    'NCC Regulatory Limit: 1 NIN for 4 SIMs': 'NCC Regulatory Limit: 1 NIN for 4 SIMs',
+    'You acknowledge and confirm compliance with Nigerian Communications Commission (NCC) regulations stipulating that one (1) NIN is permitted for a maximum of four (4) mobile lines across all networks. You verify that this line registration does not exceed your statutory quota.': 'You acknowledge and confirm compliance with Nigerian Communications Commission (NCC) regulations stipulating that one (1) NIN is permitted for a maximum of four (4) mobile lines across all networks. You verify that this line registration does not exceed your statutory quota.',
+    'Quota Confirmed ✓': 'Quota Confirmed ✓',
+    'I Acknowledge 4-SIM Limit': 'I Acknowledge 4-SIM Limit',
+    'Non-Refundable Fee Policy': 'Non-Refundable Fee Policy',
+    'You agree that all payments made for subscriber registration, identity verification, and line provisioning are strictly final and non-refundable once payment is completed and verification processing is initiated with national identity databases.': 'You agree that all payments made for subscriber registration, identity verification, and line provisioning are strictly final and non-refundable once payment is completed and verification processing is initiated with national identity databases.',
+    'Policy Accepted ✓': 'Policy Accepted ✓',
+    'I Agree to No-Refund Terms': 'I Agree to No-Refund Terms',
+    'Subscriber Regulatory & Payment Notice': 'Subscriber Regulatory & Payment Notice',
+    'By proceeding, you confirm that your NIN is linked to no more than 4 SIMs as mandated by NCC regulations. Registration and verification fees are strictly non-refundable once payment is processed.': 'By proceeding, you confirm that your NIN is linked to no more than 4 SIMs as mandated by NCC regulations. Registration and verification fees are strictly non-refundable once payment is processed.',
+    'Please review and accept all 3 statutory agreements before continuing.': 'Please review and accept all 3 statutory agreements before continuing.'
   },
   ha: {
     // Navbar
@@ -877,6 +899,28 @@ export const dictionary = {
     'Loading broadband services...': 'Ana loda ayyukan broadband...',
     'Optimizing network routes...': 'Ana inganta hanyoyin sadarwa...',
     'Establishing secure connection...': 'Ana tabbatar da haɗin gwiwa mai aminci...',
-    'Welcome to Ratel Plus': 'Barka da zuwa Ratel Plus'
+    'Welcome to Ratel Plus': 'Barka da zuwa Ratel Plus',
+
+    // Regulatory & Subscriber Terms
+    'Mandatory Subscriber Regulatory Terms & Agreements': 'Sharuɗɗa da Dokokin Masu Amfani na Tilas',
+    'All 3 Accepted ✓': 'An Karɓi Duka 3 ✓',
+    'Action Required (3/3)': 'Ana Buƙatar Aiki (3/3)',
+    'In accordance with NCC and NDPA guidelines, please review and accept all 3 statutory agreements to unlock subscriber SIM registration.': 'Bisa ƙa\'idodin NCC da NDPA, da fatan za a duba tare da karɓar dukkan sharuɗɗa 3 na doka kafin ci gaba da rajistar layin SIM.',
+    'Accept All 3 Agreements': 'Karɓi Dukkan Sharuɗɗa 3',
+    'All Terms Confirmed ✓': 'An Tabbatar da Dukkan Sharuɗɗa ✓',
+    'Privacy Policy & Data Processing': 'Manufar Tsare Sirri da Sarrafa Bayanai',
+    'Data Consent Accepted ✓': 'An Karɓi Yarjejeniyar Bayanai ✓',
+    'I Agree to Privacy Terms': 'Na Yarda da Sharuɗɗan Sirri',
+    'NCC Regulatory Limit: 1 NIN for 4 SIMs': 'Iyakacin Hukumar NCC: NIN 1 Ga Layukan SIM 4',
+    'You acknowledge and confirm compliance with Nigerian Communications Commission (NCC) regulations stipulating that one (1) NIN is permitted for a maximum of four (4) mobile lines across all networks. You verify that this line registration does not exceed your statutory quota.': 'Kun fahimta kuma kun tabbatar da bin dokokin Hukumar Sadarwa ta Najeriya (NCC) cewa NIN ɗaya na iya yin rajistar layuka huɗu (4) kacal a duk hanyoyin sadarwa. Kun tabbatar da cewa wannan rajistar ba ta wuce adadin da doka ta tanada ba.',
+    'Quota Confirmed ✓': 'An Tabbatar da Adadin ✓',
+    'I Acknowledge 4-SIM Limit': 'Na Fahimci Iyakacin Layi 4',
+    'Non-Refundable Fee Policy': 'Manufar Rashin Mayar da Kuɗi',
+    'You agree that all payments made for subscriber registration, identity verification, and line provisioning are strictly final and non-refundable once payment is completed and verification processing is initiated with national identity databases.': 'Kun amince da cewa duk wani kuɗi da aka biya na rajistar layi, tantance asali, da kunna sabis ba za a mayar da su ba da zarar an kammala biya kuma an fara aikin tantancewa a tsarin bayanan ƙasa.',
+    'Policy Accepted ✓': 'An Karɓi Manufa ✓',
+    'I Agree to No-Refund Terms': 'Na Yarda da Sharuɗɗan Rashin Mayar da Kuɗi',
+    'Subscriber Regulatory & Payment Notice': 'Sanarwar Dokoki da Biyan Kuɗi na Masu Amfani',
+    'By proceeding, you confirm that your NIN is linked to no more than 4 SIMs as mandated by NCC regulations. Registration and verification fees are strictly non-refundable once payment is processed.': 'Ta hanyar ci gaba, kun tabbatar da cewa NIN ɗinku bai wuce layuka 4 ba kamar yadda dokar NCC ta tanada. Kuɗin rajista da tantancewa ba za a mayar da su ba da zarar an kammala biya.',
+    'Please review and accept all 3 statutory agreements before continuing.': 'Da fatan za a duba tare da karɓar dukkan sharuɗɗa 3 na doka kafin ci gaba.'
   }
 };
