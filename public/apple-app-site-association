@@ -3,40 +3,37 @@
     "apps": [],
     "details": [
       {
-        "appIDs": [
-          "VFR3UKM888.org.net.ratelplus.phone",
-          "VFR3UKM888.net.ratelplus.phone",
-          "Z2V957B3D6.org.net.ratelplus.phone",
-          "Z2V957B3D6.net.ratelplus.phone"
+        "appID": "VFR3UKM888.org.net.ratelplus.phone",
+        "paths": [
+          "/phone/*",
+          "*"
         ],
         "components": [
           {
-            "/": "/*"
+            "/": "/phone/*",
+            "comment": "Ratel Phone Universal Links"
+          },
+          {
+            "/": "/*",
+            "comment": "All Ratel App Links"
           }
-        ]
-      },
-      {
-        "appID": "VFR3UKM888.org.net.ratelplus.phone",
-        "paths": [
-          "*"
-        ]
-      },
-      {
-        "appID": "VFR3UKM888.net.ratelplus.phone",
-        "paths": [
-          "*"
         ]
       },
       {
         "appID": "Z2V957B3D6.org.net.ratelplus.phone",
         "paths": [
+          "/phone/*",
           "*"
-        ]
-      },
-      {
-        "appID": "Z2V957B3D6.net.ratelplus.phone",
-        "paths": [
-          "*"
+        ],
+        "components": [
+          {
+            "/": "/phone/*",
+            "comment": "Ratel Phone Universal Links"
+          },
+          {
+            "/": "/*",
+            "comment": "All Ratel App Links"
+          }
         ]
       }
     ]
@@ -44,9 +41,7 @@
   "webcredentials": {
     "apps": [
       "VFR3UKM888.org.net.ratelplus.phone",
-      "VFR3UKM888.net.ratelplus.phone",
-      "Z2V957B3D6.org.net.ratelplus.phone",
-      "Z2V957B3D6.net.ratelplus.phone"
+      "Z2V957B3D6.org.net.ratelplus.phone"
     ]
   }
 }
