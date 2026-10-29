@@ -77,6 +77,7 @@ export default function Footer() {
               <li className={styles.linkItem}><Link href="/about/ceo">{t('Message from CEO')}</Link></li>
               <li className={styles.linkItem}><Link href="/about/board">{t('Board Structure')}</Link></li>
               <li className={styles.linkItem}><Link href="/careers">{t('Careers & Job Openings')}</Link></li>
+              <li className={styles.linkItem}><Link href="/academy">{t('Ratel Academy')}</Link></li>
               <li className={styles.linkItem}><Link href="/aboutus" className={styles.profileLink}>{t('Read Corporate Profile')}</Link></li>
             </ul>
           </div>

@@ -12,7 +12,11 @@ export const dictionary = {
     'IP Wholesale': 'IP Wholesale',
     'Backhaul Services': 'Backhaul Services',
     'Our Training Portfolio': 'Our Training Portfolio',
+    'Academy': 'Academy',
+    'Ratel Academy': 'Ratel Academy',
+    'Careers': 'Careers',
     'About us': 'About us',
+
     'Message from CEO': 'Message from CEO',
     'Board Structure': 'Board Structure',
     'Management Team': 'Management Team',
@@ -440,7 +444,11 @@ export const dictionary = {
     'IP Wholesale': 'Siyar da Intanet da Jari',
     'Backhaul Services': 'Sadarwar Aggregation',
     'Our Training Portfolio': 'Shirye-shiryen Horarwa',
+    'Academy': 'Kwalejin Horarwa',
+    'Ratel Academy': 'Kwalejin Ratel',
+    'Careers': 'Ayyukan Yi',
     'About us': 'Game da mu',
+
     'Message from CEO': 'Saƙo daga Shugaba (CEO)',
     'Board Structure': 'Tsarin Hukumar',
     'Management Team': 'Ƙungiyar Gudanarwa',
