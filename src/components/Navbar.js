@@ -120,6 +120,11 @@ export default function Navbar() {
                 </Link>
               </li>
               <li>
+                <Link href="/media" className={`${styles.navLink} ${pathname?.startsWith('/media') ? styles.navItemActive : ''}`}>
+                  {t('Media')}
+                </Link>
+              </li>
+              <li>
                 <Link href="/#contact" className={styles.navLink}>
                   {t('Contact')}
                 </Link>
@@ -230,6 +235,11 @@ export default function Navbar() {
           <li>
             <Link href="/academy" className={styles.mobileNavLink}>
               {t('Academy')}
+            </Link>
+          </li>
+          <li>
+            <Link href="/media" className={styles.mobileNavLink}>
+              {t('Media')}
             </Link>
           </li>
           <li>
