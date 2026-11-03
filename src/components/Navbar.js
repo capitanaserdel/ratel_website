@@ -123,11 +123,12 @@ export default function Navbar() {
                     <i className="bi bi-mortarboard-fill" style={{ marginRight: '8px', color: 'var(--accent-green)' }}></i>
                     {t('Academy')}
                   </Link>
-                  <Link href="/media" className={styles.dropdownItem}>
-                    <i className="bi bi-newspaper" style={{ marginRight: '8px', color: 'var(--primary)' }}></i>
-                    {t('Media')}
-                  </Link>
                 </div>
+              </li>
+              <li>
+                <Link href="/media" className={`${styles.navLink} ${pathname === '/media' || pathname?.startsWith('/media/') ? styles.navItemActive : ''}`}>
+                  {t('News & Media')}
+                </Link>
               </li>
               <li>
                 <Link href="/#contact" className={styles.navLink}>
@@ -245,9 +246,13 @@ export default function Navbar() {
               <div className={styles.mobileSubmenu}>
                 <Link href="/careers" className={styles.mobileSubLink}>{t('Job Openings')}</Link>
                 <Link href="/academy" className={styles.mobileSubLink}>{t('Academy')}</Link>
-                <Link href="/media" className={styles.mobileSubLink}>{t('Media')}</Link>
               </div>
             )}
+          </li>
+          <li>
+            <Link href="/media" className={styles.mobileNavLink}>
+              {t('News & Media')}
+            </Link>
           </li>
           <li>
             <Link href="/#contact" className={styles.mobileNavLink}>

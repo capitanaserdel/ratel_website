@@ -464,6 +464,15 @@
   }
 }
 
+@media (max-width: 1200px) and (min-width: 993px) {
+  .navMenu {
+    gap: 20px;
+  }
+  .navbarContainer {
+    padding: 0 20px;
+  }
+}
+
 /* Responsiveness */
 @media (max-width: 992px) {
   .navbarWrapper {
