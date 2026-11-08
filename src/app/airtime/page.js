@@ -295,19 +295,19 @@ export default function BuyAirtime() {
     setErrors({});
     generateReference();
 
-    // Cache profile details if user requested "save details"
+    // Never save a recipient's details as "myself" — that causes the next visitor to
+    // accidentally recharge the wrong number. Recipients go to a separate key that is
+    // never auto-loaded as the self profile.
     if (rechargeType === 'others' && saveDetailsOnPay) {
       try {
-        const userData = {
+        localStorage.setItem('ratel_last_other', JSON.stringify({
           fname: formData.fname,
           lname: formData.sname,
           email: formData.email,
           ratelnumber: formData.ratelnumber
-        };
-        localStorage.setItem('ratel_user', JSON.stringify(userData));
-        setSavedUser(userData);
+        }));
       } catch (err) {
-        console.error('Failed to save default profile:', err);
+        console.error('Failed to save recipient details:', err);
       }
     }
 
@@ -914,20 +914,24 @@ export default function BuyAirtime() {
               </div>
             )}
 
-            <div style={{ background: 'var(--bg-main)', padding: '20px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', marginBottom: '24px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '13.5px' }}>
-                <span style={{ color: 'var(--text-muted)' }}>{t('Item:')}</span>
-                <strong style={{ color: 'var(--text-main)' }}>{t('Airtime Recharge')}</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '13.5px' }}>
-                <span style={{ color: 'var(--text-muted)' }}>{t('Subscriber:')}</span>
-                <strong style={{ color: 'var(--text-main)' }}>{rechargeType === 'self' && savedUser ? `${savedUser.fname} ${savedUser.lname}` : `${formData.fname} ${formData.sname}`}</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '13.5px' }}>
-                <span style={{ color: 'var(--text-muted)' }}>{t('Ratel Number:')}</span>
-                <strong style={{ color: 'var(--text-main)' }}>{finalPhone}</strong>
-              </div>
-              <hr style={{ border: 'none', borderTop: '1px dashed var(--border-color)', margin: '14px 0' }} />
+            {/* Prominent number confirmation — the most common mistake is paying for the wrong number */}
+            <div style={{ background: 'rgba(24, 73, 201, 0.07)', border: '2px solid var(--primary)', borderRadius: 'var(--radius-sm)', padding: '16px 20px', marginBottom: '16px', textAlign: 'center' }}>
+              <p style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '6px' }}>
+                {t('Airtime will be sent to this number')}
+              </p>
+              <p style={{ fontSize: '26px', fontWeight: '800', color: 'var(--primary)', letterSpacing: '0.05em', marginBottom: '4px', fontFamily: 'monospace' }}>
+                {finalPhone}
+              </p>
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                {rechargeType === 'self' && savedUser ? `${savedUser.fname} ${savedUser.lname}` : `${formData.fname} ${formData.sname}`}
+              </p>
+            </div>
+            <p style={{ fontSize: '12px', color: '#f59e0b', textAlign: 'center', marginBottom: '16px', fontWeight: '600' }}>
+              <i className="bi bi-exclamation-triangle-fill" style={{ marginRight: '4px' }} />
+              {t('Wrong number? Close this and correct it before paying.')}
+            </p>
+
+            <div style={{ background: 'var(--bg-main)', padding: '16px 20px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', marginBottom: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px' }}>
                 <span style={{ fontWeight: '700', color: 'var(--text-main)' }}>{t('Amount Due:')}</span>
                 <strong style={{ fontSize: '18px', fontWeight: '800', color: 'var(--primary)' }}>
