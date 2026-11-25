@@ -121,6 +121,45 @@
   transform: translateY(-2px);
 }
 
+.btnAck {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 12px 30px;
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: 15px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btnAck:hover {
+  background: rgba(24, 73, 201, 0.1);
+  color: var(--primary);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 540px) {
+  .btnGroup {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .btnReg,
+  .btnAirtime,
+  .btnAck {
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+  }
+}
+
 .learnMore {
   display: block;
   margin-top: 24px;
