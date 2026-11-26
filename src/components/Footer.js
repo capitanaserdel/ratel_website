@@ -56,7 +56,7 @@ export default function Footer() {
               <a href="https://x.com/ratelplus" target="_blank" rel="noopener noreferrer" className={styles.socialIcon} aria-label="X (Twitter)">
                 <i className="bi bi-twitter-x"></i>
               </a>
-              <a href="https://www.facebook.com/profile.php?id=100063811702256" target="_blank" rel="noopener noreferrer" className={styles.socialIcon} aria-label="Facebook">
+              <a href="https://www.facebook.com/ratel.plus.2025" target="_blank" rel="noopener noreferrer" className={styles.socialIcon} aria-label="Facebook">
                 <i className="bi bi-facebook"></i>
               </a>
               <a href="https://www.instagram.com/ratel_telecommunications/" target="_blank" rel="noopener noreferrer" className={styles.socialIcon} aria-label="Instagram">
