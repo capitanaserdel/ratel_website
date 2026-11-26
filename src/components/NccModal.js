@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import styles from './NccModal.module.css';
 
 const SEEN_KEY = 'ratel_ncc_seen_at';
@@ -26,8 +27,13 @@ function setCookie(name, value, days) {
 
 export default function NccModal() {
   const [show, setShow] = useState(false);
+  const pathname = usePathname();
+  // /connect is the landing page behind the printed company QR code: people arrive there to
+  // tap a WhatsApp or social link, so the notice would only get in the way.
+  const suppressed = pathname === '/connect';
 
   useEffect(() => {
+    if (suppressed) return;
     // 1. Check if user already acknowledged via cookie (or localStorage fallback) within the last 30 days
     try {
       const ackCookie = getCookie(ACK_COOKIE_KEY);
@@ -55,7 +61,7 @@ export default function NccModal() {
       setShow(true);
     }, 1500); // Small delay on load for smooth appearance
     return () => clearTimeout(timer);
-  }, []);
+  }, [suppressed]);
 
   const handleClose = () => {
     setShow(false);
@@ -77,7 +83,7 @@ export default function NccModal() {
   };
 
   return (
-    <div className={`${styles.modalOverlay} ${show ? styles.modalOverlayActive : ''}`}>
+    <div className={`${styles.modalOverlay} ${show && !suppressed ? styles.modalOverlayActive : ''}`}>
       <div className={styles.modalContent}>
         <button className={styles.btnClose} onClick={handleClose} aria-label="Close Modal">
           <i className="bi bi-x-lg"></i>
